@@ -31,8 +31,14 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
     Route::post('/content/staff', [SchoolContentController::class, 'storeStaff'])->name('content.staff.store');
     Route::delete('/content/{type}/{id}', [SchoolContentController::class, 'destroy'])->name('content.destroy');
 
-    Route::get('/settings', [SiteSettingController::class, 'index'])->name('settings.index');
-    Route::post('/settings', [SiteSettingController::class, 'update'])->name('settings.update');
+    Route::get('/settings/hero', [SiteSettingController::class, 'hero'])->name('settings.hero');
+    Route::post('/settings/hero', [SiteSettingController::class, 'updateHero'])->name('settings.hero.update');
+    Route::get('/settings/contact', [SiteSettingController::class, 'contact'])->name('settings.contact');
+    Route::post('/settings/contact', [SiteSettingController::class, 'updateContact'])->name('settings.contact.update');
+    Route::get('/settings/quick-links', [SiteSettingController::class, 'quickLinks'])->name('settings.quick-links');
+    Route::post('/settings/quick-links', [SiteSettingController::class, 'updateQuickLinks'])->name('settings.quick-links.update');
+    Route::get('/settings/social-media', [SiteSettingController::class, 'socialMedia'])->name('settings.social-media');
+    Route::post('/settings/social-media', [SiteSettingController::class, 'updateSocialMedia'])->name('settings.social-media.update');
 });
 
 Route::get('/dashboard', fn () => redirect()->route('admin.dashboard'))

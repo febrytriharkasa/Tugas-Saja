@@ -3,10 +3,25 @@ import Card from '@/Components/Card';
 import Button from '@/Components/Button';
 import { useForm } from '@inertiajs/react';
 
+function buildInitialMeta(categories, categoryId, existingMetadata) {
+    const cat = categories.find((c) => String(c.id) === String(categoryId));
+    const schema = Array.isArray(cat?.metadata_schema)
+        ? cat.metadata_schema
+        : Array.isArray(cat?.metadata)
+          ? cat.metadata
+          : [];
+    const meta = {};
+    schema.forEach((field) => {
+        if (field.key) {
+            meta[field.key] = existingMetadata?.[field.key] ?? '';
+        }
+    });
+    return meta;
+}
+
 export default function PostForm({ post, categories }) {
     const isEdit = !!post;
     const initialCategory = post?.category_id || categories[0]?.id || '';
-    const initialCategoryObj = categories.find((c) => String(c.id) === String(initialCategory));
 
     const { data, setData, post: submitPost, put, processing, errors } = useForm({
         title: post?.title || '',
@@ -14,17 +29,24 @@ export default function PostForm({ post, categories }) {
         content: post?.content || '',
         status: post?.status || 'draft',
         featured_image: null,
-        event_date: post?.metadata?.event_date || '',
-        location: post?.metadata?.location || '',
-        participant_name: post?.metadata?.participant_name || '',
-        rank: post?.metadata?.rank || '',
-        year: post?.metadata?.year || new Date().getFullYear(),
-        graduation_year: post?.metadata?.graduation_year || '',
-        current_profession: post?.metadata?.current_profession || '',
+        meta: buildInitialMeta(categories, initialCategory, post?.metadata),
     });
 
-    const activeCategory = categories.find((c) => String(c.id) === String(data.category_id)) || initialCategoryObj;
-    const categorySlug = activeCategory?.slug || '';
+    const activeCategory = categories.find((c) => String(c.id) === String(data.category_id));
+    const rawSchema = Array.isArray(activeCategory?.metadata_schema)
+        ? activeCategory.metadata_schema
+        : Array.isArray(activeCategory?.metadata)
+          ? activeCategory.metadata
+          : [];
+    const metaSchema = rawSchema.filter((f) => f.key && f.label);
+
+    const handleCategoryChange = (newCategoryId) => {
+        setData({
+            ...data,
+            category_id: newCategoryId,
+            meta: buildInitialMeta(categories, newCategoryId, post?.metadata),
+        });
+    };
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -54,7 +76,7 @@ export default function PostForm({ post, categories }) {
                         <label className="block text-sm font-medium text-slate-700">Kategori</label>
                         <select
                             value={data.category_id}
-                            onChange={(e) => setData('category_id', e.target.value)}
+                            onChange={(e) => handleCategoryChange(e.target.value)}
                             className="mt-1 block w-full rounded-lg border-slate-300 text-sm focus:border-primary focus:ring-primary"
                         >
                             {categories.map((c) => (
@@ -64,94 +86,22 @@ export default function PostForm({ post, categories }) {
                         {errors.category_id && <p className="text-red-500 text-xs mt-1">{errors.category_id}</p>}
                     </div>
 
-                    {categorySlug === 'agenda' && (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-3 bg-slate-50 rounded-lg border border-slate-200">
-                            <div>
-                                <label className="block text-xs font-semibold text-slate-600">Tanggal Agenda</label>
-                                <input
-                                    type="date"
-                                    value={data.event_date}
-                                    onChange={(e) => setData('event_date', e.target.value)}
-                                    className="mt-1 block w-full rounded-lg border-slate-300 text-sm"
-                                />
-                                {errors.event_date && <p className="text-red-500 text-xs mt-1">{errors.event_date}</p>}
-                            </div>
-                            <div>
-                                <label className="block text-xs font-semibold text-slate-600">Lokasi Pelaksanaan</label>
-                                <input
-                                    type="text"
-                                    value={data.location}
-                                    placeholder="cth: Aula Utama"
-                                    onChange={(e) => setData('location', e.target.value)}
-                                    className="mt-1 block w-full rounded-lg border-slate-300 text-sm"
-                                />
-                                {errors.location && <p className="text-red-500 text-xs mt-1">{errors.location}</p>}
-                            </div>
-                        </div>
-                    )}
-
-                    {categorySlug === 'prestasi' && (
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-3 bg-slate-50 rounded-lg border border-slate-200">
-                            <div>
-                                <label className="block text-xs font-semibold text-slate-600">Nama Siswa / Tim</label>
-                                <input
-                                    type="text"
-                                    value={data.participant_name}
-                                    placeholder="cth: Ahmad Zaki"
-                                    onChange={(e) => setData('participant_name', e.target.value)}
-                                    className="mt-1 block w-full rounded-lg border-slate-300 text-sm"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-xs font-semibold text-slate-600">Peringkat / Capaian</label>
-                                <input
-                                    type="text"
-                                    value={data.rank}
-                                    placeholder="cth: Juara 1 Nasional"
-                                    onChange={(e) => setData('rank', e.target.value)}
-                                    className="mt-1 block w-full rounded-lg border-slate-300 text-sm"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-xs font-semibold text-slate-600">Tahun</label>
-                                <input
-                                    type="number"
-                                    value={data.year}
-                                    onChange={(e) => setData('year', e.target.value)}
-                                    className="mt-1 block w-full rounded-lg border-slate-300 text-sm"
-                                />
-                            </div>
-                        </div>
-                    )}
-
-                    {categorySlug === 'cerita-alumni' && (
+                    {metaSchema.length > 0 && (
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3 bg-slate-50 rounded-lg border border-slate-200">
-                            <div>
-                                <label className="block text-xs font-semibold text-slate-600">Tahun Lulus</label>
-                                <input
-                                    type="number"
-                                    value={data.graduation_year}
-                                    onChange={(e) => setData('graduation_year', e.target.value)}
-                                    className="mt-1 block w-full rounded-lg border-slate-300 text-sm"
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-xs font-semibold text-slate-600">Profesi Saat Ini</label>
-                                <input
-                                    type="text"
-                                    value={data.current_profession}
-                                    placeholder="cth: Dokter"
-                                    onChange={(e) => setData('current_profession', e.target.value)}
-                                    className="mt-1 block w-full rounded-lg border-slate-300 text-sm"
-                                />
-                            </div>
+                            {metaSchema.map((field) => (
+                                <div key={field.key}>
+                                    <label className="block text-xs font-semibold text-slate-600">{field.label}</label>
+                                    <input
+                                        type={field.type || 'text'}
+                                        value={data.meta[field.key] ?? ''}
+                                        onChange={(e) =>
+                                            setData('meta', { ...data.meta, [field.key]: e.target.value })
+                                        }
+                                        className="mt-1 block w-full rounded-lg border-slate-300 text-sm"
+                                    />
+                                </div>
+                            ))}
                         </div>
-                    )}
-
-                    {categorySlug === 'fasilitas' && (
-                        <p className="text-xs text-slate-500 p-3 bg-slate-50 rounded-lg border border-slate-200">
-                            Gunakan judul sebagai nama fasilitas dan konten sebagai deskripsi.
-                        </p>
                     )}
 
                     <div>

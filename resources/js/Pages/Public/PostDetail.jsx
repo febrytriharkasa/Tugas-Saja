@@ -29,17 +29,30 @@ export default function PostDetail({ post, relatedPosts = [] }) {
                         </p>
                     </div>
 
-                    {post.featured_image && (
-                        <img 
-                            src={post.featured_image} 
-                            alt={post.title} 
-                            className="w-full h-80 object-cover rounded-lg"
-                        />
-                    )}
+                    <div className="w-full h-80 bg-slate-100 rounded-lg overflow-hidden shrink-0 flex items-center justify-center">
+                        {post.featured_image ? (
+                            <img 
+                                src={post.featured_image} 
+                                alt={post.title} 
+                                className="w-full h-full object-cover"
+                            />
+                        ) : (
+                            <span className="text-sm font-medium text-slate-400">Gambar tidak tersedia</span>
+                        )}
+                    </div>
 
                     <div className="prose max-w-none text-slate-700 leading-relaxed space-y-4 whitespace-pre-line">
                         {post.content}
                     </div>
+                    {post.metadata && Object.keys(post.metadata).length > 0 && (
+                        <div className="mt-6 pt-4 border-t border-slate-100 flex flex-wrap gap-2">
+                            {Object.entries(post.metadata).map(([k, v]) => (
+                                <span key={k} className="inline-block rounded-md bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">
+                                    {String(v)}
+                                </span>
+                            ))}
+                        </div>
+                    )}
                 </article>
 
                 {relatedPosts.length > 0 && (

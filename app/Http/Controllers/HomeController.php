@@ -30,7 +30,15 @@ class HomeController extends Controller
 
     public function page($slug)
     {
-        $page = Page::where('slug', $slug)->where('is_published', true)->firstOrFail();
+        $page = Page::with('category')->where('slug', $slug)->where('is_published', true)->firstOrFail();
+
+        if ($page->display_type === 'category' && $page->category) {
+            return Inertia::render('Public/Archive', [
+                'title' => $page->title,
+                'type' => $page->category->slug,
+                'items' => $this->categoryPosts($page->category->slug, null, true),
+            ]);
+        }
 
         return Inertia::render('Public/Page', ['page' => $page]);
     }

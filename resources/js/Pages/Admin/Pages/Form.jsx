@@ -3,11 +3,13 @@ import Card from '@/Components/Card';
 import Button from '@/Components/Button';
 import { useForm } from '@inertiajs/react';
 
-export default function PageForm({ page }) {
+export default function PageForm({ page, categories }) {
     const isEdit = !!page;
     const { data, setData, post, put, processing, errors } = useForm({
         title: page?.title || '',
         group: page?.group || 'tentang',
+        display_type: page?.display_type || 'text',
+        category_id: page?.category_id || '',
         content: page?.content || '',
         is_published: page ? page.is_published : true,
     });
@@ -49,15 +51,48 @@ export default function PageForm({ page }) {
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-slate-700">Konten</label>
-                        <textarea
-                            rows={10}
-                            value={data.content}
-                            onChange={(e) => setData('content', e.target.value)}
+                        <label className="block text-sm font-medium text-slate-700">Tipe Tampilan</label>
+                        <select
+                            value={data.display_type}
+                            onChange={(e) => setData('display_type', e.target.value)}
                             className="mt-1 block w-full rounded-lg border-slate-300 text-sm focus:border-primary focus:ring-primary"
-                        />
-                        {errors.content && <p className="text-red-500 text-xs mt-1">{errors.content}</p>}
+                        >
+                            <option value="text">Teks Statis</option>
+                            <option value="category">Daftar Post Kategori</option>
+                        </select>
                     </div>
+
+                    {data.display_type === 'category' && (
+                        <div>
+                            <label className="block text-sm font-medium text-slate-700">Kategori</label>
+                            <select
+                                value={data.category_id || ''}
+                                onChange={(e) => setData('category_id', e.target.value)}
+                                className="mt-1 block w-full rounded-lg border-slate-300 text-sm focus:border-primary focus:ring-primary"
+                            >
+                                <option value="">-- Pilih Kategori --</option>
+                                {categories.map((cat) => (
+                                    <option key={cat.id} value={cat.id}>
+                                        {cat.name}
+                                    </option>
+                                ))}
+                            </select>
+                            {errors.category_id && <p className="text-red-500 text-xs mt-1">{errors.category_id}</p>}
+                        </div>
+                    )}
+
+                    {data.display_type === 'text' && (
+                        <div>
+                            <label className="block text-sm font-medium text-slate-700">Konten</label>
+                            <textarea
+                                rows={10}
+                                value={data.content}
+                                onChange={(e) => setData('content', e.target.value)}
+                                className="mt-1 block w-full rounded-lg border-slate-300 text-sm focus:border-primary focus:ring-primary"
+                            />
+                            {errors.content && <p className="text-red-500 text-xs mt-1">{errors.content}</p>}
+                        </div>
+                    )}
 
                     <div className="flex items-center gap-2">
                         <input

@@ -101,41 +101,20 @@ class PostController extends Controller
             'content' => ['required', 'string'],
             'status' => ['required', Rule::in(['draft', 'published'])],
             'featured_image' => ['nullable', 'image', 'max:2048'],
-            'event_date' => ['nullable', 'date'],
-            'location' => ['nullable', 'string', 'max:255'],
-            'participant_name' => ['nullable', 'string', 'max:255'],
-            'rank' => ['nullable', 'string', 'max:100'],
-            'year' => ['nullable', 'integer', 'min:1900', 'max:2100'],
-            'graduation_year' => ['nullable', 'integer', 'min:1900', 'max:2100'],
-            'current_profession' => ['nullable', 'string', 'max:255'],
+            'meta' => ['nullable', 'array'],
+            'meta.*' => ['nullable'],
         ]);
     }
 
-    private function metadata(array $validated, string $category): ?array
+    private function metadata(array $validated, string $categorySlug): ?array
     {
-        if ($category === 'agenda') {
-            return array_filter([
-                'event_date' => $validated['event_date'] ?? null,
-                'location' => $validated['location'] ?? null,
-            ]);
+        $meta = $validated['meta'] ?? [];
+
+        if (empty($meta)) {
+            return null;
         }
 
-        if ($category === 'prestasi') {
-            return array_filter([
-                'participant_name' => $validated['participant_name'] ?? null,
-                'rank' => $validated['rank'] ?? null,
-                'year' => $validated['year'] ?? null,
-            ], fn ($value) => $value !== null && $value !== '');
-        }
-
-        if ($category === 'cerita-alumni') {
-            return array_filter([
-                'graduation_year' => $validated['graduation_year'] ?? null,
-                'current_profession' => $validated['current_profession'] ?? null,
-            ], fn ($value) => $value !== null && $value !== '');
-        }
-
-        return null;
+        return array_filter($meta, fn ($value) => $value !== null && $value !== '');
     }
 
     private function storeImage(Request $request): string

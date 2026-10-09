@@ -6,15 +6,34 @@ import { Link } from '@inertiajs/react';
 
 export default function Archive({ title, type, items }) {
     const renderItems = () => {
-        if (type === 'posts' || type === 'berita' || type === 'pengumuman') {
+        if (
+            type === 'posts' ||
+            type === 'berita' ||
+            type === 'pengumuman' ||
+            type === 'fasilitas' ||
+            type === 'kerjasama' ||
+            type === 'guru-tendik' ||
+            type === 'gtk'
+        ) {
             return (
                 <div className="grid md:grid-cols-3 gap-6">
                     {items.data.map((post) => (
-                        <Card key={post.id} hover className="flex flex-col">
+                        <Card key={post.id} hover className="flex flex-col overflow-hidden h-full">
+                            <div className="h-48 w-full bg-slate-100 shrink-0 flex items-center justify-center">
+                                {post.featured_image ? (
+                                    <img
+                                        src={post.featured_image}
+                                        alt={post.title}
+                                        className="h-full w-full object-cover"
+                                    />
+                                ) : (
+                                    <span className="text-xs text-slate-400 font-medium">Gambar tidak tersedia</span>
+                                )}
+                            </div>
                             <div className="p-6 flex-1 flex flex-col justify-between space-y-4">
                                 <div>
                                     <div className="flex items-center gap-2 mb-3">
-                                        <Badge variant="primary">{post.category?.name || 'Umum'}</Badge>
+                                        <Badge variant="primary">{post.category?.name || title}</Badge>
                                         <span className="text-xs text-slate-400">
                                             {post.published_at ? new Date(post.published_at).toLocaleDateString('id-ID') : '-'}
                                         </span>
@@ -22,7 +41,6 @@ export default function Archive({ title, type, items }) {
                                     <h3 className="font-bold text-lg text-slate-900 hover:text-primary transition line-clamp-2">
                                         <Link href={`/berita/${post.slug}`}>{post.title}</Link>
                                     </h3>
-                                    <p className="text-sm text-slate-600 mt-2 line-clamp-3">{post.content}</p>
                                 </div>
                                 <Link href={`/berita/${post.slug}`} className="text-sm font-semibold text-primary hover:underline">
                                     Baca Selengkapnya →
@@ -36,27 +54,40 @@ export default function Archive({ title, type, items }) {
 
         if (type === 'agenda') {
             return (
-                <div className="space-y-4">
+                <div className="grid md:grid-cols-3 gap-6">
                     {items.data.map((agenda) => {
                         const dateVal = agenda.metadata?.event_date || agenda.published_at;
                         return (
-                            <Card key={agenda.id} hover className="p-6 flex gap-6">
-                                <div className="w-16 h-16 bg-cyan-100 text-secondary rounded-lg flex flex-col items-center justify-center flex-shrink-0">
-                                    <span className="text-2xl font-bold">
-                                        {dateVal ? new Date(dateVal).getDate() : '-'}
-                                    </span>
-                                    <span className="text-xs uppercase">
-                                        {dateVal ? new Date(dateVal).toLocaleDateString('id-ID', { month: 'short' }) : ''}
-                                    </span>
-                                </div>
-                                <div className="flex-1">
-                                    <h3 className="font-bold text-lg text-slate-900">
-                                        <Link href={`/berita/${agenda.slug}`} className="hover:text-primary transition">{agenda.title}</Link>
-                                    </h3>
-                                    <p className="text-sm text-slate-600 mt-1 line-clamp-2">{agenda.content}</p>
-                                    {agenda.metadata?.location && (
-                                        <p className="text-xs text-slate-400 mt-2">📍 {agenda.metadata.location}</p>
+                            <Card key={agenda.id} hover className="flex flex-col overflow-hidden h-full">
+                                <div className="h-48 w-full bg-slate-100 shrink-0 flex items-center justify-center">
+                                    {agenda.featured_image ? (
+                                        <img src={agenda.featured_image} alt={agenda.title} className="w-full h-full object-cover" />
+                                    ) : (
+                                        <span className="text-xs text-slate-400 font-medium">Gambar tidak tersedia</span>
                                     )}
+                                </div>
+                                <div className="p-6 flex-1 flex flex-col justify-between space-y-4">
+                                    <div>
+                                        <div className="flex items-center gap-2 mb-3">
+                                            <Badge variant="secondary">{agenda.category?.name || 'Agenda'}</Badge>
+                                            <span className="text-xs text-slate-400">
+                                                {dateVal ? new Date(dateVal).toLocaleDateString('id-ID') : '-'}
+                                            </span>
+                                        </div>
+                                        <h3 className="font-bold text-lg text-slate-900 hover:text-primary transition line-clamp-2">
+                                            <Link href={`/berita/${agenda.slug}`}>{agenda.title}</Link>
+                                        </h3>
+                                        {agenda.metadata && Object.keys(agenda.metadata).length > 0 && (
+                                            <div className="mt-3 flex flex-wrap gap-1.5 text-xs text-slate-500">
+                                                {Object.entries(agenda.metadata).map(([k, v]) => (
+                                                    <span key={k} className="bg-slate-100 px-2 py-0.5 rounded text-slate-600">{String(v)}</span>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
+                                    <Link href={`/berita/${agenda.slug}`} className="text-sm font-semibold text-primary hover:underline">
+                                        Baca Selengkapnya →
+                                    </Link>
                                 </div>
                             </Card>
                         );
@@ -69,22 +100,32 @@ export default function Archive({ title, type, items }) {
             return (
                 <div className="grid md:grid-cols-3 gap-6">
                     {items.data.map((ach) => (
-                        <Card key={ach.id} hover className="p-6 text-center">
-                            <div className="w-16 h-16 mx-auto bg-amber-100 text-tertiary rounded-full flex items-center justify-center mb-4">
-                                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
-                                </svg>
+                        <Card key={ach.id} hover className="overflow-hidden flex flex-col h-full">
+                            <div className="h-48 w-full bg-slate-100 shrink-0 flex items-center justify-center">
+                                {ach.featured_image ? (
+                                    <img src={ach.featured_image} alt={ach.title} className="w-full h-full object-cover" />
+                                ) : (
+                                    <span className="text-xs text-slate-400 font-medium">Gambar tidak tersedia</span>
+                                )}
                             </div>
-                            <Badge variant="tertiary" className="mb-2">{ach.category?.name || 'Prestasi'}</Badge>
-                            <h3 className="font-bold text-slate-900 text-sm mb-1">
-                                <Link href={`/berita/${ach.slug}`} className="hover:text-primary transition">{ach.title}</Link>
-                            </h3>
-                            {ach.metadata?.participant_name && (
-                                <p className="text-xs text-slate-600 mb-1">{ach.metadata.participant_name}</p>
-                            )}
-                            <p className="text-xs text-slate-500">
-                                {ach.metadata?.rank || 'Juara'} • {ach.metadata?.year || (ach.published_at ? new Date(ach.published_at).getFullYear() : '-')}
-                            </p>
+                            <div className="p-6 flex-1 flex flex-col justify-between space-y-4">
+                                <div>
+                                    <Badge variant="tertiary" className="mb-2">{ach.category?.name || 'Prestasi'}</Badge>
+                                    <h3 className="font-bold text-slate-900 text-sm mb-1">
+                                        <Link href={`/berita/${ach.slug}`} className="hover:text-primary transition">{ach.title}</Link>
+                                    </h3>
+                                    {ach.metadata && (
+                                        <div className="mt-2 flex flex-wrap gap-1.5 text-xs text-slate-600">
+                                            {Object.entries(ach.metadata).map(([k, v]) => (
+                                                <span key={k} className="bg-slate-100 px-2 py-0.5 rounded text-slate-600">{String(v)}</span>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                                <Link href={`/berita/${ach.slug}`} className="text-sm font-semibold text-primary hover:underline">
+                                    Baca Selengkapnya →
+                                </Link>
+                            </div>
                         </Card>
                     ))}
                 </div>
@@ -96,8 +137,12 @@ export default function Archive({ title, type, items }) {
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                     {items.data.map((item) => (
                         <Card key={item.id} className="overflow-hidden group cursor-pointer">
-                            <div className="aspect-square bg-slate-200 flex items-center justify-center text-slate-400 text-xs">
-                                [Foto {item.title}]
+                            <div className="aspect-square bg-slate-100 flex items-center justify-center text-slate-400 text-xs font-medium">
+                                {item.featured_image ? (
+                                    <img src={item.featured_image} alt={item.title} className="w-full h-full object-cover" />
+                                ) : (
+                                    <span className="p-2 text-center">Gambar tidak tersedia</span>
+                                )}
                             </div>
                             <div className="p-2 text-center text-xs font-semibold text-slate-700 bg-white">
                                 {item.title}

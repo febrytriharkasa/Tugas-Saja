@@ -61,13 +61,14 @@ export default function PostIndex({ posts, categories, filters }) {
                                     </span>
                                 </td>
                                 <td className="p-4 text-xs text-slate-500 max-w-xs truncate">
-                                    {post.metadata ? (
-                                        <span>
-                                            {post.metadata.event_date && `📅 ${post.metadata.event_date} `}
-                                            {post.metadata.location && `📍 ${post.metadata.location} `}
-                                            {post.metadata.rank && `🏆 ${post.metadata.rank} `}
-                                            {post.metadata.participant_name && `(${post.metadata.participant_name})`}
-                                        </span>
+                                    {post.metadata && Object.keys(post.metadata).length > 0 ? (
+                                        <div className="space-y-0.5">
+                                            {Object.entries(post.metadata).map(([k, v]) => (
+                                                <div key={k}>
+                                                    <span className="font-semibold text-slate-600">{k}:</span> {v}
+                                                </div>
+                                            ))}
+                                        </div>
                                     ) : (
                                         '-'
                                     )}

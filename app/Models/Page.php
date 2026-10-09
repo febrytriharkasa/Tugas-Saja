@@ -9,9 +9,14 @@ class Page extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['title', 'slug', 'group', 'content', 'is_published'];
+    protected $fillable = ['title', 'slug', 'group', 'content', 'is_published', 'display_type', 'category_id'];
 
     protected $casts = [
         'is_published' => 'boolean',
     ];
+
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
+    }
 }
