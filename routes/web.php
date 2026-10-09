@@ -5,8 +5,8 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\GalleryController;
 use App\Http\Controllers\Admin\PageController;
 use App\Http\Controllers\Admin\PostController;
-use App\Http\Controllers\Admin\SchoolContentController;
 use App\Http\Controllers\Admin\SiteSettingController;
+use App\Http\Controllers\Admin\StaffController;
 use App\Http\Controllers\ChatBotController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProfileController;
@@ -24,12 +24,10 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::resource('posts', PostController::class);
     Route::resource('pages', PageController::class);
-    Route::resource('categories', CategoryController::class)->except(['create', 'show', 'edit']);
-    Route::resource('galleries', GalleryController::class)->only(['index', 'store', 'destroy']);
-
-    Route::get('/content', [SchoolContentController::class, 'index'])->name('content.index');
-    Route::post('/content/staff', [SchoolContentController::class, 'storeStaff'])->name('content.staff.store');
-    Route::delete('/content/{type}/{id}', [SchoolContentController::class, 'destroy'])->name('content.destroy');
+    Route::resource('categories', CategoryController::class);
+    Route::resource('galleries', GalleryController::class);
+    Route::resource('staff', StaffController::class)->parameters(['staff' => 'staff']);
+    Route::redirect('/content', '/admin/staff');
 
     Route::get('/settings/hero', [SiteSettingController::class, 'hero'])->name('settings.hero');
     Route::post('/settings/hero', [SiteSettingController::class, 'updateHero'])->name('settings.hero.update');

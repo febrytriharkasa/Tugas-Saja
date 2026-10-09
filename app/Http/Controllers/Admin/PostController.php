@@ -60,6 +60,13 @@ class PostController extends Controller
         return redirect()->route('admin.posts.index')->with('success', 'Konten berhasil ditambahkan.');
     }
 
+    public function show(Post $post)
+    {
+        return Inertia::render('Admin/Posts/Show', [
+            'post' => $post->load(['category', 'user']),
+        ]);
+    }
+
     public function edit(Post $post)
     {
         return Inertia::render('Admin/Posts/Form', [

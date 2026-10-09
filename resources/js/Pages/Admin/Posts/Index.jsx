@@ -1,13 +1,22 @@
 import AdminLayout from '@/Layouts/AdminLayout';
 import Card from '@/Components/Card';
 import Button from '@/Components/Button';
+import ConfirmDeleteModal from '@/Components/ConfirmDeleteModal';
 import { Link, router } from '@inertiajs/react';
+import { useState } from 'react';
 
 export default function PostIndex({ posts, categories, filters }) {
-    const handleDelete = (id) => {
-        if (confirm('Yakin ingin menghapus konten ini?')) {
-            router.delete(`/admin/posts/${id}`);
-        }
+    const [deleteTarget, setDeleteTarget] = useState(null);
+    const [processing, setProcessing] = useState(false);
+
+    const confirmDelete = () => {
+        setProcessing(true);
+        router.delete(`/admin/posts/${deleteTarget.id}`, {
+            onFinish: () => {
+                setProcessing(false);
+                setDeleteTarget(null);
+            },
+        });
     };
 
     return (
@@ -84,10 +93,13 @@ export default function PostIndex({ posts, categories, filters }) {
                                     {post.published_at ? new Date(post.published_at).toLocaleDateString('id-ID') : '-'}
                                 </td>
                                 <td className="p-4 text-right space-x-2">
+                                    <Link href={`/admin/posts/${post.id}`} className="text-slate-600 hover:underline">
+                                        Lihat
+                                    </Link>
                                     <Link href={`/admin/posts/${post.id}/edit`} className="text-primary hover:underline">
                                         Edit
                                     </Link>
-                                    <button onClick={() => handleDelete(post.id)} className="text-red-600 hover:underline">
+                                    <button onClick={() => setDeleteTarget(post)} className="text-red-600 hover:underline">
                                         Hapus
                                     </button>
                                 </td>
@@ -101,6 +113,14 @@ export default function PostIndex({ posts, categories, filters }) {
                     </tbody>
                 </table>
             </Card>
+
+            <ConfirmDeleteModal
+                show={!!deleteTarget}
+                onClose={() => setDeleteTarget(null)}
+                onConfirm={confirmDelete}
+                processing={processing}
+                itemName={deleteTarget?.title}
+            />
         </AdminLayout>
     );
 }

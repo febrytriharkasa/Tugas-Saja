@@ -42,6 +42,13 @@ class PageController extends Controller
         return redirect()->route('admin.pages.index')->with('success', 'Laman berhasil dibuat.');
     }
 
+    public function show(Page $page)
+    {
+        return Inertia::render('Admin/Pages/Show', [
+            'page' => $page->load('category'),
+        ]);
+    }
+
     public function edit(Page $page)
     {
         return Inertia::render('Admin/Pages/Form', [
@@ -69,7 +76,7 @@ class PageController extends Controller
     {
         $page->delete();
 
-        return back()->with('success', 'Laman berhasil dihapus.');
+        return redirect()->route('admin.pages.index')->with('success', 'Laman berhasil dihapus.');
     }
 
     private function uniqueSlug(string $title): string

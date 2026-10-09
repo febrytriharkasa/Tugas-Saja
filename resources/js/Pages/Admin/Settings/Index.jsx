@@ -2,12 +2,19 @@ import AdminLayout from '@/Layouts/AdminLayout';
 import Card from '@/Components/Card';
 import Button from '@/Components/Button';
 import { useForm } from '@inertiajs/react';
+import { useEffect, useState } from 'react';
 
 export default function SettingsIndex({ settings }) {
     const rawSettings = Object.values(settings).flat().reduce((acc, curr) => {
         acc[curr.key] = curr.value;
         return acc;
     }, {});
+
+    const savedImages = {
+        hero_slide_1_file: rawSettings.hero_slide_1_image || rawSettings.hero_background_image || null,
+        hero_slide_2_file: rawSettings.hero_slide_2_image || null,
+    };
+    const [imagePreviews, setImagePreviews] = useState(savedImages);
 
     const { data, setData, post, processing, recentlySuccessful } = useForm({
         ...rawSettings,
@@ -17,9 +24,25 @@ export default function SettingsIndex({ settings }) {
         hero_slide_3_file: null,
     });
 
+    useEffect(() => () => {
+        Object.values(imagePreviews).forEach((preview) => {
+            if (preview?.startsWith('blob:')) {
+                URL.revokeObjectURL(preview);
+            }
+        });
+    }, [imagePreviews]);
+
+    const handleImageChange = (key, file) => {
+        setData(key, file || null);
+        setImagePreviews((current) => ({
+            ...current,
+            [key]: file ? URL.createObjectURL(file) : savedImages[key],
+        }));
+    };
+
     const handleSubmit = (e) => {
         e.preventDefault();
-        post('/admin/settings');
+        post('/admin/settings', { forceFormData: true });
     };
 
     return (
@@ -87,9 +110,22 @@ export default function SettingsIndex({ settings }) {
                             </div>
                             <div>
                                 <label className="block text-xs font-medium text-slate-600">Ganti Gambar Latar Slide 1 (Opsional)</label>
+                                {imagePreviews.hero_slide_1_file && (
+                                    <img
+                                        src={imagePreviews.hero_slide_1_file}
+                                        alt="Gambar latar slide 1"
+                                        className="mt-2 h-auto max-h-80 w-auto max-w-full rounded-lg border border-slate-200"
+                                    />
+                                )}
+                                {imagePreviews.hero_slide_1_file && (
+                                    <p className="mb-2 mt-1 text-xs text-slate-500">
+                                        {data.hero_slide_1_file ? 'Preview gambar baru.' : 'Gambar saat ini.'}
+                                    </p>
+                                )}
                                 <input
                                     type="file"
-                                    onChange={(e) => setData('hero_slide_1_file', e.target.files[0])}
+                                    accept="image/*"
+                                    onChange={(e) => handleImageChange('hero_slide_1_file', e.target.files[0])}
                                     className="mt-1 block w-full text-sm text-slate-500 file:mr-4 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20"
                                 />
                             </div>
@@ -147,9 +183,22 @@ export default function SettingsIndex({ settings }) {
                             </div>
                             <div>
                                 <label className="block text-xs font-medium text-slate-600">Ganti Gambar Latar Slide 2 (Opsional)</label>
+                                {imagePreviews.hero_slide_2_file && (
+                                    <img
+                                        src={imagePreviews.hero_slide_2_file}
+                                        alt="Gambar latar slide 2"
+                                        className="mt-2 h-auto max-h-80 w-auto max-w-full rounded-lg border border-slate-200"
+                                    />
+                                )}
+                                {imagePreviews.hero_slide_2_file && (
+                                    <p className="mb-2 mt-1 text-xs text-slate-500">
+                                        {data.hero_slide_2_file ? 'Preview gambar baru.' : 'Gambar saat ini.'}
+                                    </p>
+                                )}
                                 <input
                                     type="file"
-                                    onChange={(e) => setData('hero_slide_2_file', e.target.files[0])}
+                                    accept="image/*"
+                                    onChange={(e) => handleImageChange('hero_slide_2_file', e.target.files[0])}
                                     className="mt-1 block w-full text-sm text-slate-500 file:mr-4 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20"
                                 />
                             </div>

@@ -23,7 +23,7 @@ class CategoryMetadataTest extends TestCase
             ],
         ]);
 
-        $response->assertRedirect();
+        $response->assertRedirect(route('admin.categories.index'));
         $this->assertDatabaseHas('categories', [
             'name' => 'Fasilitas Lab',
             'slug' => 'fasilitas-lab',

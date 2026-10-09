@@ -12,22 +12,21 @@ class CategoryController extends Controller
 {
     public function index()
     {
-        $categories = Category::withCount('posts')->latest()->get();
-
         return Inertia::render('Admin/Categories/Index', [
-            'categories' => $categories,
+            'categories' => Category::withCount('posts')->latest()->get(),
+        ]);
+    }
+
+    public function create()
+    {
+        return Inertia::render('Admin/Categories/Form', [
+            'category' => null,
         ]);
     }
 
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:100|unique:categories,name',
-            'metadata_schema' => 'nullable|array',
-            'metadata_schema.*.key' => 'required|string|max:50',
-            'metadata_schema.*.label' => 'required|string|max:100',
-            'metadata_schema.*.type' => 'required|string|in:text,date,number',
-        ]);
+        $validated = $this->validateCategory($request);
 
         Category::create([
             'name' => $validated['name'],
@@ -35,18 +34,26 @@ class CategoryController extends Controller
             'metadata_schema' => array_values($validated['metadata_schema'] ?? []),
         ]);
 
-        return redirect()->back()->with('success', 'Kategori berhasil ditambahkan.');
+        return redirect()->route('admin.categories.index')->with('success', 'Kategori berhasil ditambahkan.');
+    }
+
+    public function show(Category $category)
+    {
+        return Inertia::render('Admin/Categories/Show', [
+            'category' => $category->loadCount('posts'),
+        ]);
+    }
+
+    public function edit(Category $category)
+    {
+        return Inertia::render('Admin/Categories/Form', [
+            'category' => $category,
+        ]);
     }
 
     public function update(Request $request, Category $category)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:100|unique:categories,name,'.$category->id,
-            'metadata_schema' => 'nullable|array',
-            'metadata_schema.*.key' => 'required|string|max:50',
-            'metadata_schema.*.label' => 'required|string|max:100',
-            'metadata_schema.*.type' => 'required|string|in:text,date,number',
-        ]);
+        $validated = $this->validateCategory($request, $category);
 
         $category->update([
             'name' => $validated['name'],
@@ -54,13 +61,26 @@ class CategoryController extends Controller
             'metadata_schema' => array_values($validated['metadata_schema'] ?? []),
         ]);
 
-        return redirect()->back()->with('success', 'Kategori berhasil diperbarui.');
+        return redirect()->route('admin.categories.index')->with('success', 'Kategori berhasil diperbarui.');
     }
 
     public function destroy(Category $category)
     {
         $category->delete();
 
-        return redirect()->back()->with('success', 'Kategori berhasil dihapus.');
+        return redirect()->route('admin.categories.index')->with('success', 'Kategori berhasil dihapus.');
+    }
+
+    private function validateCategory(Request $request, ?Category $category = null): array
+    {
+        return $request->validate([
+            'name' => $category
+                ? 'required|string|max:100|unique:categories,name,'.$category->id
+                : 'required|string|max:100|unique:categories,name',
+            'metadata_schema' => 'nullable|array',
+            'metadata_schema.*.key' => 'required|string|max:50',
+            'metadata_schema.*.label' => 'required|string|max:100',
+            'metadata_schema.*.type' => 'required|string|in:text,date,number',
+        ]);
     }
 }

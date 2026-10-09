@@ -2,6 +2,7 @@ import AdminLayout from '@/Layouts/AdminLayout';
 import Card from '@/Components/Card';
 import Button from '@/Components/Button';
 import { useForm } from '@inertiajs/react';
+import { useEffect, useState } from 'react';
 
 function buildInitialMeta(categories, categoryId, existingMetadata) {
     const cat = categories.find((c) => String(c.id) === String(categoryId));
@@ -22,8 +23,10 @@ function buildInitialMeta(categories, categoryId, existingMetadata) {
 export default function PostForm({ post, categories }) {
     const isEdit = !!post;
     const initialCategory = post?.category_id || categories[0]?.id || '';
+    const [imagePreview, setImagePreview] = useState(post?.featured_image || null);
+    const [imagePreviewError, setImagePreviewError] = useState(false);
 
-    const { data, setData, post: submitPost, put, processing, errors } = useForm({
+    const { data, setData, post: submit, processing, errors, transform } = useForm({
         title: post?.title || '',
         category_id: initialCategory,
         content: post?.content || '',
@@ -31,6 +34,14 @@ export default function PostForm({ post, categories }) {
         featured_image: null,
         meta: buildInitialMeta(categories, initialCategory, post?.metadata),
     });
+
+    useEffect(() => {
+        return () => {
+            if (imagePreview && !imagePreview.startsWith('/storage')) {
+                URL.revokeObjectURL(imagePreview);
+            }
+        };
+    }, [imagePreview]);
 
     const activeCategory = categories.find((c) => String(c.id) === String(data.category_id));
     const rawSchema = Array.isArray(activeCategory?.metadata_schema)
@@ -41,20 +52,33 @@ export default function PostForm({ post, categories }) {
     const metaSchema = rawSchema.filter((f) => f.key && f.label);
 
     const handleCategoryChange = (newCategoryId) => {
-        setData({
-            ...data,
+        setData((prev) => ({
+            ...prev,
             category_id: newCategoryId,
             meta: buildInitialMeta(categories, newCategoryId, post?.metadata),
-        });
+        }));
+    };
+
+    const handleImageChange = (e) => {
+        const file = e.target.files[0] || null;
+        setData('featured_image', file);
+        setImagePreviewError(false);
+        if (file) {
+            setImagePreview(URL.createObjectURL(file));
+        } else {
+            setImagePreview(post?.featured_image || null);
+        }
     };
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        if (isEdit) {
-            put(`/admin/posts/${post.id}`);
-        } else {
-            submitPost('/admin/posts');
-        }
+        transform((d) => ({
+            ...d,
+            ...(isEdit ? { _method: 'put' } : {}),
+        }));
+        submit(isEdit ? `/admin/posts/${post.id}` : '/admin/posts', {
+            forceFormData: true,
+        });
     };
 
     return (
@@ -117,15 +141,32 @@ export default function PostForm({ post, categories }) {
 
                     <div>
                         <label className="block text-sm font-medium text-slate-700">Gambar (Opsional)</label>
+                        {imagePreview && !imagePreviewError ? (
+                            <div className="mt-2 mb-2">
+                                <img
+                                    src={imagePreview}
+                                    alt="Preview"
+                                    onError={() => setImagePreviewError(true)}
+                                    className="h-auto max-h-96 w-auto max-w-full rounded-lg border border-slate-200"
+                                />
+                                <p className="text-xs text-slate-500 mt-1">
+                                    {data.featured_image ? 'Preview gambar baru.' : 'Gambar saat ini. Pilih file baru untuk mengganti.'}
+                                </p>
+                            </div>
+                        ) : isEdit && post?.featured_image ? (
+                            <div className="mt-2 mb-2 rounded-lg border border-dashed border-amber-300 bg-amber-50 p-3 text-xs text-amber-700">
+                                Gambar tersimpan ({post.featured_image}) tidak dapat dimuat.
+                                Pastikan symlink <code>public/storage</code> aktif dan file masih ada.
+                            </div>
+                        ) : isEdit ? (
+                            <p className="mt-2 mb-2 text-xs text-slate-500">Belum ada gambar tersimpan untuk konten ini.</p>
+                        ) : null}
                         <input
                             type="file"
                             accept="image/*"
-                            onChange={(e) => setData('featured_image', e.target.files[0] || null)}
+                            onChange={handleImageChange}
                             className="mt-1 block w-full rounded-lg border border-slate-300 text-sm file:mr-4 file:border-0 file:bg-slate-100 file:px-4 file:py-2 file:text-slate-700"
                         />
-                        {post?.featured_image && (
-                            <p className="text-xs text-slate-500 mt-1">Gambar lama tetap dipakai jika tidak memilih file baru.</p>
-                        )}
                         {errors.featured_image && <p className="text-red-500 text-xs mt-1">{errors.featured_image}</p>}
                     </div>
 

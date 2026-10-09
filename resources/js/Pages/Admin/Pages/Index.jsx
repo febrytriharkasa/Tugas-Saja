@@ -1,13 +1,22 @@
 import AdminLayout from '@/Layouts/AdminLayout';
 import Card from '@/Components/Card';
 import Button from '@/Components/Button';
+import ConfirmDeleteModal from '@/Components/ConfirmDeleteModal';
 import { Link, router } from '@inertiajs/react';
+import { useState } from 'react';
 
 export default function PageIndex({ pages }) {
-    const handleDelete = (id) => {
-        if (confirm('Yakin ingin menghapus laman ini?')) {
-            router.delete(`/admin/pages/${id}`);
-        }
+    const [deleteTarget, setDeleteTarget] = useState(null);
+    const [processing, setProcessing] = useState(false);
+
+    const confirmDelete = () => {
+        setProcessing(true);
+        router.delete(`/admin/pages/${deleteTarget.id}`, {
+            onFinish: () => {
+                setProcessing(false);
+                setDeleteTarget(null);
+            },
+        });
     };
 
     return (
@@ -42,10 +51,13 @@ export default function PageIndex({ pages }) {
                                     </span>
                                 </td>
                                 <td className="p-4 text-right space-x-2">
+                                    <Link href={`/admin/pages/${p.id}`} className="text-slate-600 hover:underline">
+                                        Lihat
+                                    </Link>
                                     <Link href={`/admin/pages/${p.id}/edit`} className="text-primary hover:underline">
                                         Edit
                                     </Link>
-                                    <button onClick={() => handleDelete(p.id)} className="text-red-600 hover:underline">
+                                    <button onClick={() => setDeleteTarget(p)} className="text-red-600 hover:underline">
                                         Hapus
                                     </button>
                                 </td>
@@ -54,6 +66,14 @@ export default function PageIndex({ pages }) {
                     </tbody>
                 </table>
             </Card>
+
+            <ConfirmDeleteModal
+                show={!!deleteTarget}
+                onClose={() => setDeleteTarget(null)}
+                onConfirm={confirmDelete}
+                processing={processing}
+                itemName={deleteTarget?.title}
+            />
         </AdminLayout>
     );
 }

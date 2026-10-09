@@ -12,34 +12,76 @@ class GalleryController extends Controller
 {
     public function index()
     {
-        $galleries = Gallery::latest()->paginate(12);
         return Inertia::render('Admin/Galleries/Index', [
-            'galleries' => $galleries,
+            'galleries' => Gallery::latest()->paginate(12),
+        ]);
+    }
+
+    public function create()
+    {
+        return Inertia::render('Admin/Galleries/Form', [
+            'gallery' => null,
         ]);
     }
 
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'media_type' => 'required|in:image,video',
-            'file' => 'required|file|max:10240',
-        ]);
-
-        $path = $request->file('file')->store('galleries', 'public');
+        $validated = $this->validateGallery($request, true);
 
         Gallery::create([
             'title' => $validated['title'],
             'media_type' => $validated['media_type'],
-            'file_path' => Storage::url($path),
+            'file_path' => $this->storeFile($request),
         ]);
 
-        return redirect()->back()->with('success', 'Media galeri berhasil diunggah.');
+        return redirect()->route('admin.galleries.index')->with('success', 'Media galeri berhasil diunggah.');
+    }
+
+    public function show(Gallery $gallery)
+    {
+        return Inertia::render('Admin/Galleries/Show', [
+            'gallery' => $gallery,
+        ]);
+    }
+
+    public function edit(Gallery $gallery)
+    {
+        return Inertia::render('Admin/Galleries/Form', [
+            'gallery' => $gallery,
+        ]);
+    }
+
+    public function update(Request $request, Gallery $gallery)
+    {
+        $validated = $this->validateGallery($request, false);
+
+        $gallery->update([
+            'title' => $validated['title'],
+            'media_type' => $validated['media_type'],
+            'file_path' => $request->hasFile('file') ? $this->storeFile($request) : $gallery->file_path,
+        ]);
+
+        return redirect()->route('admin.galleries.index')->with('success', 'Media galeri berhasil diperbarui.');
     }
 
     public function destroy(Gallery $gallery)
     {
         $gallery->delete();
-        return redirect()->back()->with('success', 'Media galeri berhasil dihapus.');
+
+        return redirect()->route('admin.galleries.index')->with('success', 'Media galeri berhasil dihapus.');
+    }
+
+    private function validateGallery(Request $request, bool $fileRequired): array
+    {
+        return $request->validate([
+            'title' => 'required|string|max:255',
+            'media_type' => 'required|in:image,video',
+            'file' => [$fileRequired ? 'required' : 'nullable', 'file', 'max:10240'],
+        ]);
+    }
+
+    private function storeFile(Request $request): string
+    {
+        return Storage::url($request->file('file')->store('galleries', 'public'));
     }
 }

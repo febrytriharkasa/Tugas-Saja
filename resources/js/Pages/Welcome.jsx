@@ -13,8 +13,8 @@ function SectionHeading({ eyebrow, title, href, linkLabel = 'Lihat semua', dark 
     return (
         <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             <div>
-                <p className={`text-xs font-bold uppercase tracking-[0.14em] ${dark ? 'text-emerald-200' : 'text-secondary'}`}>{eyebrow}</p>
                 <h2 className={`mt-2 text-2xl font-extrabold tracking-tight sm:text-3xl ${dark ? 'text-white' : 'text-slate-900'}`}>{title}</h2>
+                <p className={`mt-2 text-xs font-bold uppercase tracking-[0.14em] ${dark ? 'text-emerald-200' : 'text-secondary'}`}>{eyebrow}</p>
             </div>
             {href && <ArrowLink href={href}>{linkLabel}</ArrowLink>}
         </div>
@@ -174,7 +174,7 @@ export default function Welcome({ settings = {}, posts = [], announcements = [],
 
             <section id="berita" className="bg-slate-50 py-16 sm:py-20">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                    <SectionHeading eyebrow="Kabar terbaru" title="Berita sekolah" href="/berita" />
+                    <SectionHeading eyebrow="Update terkini seputar sekolah" title="Berita sekolah" href="/berita" />
                     {posts.length ? (
                         <div className="grid gap-6 md:grid-cols-3">
                             {posts.slice(0, 3).map((post, idx) => (
@@ -215,7 +215,7 @@ export default function Welcome({ settings = {}, posts = [], announcements = [],
 
             <section id="pengumuman" className="bg-white py-16 sm:py-20">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                    <SectionHeading eyebrow="Informasi penting" title="Pengumuman" href="/arsip/pengumuman" />
+                    <SectionHeading eyebrow="Informasi penting terkini" title="Pengumuman" href="/arsip/pengumuman" />
                     {announcements.length ? (
                         <div className="grid gap-6 md:grid-cols-3">
                             {announcements.slice(0, 3).map((item, idx) => (
@@ -256,7 +256,7 @@ export default function Welcome({ settings = {}, posts = [], announcements = [],
 
             <section id="agenda" className="bg-slate-50 py-16 sm:py-20">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                    <SectionHeading eyebrow="Jadwal kegiatan" title="Agenda sekolah" href="/arsip/agenda" />
+                    <SectionHeading eyebrow="Jadwal kegiatan terkini" title="Agenda sekolah" href="/arsip/agenda" />
                     {agendas.length ? (
                         <div className="grid gap-6 md:grid-cols-3">
                             {agendas.slice(0, 3).map((agenda, idx) => {
@@ -307,7 +307,7 @@ export default function Welcome({ settings = {}, posts = [], announcements = [],
 
             <section id="prestasi" className="bg-white py-16 sm:py-20">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                    <SectionHeading eyebrow="Kebanggaan sekolah" title="Prestasi terbaru" href="/arsip/prestasi" />
+                    <SectionHeading eyebrow="Prestasi terbaru yang berhasil kami raih" title="Prestasi terbaru" href="/arsip/prestasi" />
                     {achievements.length ? (
                         <div className="grid gap-6 md:grid-cols-3">
                             {achievements.slice(0, 6).map((ach, idx) => (
@@ -352,7 +352,7 @@ export default function Welcome({ settings = {}, posts = [], announcements = [],
 
             <section id="galeri" className="bg-slate-50 py-16 sm:py-20">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                    <SectionHeading eyebrow="Dokumentasi" title="Galeri aktivitas" href="/arsip/galeri" />
+                    <SectionHeading eyebrow="Lihat kegiatan kami ketika di sekolah" title="Galeri aktivitas" href="/arsip/galeri" />
                     {galleries.length ? (
                         <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
                             {galleries.slice(0, 8).map((item, idx) => (
@@ -377,7 +377,7 @@ export default function Welcome({ settings = {}, posts = [], announcements = [],
 
             <section id="fasilitas" className="bg-white py-16 sm:py-20">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                    <SectionHeading eyebrow="Infrastruktur" title="Fasilitas sekolah" href="/laman/fasilitas" />
+                    <SectionHeading eyebrow="Untuk menunjang kegiatan belajar mengajar" title="Fasilitas sekolah" href="/laman/fasilitas" />
                     {facilities.length ? (
                         <div className="grid gap-6 md:grid-cols-3">
                             {facilities.slice(0, 6).map((facility, idx) => (
@@ -414,7 +414,7 @@ export default function Welcome({ settings = {}, posts = [], announcements = [],
 
             <section id="gtk" className="bg-slate-50 py-16 sm:py-20">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                    <SectionHeading eyebrow="Pendidik berdedikasi" title="Guru dan tenaga kependidikan" href="/laman/guru-tendik" />
+                    <SectionHeading eyebrow="Tenaga pendidik profesional" title="Guru dan tenaga kependidikan" href="/laman/guru-tendik" />
                     {staff.length ? (
                         <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
                             {staff.slice(0, 8).map((person, idx) => (
