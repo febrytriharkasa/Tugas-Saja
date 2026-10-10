@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Category;
 use App\Models\Gallery;
+use App\Models\Post;
 use App\Models\Staff;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -110,5 +111,33 @@ class AdminResourceCrudTest extends TestCase
 
         $this->assertDatabaseHas('galleries', ['title' => 'Upacara']);
         $this->assertCount(1, Storage::disk('public')->allFiles('galleries'));
+    }
+
+    public function test_post_can_be_created_with_achievement_table_metadata(): void
+    {
+        $user = $this->admin();
+        $category = Category::create(['name' => 'Prestasi', 'slug' => 'prestasi']);
+
+        $response = $this->actingAs($user)->post('/admin/posts', [
+            'title' => 'Juara Olimpiade Sains',
+            'category_id' => $category->id,
+            'content' => 'Selamat kepada para pemenang.',
+            'status' => 'published',
+            'meta' => [
+                'achievement_table' => [
+                    ['name' => 'Ahmad', 'rank' => 'Juara 1', 'event' => 'OSN Fisika'],
+                    ['name' => 'Budi', 'rank' => 'Juara 2', 'event' => 'OSN Kimia'],
+                ],
+            ],
+        ]);
+
+        $response->assertRedirect(route('admin.posts.index'));
+
+        $post = Post::where('title', 'Juara Olimpiade Sains')->first();
+        $this->assertNotNull($post);
+        $this->assertIsArray($post->metadata);
+        $this->assertArrayHasKey('achievement_table', $post->metadata);
+        $this->assertCount(2, $post->metadata['achievement_table']);
+        $this->assertEquals('Ahmad', $post->metadata['achievement_table'][0]['name']);
     }
 }

@@ -110,6 +110,10 @@ class PostController extends Controller
             'featured_image' => ['nullable', 'image', 'max:2048'],
             'meta' => ['nullable', 'array'],
             'meta.*' => ['nullable'],
+            'meta.achievement_table' => ['nullable', 'array'],
+            'meta.achievement_table.*.name' => ['required_with:meta.achievement_table', 'string', 'max:255'],
+            'meta.achievement_table.*.rank' => ['required_with:meta.achievement_table', 'string', 'max:100'],
+            'meta.achievement_table.*.event' => ['nullable', 'string', 'max:255'],
         ]);
     }
 
@@ -121,7 +125,15 @@ class PostController extends Controller
             return null;
         }
 
-        return array_filter($meta, fn ($value) => $value !== null && $value !== '');
+        $filtered = array_filter($meta, function ($value, $key) {
+            if ($key === 'achievement_table' && is_array($value)) {
+                return ! empty($value);
+            }
+
+            return $value !== null && $value !== '';
+        }, ARRAY_FILTER_USE_BOTH);
+
+        return ! empty($filtered) ? $filtered : null;
     }
 
     private function storeImage(Request $request): string

@@ -17,14 +17,22 @@ function buildInitialMeta(categories, categoryId, existingMetadata) {
             meta[field.key] = existingMetadata?.[field.key] ?? '';
         }
     });
+    if (existingMetadata?.achievement_table) {
+        meta.achievement_table = existingMetadata.achievement_table;
+    }
     return meta;
 }
+
+const emptyRow = { name: '', rank: '', event: '' };
 
 export default function PostForm({ post, categories }) {
     const isEdit = !!post;
     const initialCategory = post?.category_id || categories[0]?.id || '';
     const [imagePreview, setImagePreview] = useState(post?.featured_image || null);
     const [imagePreviewError, setImagePreviewError] = useState(false);
+    const [showTable, setShowTable] = useState(
+        Array.isArray(post?.metadata?.achievement_table) && post.metadata.achievement_table.length > 0,
+    );
 
     const { data, setData, post: submit, processing, errors, transform } = useForm({
         title: post?.title || '',
@@ -68,6 +76,31 @@ export default function PostForm({ post, categories }) {
         } else {
             setImagePreview(post?.featured_image || null);
         }
+    };
+
+    const tableRows = Array.isArray(data.meta.achievement_table) ? data.meta.achievement_table : [];
+
+    const setTableRows = (rows) => {
+        setData('meta', { ...data.meta, achievement_table: rows });
+    };
+
+    const addRow = () => setTableRows([...tableRows, { ...emptyRow }]);
+
+    const updateRow = (index, field, value) => {
+        const updated = tableRows.map((row, i) => (i === index ? { ...row, [field]: value } : row));
+        setTableRows(updated);
+    };
+
+    const removeRow = (index) => setTableRows(tableRows.filter((_, i) => i !== index));
+
+    const toggleTable = () => {
+        if (showTable) {
+            const { achievement_table, ...rest } = data.meta;
+            setData('meta', rest);
+        } else {
+            setData('meta', { ...data.meta, achievement_table: tableRows.length ? tableRows : [{ ...emptyRow }] });
+        }
+        setShowTable(!showTable);
     };
 
     const handleSubmit = (e) => {
@@ -137,6 +170,75 @@ export default function PostForm({ post, categories }) {
                             className="mt-1 block w-full rounded-lg border-slate-300 text-sm focus:border-primary focus:ring-primary"
                         />
                         {errors.content && <p className="text-red-500 text-xs mt-1">{errors.content}</p>}
+                    </div>
+
+                    <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 space-y-3">
+                        <div className="flex items-center justify-between">
+                            <label className="text-sm font-semibold text-slate-700">Tabel Data (Opsional)</label>
+                            <button
+                                type="button"
+                                onClick={toggleTable}
+                                className={`text-sm font-semibold ${showTable ? 'text-red-600 hover:underline' : 'text-primary hover:underline'}`}
+                            >
+                                {showTable ? 'Hapus Tabel' : 'Tambah Tabel'}
+                            </button>
+                        </div>
+                        <p className="text-xs text-slate-500">
+                            Gunakan tabel ini untuk daftar pemenang, peserta, atau data terstruktur lainnya.
+                        </p>
+
+                        {showTable && (
+                            <div className="space-y-2">
+                                <div className="hidden sm:grid grid-cols-[1fr_6rem_1fr_auto] gap-2 text-xs font-semibold text-slate-500 px-1">
+                                    <span>Nama</span>
+                                    <span>Peringkat</span>
+                                    <span>Keterangan</span>
+                                    <span></span>
+                                </div>
+                                {tableRows.map((row, idx) => (
+                                    <div key={idx} className="flex flex-col sm:grid sm:grid-cols-[1fr_6rem_1fr_auto] gap-2 p-3 sm:p-0 border sm:border-0 border-slate-200 rounded-lg sm:rounded-none">
+                                        <input
+                                            type="text"
+                                            value={row.name}
+                                            onChange={(e) => updateRow(idx, 'name', e.target.value)}
+                                            placeholder="Nama peserta / kelas"
+                                            className="rounded-lg border-slate-300 text-sm"
+                                        />
+                                        <input
+                                            type="text"
+                                            value={row.rank}
+                                            onChange={(e) => updateRow(idx, 'rank', e.target.value)}
+                                            placeholder="Juara"
+                                            className="rounded-lg border-slate-300 text-sm"
+                                        />
+                                        <input
+                                            type="text"
+                                            value={row.event}
+                                            onChange={(e) => updateRow(idx, 'event', e.target.value)}
+                                            placeholder="Lomba / keterangan"
+                                            className="rounded-lg border-slate-300 text-sm"
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => removeRow(idx)}
+                                            className="min-h-11 px-2 text-sm font-semibold text-red-600 hover:underline"
+                                        >
+                                            Hapus
+                                        </button>
+                                    </div>
+                                ))}
+                                {Object.keys(errors).filter((k) => k.startsWith('meta.achievement_table')).length > 0 && (
+                                    <p className="text-red-500 text-xs">Lengkapi kolom Nama dan Peringkat pada setiap baris.</p>
+                                )}
+                                <button
+                                    type="button"
+                                    onClick={addRow}
+                                    className="text-sm font-semibold text-primary hover:underline"
+                                >
+                                    + Tambah Baris
+                                </button>
+                            </div>
+                        )}
                     </div>
 
                     <div>

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import PublicLayout from '@/Layouts/PublicLayout';
 import Card from '@/Components/Card';
 import ChatWidget from '@/Components/ChatWidget';
@@ -46,6 +46,7 @@ export default function Welcome({ settings = {}, posts = [], announcements = [],
     ];
 
     const [currentSlide, setCurrentSlide] = useState(0);
+    const prefersReducedMotion = false;
 
     useEffect(() => {
         const timer = setInterval(() => {
@@ -75,35 +76,78 @@ export default function Welcome({ settings = {}, posts = [], announcements = [],
                 <div className="absolute inset-0 -z-10 bg-gradient-to-r from-slate-950/90 via-primary/75 to-primary/35" />
 
                 <div className="mx-auto grid min-h-[800px] max-w-7xl items-center gap-10 px-4 pt-20 sm:px-6 lg:grid-cols-[minmax(0,1.25fr)_minmax(18rem,0.75fr)] lg:px-8 lg:pb-20 w-full relative z-10">
-                    <div className="max-w-3xl">
-                        <p className="mb-5 text-xs font-bold uppercase tracking-[0.18em] text-emerald-200 transition-all duration-700">
-                            {activeSlide.tag}
-                        </p>
-                        <h1 className="max-w-3xl text-4xl font-extrabold leading-tight tracking-tight sm:text-5xl lg:text-6xl transition-all duration-700">
-                            {activeSlide.title}
-                        </h1>
-                        <p className="mt-6 max-w-2xl text-base leading-7 text-emerald-50/90 sm:text-lg transition-all duration-700">
-                            {activeSlide.subtitle}
-                        </p>
-                        <div className="mt-8 flex flex-wrap gap-3 items-center">
-                            {activeSlide.btnUrl.startsWith('/') || activeSlide.btnUrl.startsWith('#') ? (
-                                <a
-                                    href={activeSlide.btnUrl}
-                                    className="inline-flex min-h-12 items-center justify-center rounded-lg bg-emerald-200 px-6 py-3 text-sm font-bold text-emerald-950 transition hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-primary shadow-lg"
+                    <div className="max-w-3xl min-h-[360px] flex items-center">
+                        <AnimatePresence mode="wait">
+                            <motion.div
+                                key={currentSlide}
+                                className="w-full"
+                                initial="hidden"
+                                animate="visible"
+                                exit="exit"
+                                variants={{
+                                    hidden: {},
+                                    visible: { transition: { staggerChildren: 0.12, delayChildren: 0.05 } },
+                                    exit: { transition: { staggerChildren: 0.05, staggerDirection: -1 } },
+                                }}
+                            >
+                                <motion.p
+                                    variants={{
+                                        hidden: { opacity: 0, x: -50 },
+                                        visible: { opacity: 1, x: 0, transition: { duration: 0.5, ease: 'easeOut' } },
+                                        exit: { opacity: 0, x: 50, transition: { duration: 0.3, ease: 'easeIn' } },
+                                    }}
+                                    className="mb-5 text-xs font-bold uppercase tracking-[0.18em] text-emerald-200"
                                 >
-                                    {activeSlide.btnText}
-                                </a>
-                            ) : (
-                                <a
-                                    href={activeSlide.btnUrl}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="inline-flex min-h-12 items-center justify-center rounded-lg bg-emerald-200 px-6 py-3 text-sm font-bold text-emerald-950 transition hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-primary shadow-lg"
+                                    {activeSlide.tag}
+                                </motion.p>
+                                <motion.h1
+                                    variants={{
+                                        hidden: { opacity: 0, x: -60 },
+                                        visible: { opacity: 1, x: 0, transition: { duration: 0.55, ease: 'easeOut' } },
+                                        exit: { opacity: 0, y: -40, transition: { duration: 0.3, ease: 'easeIn' } },
+                                    }}
+                                    className="max-w-3xl text-4xl font-extrabold leading-tight tracking-tight sm:text-5xl lg:text-6xl"
                                 >
-                                    {activeSlide.btnText}
-                                </a>
-                            )}
-                        </div>
+                                    {activeSlide.title}
+                                </motion.h1>
+                                <motion.p
+                                    variants={{
+                                        hidden: { opacity: 0, x: -50 },
+                                        visible: { opacity: 1, x: 0, transition: { duration: 0.55, ease: 'easeOut' } },
+                                        exit: { opacity: 0, y: 35, transition: { duration: 0.3, ease: 'easeIn' } },
+                                    }}
+                                    className="mt-6 max-w-2xl text-base leading-7 text-emerald-50/90 sm:text-lg"
+                                >
+                                    {activeSlide.subtitle}
+                                </motion.p>
+                                <motion.div
+                                    variants={{
+                                        hidden: { opacity: 0, y: 40 },
+                                        visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: 'easeOut' } },
+                                        exit: { opacity: 0, x: 50, transition: { duration: 0.3, ease: 'easeIn' } },
+                                    }}
+                                    className="mt-8 flex flex-wrap gap-3 items-center"
+                                >
+                                    {activeSlide.btnUrl.startsWith('/') || activeSlide.btnUrl.startsWith('#') ? (
+                                        <a
+                                            href={activeSlide.btnUrl}
+                                            className="inline-flex min-h-12 items-center justify-center rounded-lg bg-emerald-200 px-6 py-3 text-sm font-bold text-emerald-950 transition hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-primary shadow-lg"
+                                        >
+                                            {activeSlide.btnText}
+                                        </a>
+                                    ) : (
+                                        <a
+                                            href={activeSlide.btnUrl}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="inline-flex min-h-12 items-center justify-center rounded-lg bg-emerald-200 px-6 py-3 text-sm font-bold text-emerald-950 transition hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-primary shadow-lg"
+                                        >
+                                            {activeSlide.btnText}
+                                        </a>
+                                    )}
+                                </motion.div>
+                            </motion.div>
+                        </AnimatePresence>
                     </div>
                 </div>
 
@@ -286,7 +330,7 @@ export default function Welcome({ settings = {}, posts = [], announcements = [],
                                                     </h3>
                                                     {agenda.metadata && Object.keys(agenda.metadata).length > 0 && (
                                                         <div className="mt-3 flex flex-wrap gap-1.5 text-xs text-slate-500">
-                                                            {Object.entries(agenda.metadata).map(([k, v]) => (
+                                                            {Object.entries(agenda.metadata).filter(([k]) => k !== 'achievement_table').map(([k, v]) => (
                                                                 <span key={k} className="bg-slate-100 px-2 py-0.5 rounded text-slate-600">{String(v)}</span>
                                                             ))}
                                                         </div>
@@ -332,7 +376,7 @@ export default function Welcome({ settings = {}, posts = [], announcements = [],
                                                 </h3>
                                                 {ach.metadata && Object.keys(ach.metadata).length > 0 && (
                                                     <div className="mt-3 flex flex-wrap gap-1.5 text-xs text-slate-600">
-                                                        {Object.entries(ach.metadata).map(([k, v]) => (
+                                                        {Object.entries(ach.metadata).filter(([k]) => k !== 'achievement_table').map(([k, v]) => (
                                                             <span key={k} className="bg-slate-100 px-2 py-0.5 rounded text-slate-600">{String(v)}</span>
                                                         ))}
                                                     </div>

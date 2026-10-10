@@ -79,7 +79,7 @@ export default function Archive({ title, type, items }) {
                                         </h3>
                                         {agenda.metadata && Object.keys(agenda.metadata).length > 0 && (
                                             <div className="mt-3 flex flex-wrap gap-1.5 text-xs text-slate-500">
-                                                {Object.entries(agenda.metadata).map(([k, v]) => (
+                                                {Object.entries(agenda.metadata).filter(([k]) => k !== 'achievement_table').map(([k, v]) => (
                                                     <span key={k} className="bg-slate-100 px-2 py-0.5 rounded text-slate-600">{String(v)}</span>
                                                 ))}
                                             </div>
@@ -114,9 +114,9 @@ export default function Archive({ title, type, items }) {
                                     <h3 className="font-bold text-slate-900 text-sm mb-1">
                                         <Link href={`/berita/${ach.slug}`} className="hover:text-primary transition">{ach.title}</Link>
                                     </h3>
-                                    {ach.metadata && (
+                                    {ach.metadata && Object.keys(ach.metadata).filter((k) => k !== 'achievement_table').length > 0 && (
                                         <div className="mt-2 flex flex-wrap gap-1.5 text-xs text-slate-600">
-                                            {Object.entries(ach.metadata).map(([k, v]) => (
+                                            {Object.entries(ach.metadata).filter(([k]) => k !== 'achievement_table').map(([k, v]) => (
                                                 <span key={k} className="bg-slate-100 px-2 py-0.5 rounded text-slate-600">{String(v)}</span>
                                             ))}
                                         </div>
