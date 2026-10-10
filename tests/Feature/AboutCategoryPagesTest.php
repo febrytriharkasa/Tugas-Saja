@@ -70,4 +70,53 @@ class AboutCategoryPagesTest extends TestCase
             ->where('page.slug', 'sejarah')
         );
     }
+
+    public function test_archive_group_page_renders_and_is_shared_with_public_navigation(): void
+    {
+        Page::create([
+            'title' => 'Kalender Akademik',
+            'slug' => 'kalender-akademik',
+            'content' => 'Jadwal akademik sekolah',
+            'group' => 'arsip',
+            'is_published' => true,
+        ]);
+
+        $response = $this->get('/laman/kalender-akademik');
+
+        $response->assertOk();
+        $response->assertInertia(fn (Assert $page) => $page
+            ->component('Public/Page')
+            ->where('page.group', 'arsip')
+            ->where('archivePages.0.slug', 'kalender-akademik')
+        );
+    }
+
+    public function test_new_category_renders_archive_without_frontend_type_whitelist(): void
+    {
+        $user = User::factory()->create();
+        $category = Category::create([
+            'name' => 'Kegiatan Siswa',
+            'slug' => 'kegiatan-siswa',
+        ]);
+
+        Post::create([
+            'user_id' => $user->id,
+            'category_id' => $category->id,
+            'title' => 'Pentas Seni Sekolah',
+            'slug' => 'pentas-seni-sekolah',
+            'content' => 'Kegiatan pentas seni siswa.',
+            'status' => 'published',
+            'published_at' => now(),
+        ]);
+
+        $response = $this->get('/arsip/kegiatan-siswa');
+
+        $response->assertOk();
+        $response->assertInertia(fn (Assert $page) => $page
+            ->component('Public/Archive')
+            ->where('title', 'Kegiatan Siswa')
+            ->where('type', 'kegiatan-siswa')
+            ->has('items.data', 1)
+        );
+    }
 }

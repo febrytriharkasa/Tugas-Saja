@@ -45,6 +45,10 @@ class HandleInertiaRequests extends Middleware
                 ->where('is_published', true)
                 ->orderBy('title')
                 ->get(['title', 'slug']),
+            'archivePages' => fn () => Page::where('group', 'arsip')
+                ->where('is_published', true)
+                ->orderBy('title')
+                ->get(['title', 'slug']),
         ];
     }
 }

@@ -73,7 +73,7 @@ export default function Welcome({ settings = {}, posts = [], announcements = [],
                 ))}
                 
                 <div className={`absolute inset-0 -z-10 transition-colors duration-1000 ${activeSlide.image ? 'bg-slate-950/75' : 'bg-primary'}`} />
-                <div className="absolute inset-0 -z-10 bg-gradient-to-r from-slate-950/90 via-primary/75 to-primary/35" />
+                {/* <div className="absolute inset-0 -z-10 bg-gradient-to-r from-slate-950/90 via-primary/75 to-primary/35" /> */}
 
                 <div className="mx-auto grid min-h-[800px] max-w-7xl items-center gap-10 px-4 pt-20 sm:px-6 lg:grid-cols-[minmax(0,1.25fr)_minmax(18rem,0.75fr)] lg:px-8 lg:pb-20 w-full relative z-10">
                     <div className="max-w-3xl min-h-[360px] flex items-center">
@@ -186,7 +186,8 @@ export default function Welcome({ settings = {}, posts = [], announcements = [],
             </section>
 
             <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-14 relative z-20">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-6 shadow-card">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     {[{ title: settings.quick_link_1_title || 'Pendaftaran', url: settings.quick_link_1_url || 'https://ppdb.smaliska.sch.id', desc: settings.quick_link_1_desc || 'Portal Resmi Pendaftaran PPDB Online' },
                         { title: settings.quick_link_2_title || 'Yapalis via mobile', url: settings.quick_link_2_url || 'https://mobile.yapalis.or.id', desc: settings.quick_link_2_desc || 'Aplikasi Layanan Mobile Yapalis' },
                         { title: settings.quick_link_3_title || 'Perpustakaan Yapalis', url: settings.quick_link_3_url || 'https://perpus.yapalis.or.id', desc: settings.quick_link_3_desc || 'Layanan Perpustakaan Digital' },
@@ -199,7 +200,7 @@ export default function Welcome({ settings = {}, posts = [], announcements = [],
                             transition={{ duration: 0.4, delay: idx * 0.1 }}
                         >
                             <a href={link.url} target="_blank" rel="noopener noreferrer" className="block group h-full">
-                                <Card hover className="p-6 h-full flex flex-col justify-between border-slate-200/80 group-hover:border-primary transition">
+                                <Card hover className="p-6 h-full flex flex-col justify-between border-slate-200/80 group-hover:border-primary transition bg-surface-container-low">
                                     <div>
                                         <span className="text-xs font-bold uppercase tracking-wider text-primary">Layanan Pintas</span>
                                         <h3 className="mt-2 text-xl font-extrabold text-slate-900 group-hover:text-primary transition">{link.title}</h3>
@@ -212,7 +213,8 @@ export default function Welcome({ settings = {}, posts = [], announcements = [],
                                 </Card>
                             </a>
                         </motion.div>
-                    ))}
+                     ))}
+                    </div>
                 </div>
             </section>
 
@@ -328,13 +330,6 @@ export default function Welcome({ settings = {}, posts = [], announcements = [],
                                                     <h3 className="mt-3 line-clamp-2 text-lg font-bold text-slate-900">
                                                         <Link href={`/berita/${agenda.slug}`} className="hover:text-primary">{agenda.title}</Link>
                                                     </h3>
-                                                    {agenda.metadata && Object.keys(agenda.metadata).length > 0 && (
-                                                        <div className="mt-3 flex flex-wrap gap-1.5 text-xs text-slate-500">
-                                                            {Object.entries(agenda.metadata).filter(([k]) => k !== 'achievement_table').map(([k, v]) => (
-                                                                <span key={k} className="bg-slate-100 px-2 py-0.5 rounded text-slate-600">{String(v)}</span>
-                                                            ))}
-                                                        </div>
-                                                    )}
                                                 </div>
                                                 <div className="mt-4">
                                                     <ArrowLink href={`/berita/${agenda.slug}`}>Baca selengkapnya</ArrowLink>
@@ -370,17 +365,13 @@ export default function Welcome({ settings = {}, posts = [], announcements = [],
                                         </Link>
                                         <div className="flex flex-1 flex-col p-5 justify-between">
                                             <div>
-                                                <p className="text-xs font-bold uppercase tracking-wide text-tertiary">{ach.category?.name || 'Prestasi'}</p>
+                                                <div className="flex items-center gap-2 text-xs text-slate-600">
+                                                    <p className="text-xs font-bold uppercase tracking-wide text-tertiary">{ach.category?.name || 'Prestasi'}</p>
+                                                    <span>{ach.published_at ? new Date(ach.published_at).toLocaleDateString('id-ID') : '-'}</span>
+                                                </div>
                                                 <h3 className="mt-2 line-clamp-2 text-lg font-bold text-slate-900">
                                                     <Link href={`/berita/${ach.slug}`} className="hover:text-primary">{ach.title}</Link>
                                                 </h3>
-                                                {ach.metadata && Object.keys(ach.metadata).length > 0 && (
-                                                    <div className="mt-3 flex flex-wrap gap-1.5 text-xs text-slate-600">
-                                                        {Object.entries(ach.metadata).filter(([k]) => k !== 'achievement_table').map(([k, v]) => (
-                                                            <span key={k} className="bg-slate-100 px-2 py-0.5 rounded text-slate-600">{String(v)}</span>
-                                                        ))}
-                                                    </div>
-                                                )}
                                             </div>
                                             <div className="mt-4">
                                                 <ArrowLink href={`/berita/${ach.slug}`}>Baca selengkapnya</ArrowLink>

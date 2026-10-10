@@ -110,10 +110,14 @@ class PostController extends Controller
             'featured_image' => ['nullable', 'image', 'max:2048'],
             'meta' => ['nullable', 'array'],
             'meta.*' => ['nullable'],
-            'meta.achievement_table' => ['nullable', 'array'],
-            'meta.achievement_table.*.name' => ['required_with:meta.achievement_table', 'string', 'max:255'],
-            'meta.achievement_table.*.rank' => ['required_with:meta.achievement_table', 'string', 'max:100'],
-            'meta.achievement_table.*.event' => ['nullable', 'string', 'max:255'],
+            'meta.blocks' => ['nullable', 'array'],
+            'meta.blocks.*.type' => ['required_with:meta.blocks', Rule::in(['text', 'table'])],
+            'meta.blocks.*.content' => ['required_if:meta.blocks.*.type,text', 'string'],
+            'meta.blocks.*.description' => ['nullable', 'string', 'max:500'],
+            'meta.blocks.*.rows' => ['required_if:meta.blocks.*.type,table', 'array'],
+            'meta.blocks.*.rows.*.name' => ['required_with:meta.blocks.*.rows', 'string', 'max:255'],
+            'meta.blocks.*.rows.*.rank' => ['required_with:meta.blocks.*.rows', 'string', 'max:100'],
+            'meta.blocks.*.rows.*.event' => ['nullable', 'string', 'max:255'],
         ]);
     }
 
@@ -126,12 +130,45 @@ class PostController extends Controller
         }
 
         $filtered = array_filter($meta, function ($value, $key) {
-            if ($key === 'achievement_table' && is_array($value)) {
-                return ! empty($value);
+            if ($key === 'blocks' && is_array($value)) {
+                $blocks = array_values(array_filter($value, function ($block) {
+                    if (! isset($block['type'])) {
+                        return false;
+                    }
+                    if ($block['type'] === 'text') {
+                        return ! empty(trim($block['content'] ?? ''));
+                    }
+                    if ($block['type'] === 'table') {
+                        return ! empty($block['rows']);
+                    }
+
+                    return false;
+                }));
+
+                return ! empty($blocks);
             }
 
             return $value !== null && $value !== '';
         }, ARRAY_FILTER_USE_BOTH);
+
+        if (isset($filtered['blocks'])) {
+            $filtered['blocks'] = array_values(array_filter(
+                $filtered['blocks'],
+                function ($block) {
+                    if (! isset($block['type'])) {
+                        return false;
+                    }
+                    if ($block['type'] === 'text') {
+                        return ! empty(trim($block['content'] ?? ''));
+                    }
+                    if ($block['type'] === 'table') {
+                        return ! empty($block['rows']);
+                    }
+
+                    return false;
+                },
+            ));
+        }
 
         return ! empty($filtered) ? $filtered : null;
     }

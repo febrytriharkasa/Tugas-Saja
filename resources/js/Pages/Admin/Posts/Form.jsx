@@ -17,22 +17,159 @@ function buildInitialMeta(categories, categoryId, existingMetadata) {
             meta[field.key] = existingMetadata?.[field.key] ?? '';
         }
     });
-    if (existingMetadata?.achievement_table) {
-        meta.achievement_table = existingMetadata.achievement_table;
+
+    if (Array.isArray(existingMetadata?.blocks)) {
+        meta.blocks = existingMetadata.blocks;
+    } else if (Array.isArray(existingMetadata?.tables)) {
+        meta.blocks = existingMetadata.tables.map((t) => ({ type: 'table', description: t.description || '', rows: t.rows || [] }));
+    } else if (Array.isArray(existingMetadata?.achievement_table)) {
+        meta.blocks = [{ type: 'table', description: '', rows: existingMetadata.achievement_table }];
     }
+
     return meta;
 }
 
 const emptyRow = { name: '', rank: '', event: '' };
+
+function TextBlock({ block, onChange }) {
+    return (
+        <div>
+            <label className="block text-xs font-semibold text-slate-600">Teks</label>
+            <textarea
+                rows={4}
+                value={block.content || ''}
+                onChange={(e) => onChange({ ...block, content: e.target.value })}
+                placeholder="Tulis deskripsi atau keterangan di sini..."
+                className="mt-1 block w-full rounded-lg border-slate-300 text-sm focus:border-primary focus:ring-primary"
+            />
+        </div>
+    );
+}
+
+function TableBlock({ block, onChange }) {
+    const rows = block.rows || [];
+
+    const updateRow = (rowIndex, field, value) => {
+        const next = rows.map((r, j) => (j === rowIndex ? { ...r, [field]: value } : r));
+        onChange({ ...block, rows: next });
+    };
+
+    const addRow = () => onChange({ ...block, rows: [...rows, { ...emptyRow }] });
+
+    const removeRow = (rowIndex) => onChange({ ...block, rows: rows.filter((_, j) => j !== rowIndex) });
+
+    return (
+        <div className="space-y-3">
+            <div>
+                <label className="block text-xs font-semibold text-slate-600">Deskripsi Tabel (Opsional)</label>
+                <textarea
+                    rows={2}
+                    value={block.description || ''}
+                    onChange={(e) => onChange({ ...block, description: e.target.value })}
+                    placeholder="Contoh: Daftar juara OSN tingkat provinsi 2026."
+                    className="mt-1 block w-full rounded-lg border-slate-300 text-sm"
+                />
+            </div>
+            <div className="space-y-2">
+                <div className="hidden sm:grid grid-cols-[1fr_6rem_1fr_auto] gap-2 text-xs font-semibold text-slate-500 px-1">
+                    <span>Nama</span>
+                    <span>Peringkat</span>
+                    <span>Keterangan</span>
+                    <span></span>
+                </div>
+                {rows.map((row, rowIndex) => (
+                    <div
+                        key={rowIndex}
+                        className="flex flex-col sm:grid sm:grid-cols-[1fr_6rem_1fr_auto] gap-2 p-3 sm:p-0 border sm:border-0 border-slate-200 rounded-lg sm:rounded-none"
+                    >
+                        <input
+                            type="text"
+                            value={row.name}
+                            onChange={(e) => updateRow(rowIndex, 'name', e.target.value)}
+                            placeholder="Nama peserta / kelas"
+                            className="rounded-lg border-slate-300 text-sm"
+                        />
+                        <input
+                            type="text"
+                            value={row.rank}
+                            onChange={(e) => updateRow(rowIndex, 'rank', e.target.value)}
+                            placeholder="Juara"
+                            className="rounded-lg border-slate-300 text-sm"
+                        />
+                        <input
+                            type="text"
+                            value={row.event}
+                            onChange={(e) => updateRow(rowIndex, 'event', e.target.value)}
+                            placeholder="Lomba / keterangan"
+                            className="rounded-lg border-slate-300 text-sm"
+                        />
+                        <button
+                            type="button"
+                            onClick={() => removeRow(rowIndex)}
+                            className="min-h-11 px-2 text-sm font-semibold text-red-600 hover:underline"
+                        >
+                            Hapus
+                        </button>
+                    </div>
+                ))}
+                <button type="button" onClick={addRow} className="text-sm font-semibold text-primary hover:underline">
+                    + Tambah Baris
+                </button>
+            </div>
+        </div>
+    );
+}
+
+function Block({ block, index, total, onChange, onRemove, onMoveUp, onMoveDown }) {
+    return (
+        <div className="rounded-lg border border-slate-200 bg-white p-3 space-y-3">
+            <div className="flex items-center justify-between gap-2">
+                <span className="text-xs font-semibold uppercase text-slate-500">
+                    {block.type === 'text' ? `Teks ${index + 1}` : `Tabel ${index + 1}`}
+                </span>
+                <div className="flex items-center gap-1">
+                    <button
+                        type="button"
+                        disabled={index === 0}
+                        onClick={onMoveUp}
+                        className="px-2 py-1 text-xs font-semibold text-slate-500 hover:text-primary disabled:opacity-30 disabled:cursor-not-allowed"
+                        title="Geser ke atas"
+                    >
+                        ▲
+                    </button>
+                    <button
+                        type="button"
+                        disabled={index === total - 1}
+                        onClick={onMoveDown}
+                        className="px-2 py-1 text-xs font-semibold text-slate-500 hover:text-primary disabled:opacity-30 disabled:cursor-not-allowed"
+                        title="Geser ke bawah"
+                    >
+                        ▼
+                    </button>
+                    <button
+                        type="button"
+                        onClick={onRemove}
+                        className="px-2 py-1 text-sm font-semibold text-red-600 hover:underline"
+                    >
+                        Hapus
+                    </button>
+                </div>
+            </div>
+
+            {block.type === 'text' ? (
+                <TextBlock block={block} onChange={onChange} />
+            ) : (
+                <TableBlock block={block} onChange={onChange} />
+            )}
+        </div>
+    );
+}
 
 export default function PostForm({ post, categories }) {
     const isEdit = !!post;
     const initialCategory = post?.category_id || categories[0]?.id || '';
     const [imagePreview, setImagePreview] = useState(post?.featured_image || null);
     const [imagePreviewError, setImagePreviewError] = useState(false);
-    const [showTable, setShowTable] = useState(
-        Array.isArray(post?.metadata?.achievement_table) && post.metadata.achievement_table.length > 0,
-    );
 
     const { data, setData, post: submit, processing, errors, transform } = useForm({
         title: post?.title || '',
@@ -78,29 +215,27 @@ export default function PostForm({ post, categories }) {
         }
     };
 
-    const tableRows = Array.isArray(data.meta.achievement_table) ? data.meta.achievement_table : [];
+    const blocks = Array.isArray(data.meta.blocks) ? data.meta.blocks : [];
 
-    const setTableRows = (rows) => {
-        setData('meta', { ...data.meta, achievement_table: rows });
+    const setBlocks = (next) => setData('meta', { ...data.meta, blocks: next });
+
+    const addBlock = (type) => {
+        const block = type === 'text' ? { type: 'text', content: '' } : { type: 'table', description: '', rows: [{ ...emptyRow }] };
+        setBlocks([...blocks, block]);
     };
 
-    const addRow = () => setTableRows([...tableRows, { ...emptyRow }]);
+    const updateBlock = (index, next) => setBlocks(blocks.map((b, i) => (i === index ? next : b)));
 
-    const updateRow = (index, field, value) => {
-        const updated = tableRows.map((row, i) => (i === index ? { ...row, [field]: value } : row));
-        setTableRows(updated);
-    };
+    const removeBlock = (index) => setBlocks(blocks.filter((_, i) => i !== index));
 
-    const removeRow = (index) => setTableRows(tableRows.filter((_, i) => i !== index));
-
-    const toggleTable = () => {
-        if (showTable) {
-            const { achievement_table, ...rest } = data.meta;
-            setData('meta', rest);
-        } else {
-            setData('meta', { ...data.meta, achievement_table: tableRows.length ? tableRows : [{ ...emptyRow }] });
+    const moveBlock = (index, direction) => {
+        const next = [...blocks];
+        const target = index + direction;
+        if (target < 0 || target >= next.length) {
+            return;
         }
-        setShowTable(!showTable);
+        [next[index], next[target]] = [next[target], next[index]];
+        setBlocks(next);
     };
 
     const handleSubmit = (e) => {
@@ -173,71 +308,46 @@ export default function PostForm({ post, categories }) {
                     </div>
 
                     <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 space-y-3">
-                        <div className="flex items-center justify-between">
-                            <label className="text-sm font-semibold text-slate-700">Tabel Data (Opsional)</label>
-                            <button
-                                type="button"
-                                onClick={toggleTable}
-                                className={`text-sm font-semibold ${showTable ? 'text-red-600 hover:underline' : 'text-primary hover:underline'}`}
-                            >
-                                {showTable ? 'Hapus Tabel' : 'Tambah Tabel'}
-                            </button>
-                        </div>
-                        <p className="text-xs text-slate-500">
-                            Gunakan tabel ini untuk daftar pemenang, peserta, atau data terstruktur lainnya.
-                        </p>
-
-                        {showTable && (
-                            <div className="space-y-2">
-                                <div className="hidden sm:grid grid-cols-[1fr_6rem_1fr_auto] gap-2 text-xs font-semibold text-slate-500 px-1">
-                                    <span>Nama</span>
-                                    <span>Peringkat</span>
-                                    <span>Keterangan</span>
-                                    <span></span>
-                                </div>
-                                {tableRows.map((row, idx) => (
-                                    <div key={idx} className="flex flex-col sm:grid sm:grid-cols-[1fr_6rem_1fr_auto] gap-2 p-3 sm:p-0 border sm:border-0 border-slate-200 rounded-lg sm:rounded-none">
-                                        <input
-                                            type="text"
-                                            value={row.name}
-                                            onChange={(e) => updateRow(idx, 'name', e.target.value)}
-                                            placeholder="Nama peserta / kelas"
-                                            className="rounded-lg border-slate-300 text-sm"
-                                        />
-                                        <input
-                                            type="text"
-                                            value={row.rank}
-                                            onChange={(e) => updateRow(idx, 'rank', e.target.value)}
-                                            placeholder="Juara"
-                                            className="rounded-lg border-slate-300 text-sm"
-                                        />
-                                        <input
-                                            type="text"
-                                            value={row.event}
-                                            onChange={(e) => updateRow(idx, 'event', e.target.value)}
-                                            placeholder="Lomba / keterangan"
-                                            className="rounded-lg border-slate-300 text-sm"
-                                        />
-                                        <button
-                                            type="button"
-                                            onClick={() => removeRow(idx)}
-                                            className="min-h-11 px-2 text-sm font-semibold text-red-600 hover:underline"
-                                        >
-                                            Hapus
-                                        </button>
-                                    </div>
-                                ))}
-                                {Object.keys(errors).filter((k) => k.startsWith('meta.achievement_table')).length > 0 && (
-                                    <p className="text-red-500 text-xs">Lengkapi kolom Nama dan Peringkat pada setiap baris.</p>
-                                )}
+                        <div className="flex items-center justify-between gap-2">
+                            <div>
+                                <label className="text-sm font-semibold text-slate-700">Blok Tambahan (Opsional)</label>
+                                <p className="text-xs text-slate-500 mt-0.5">
+                                    Tambah teks atau tabel sesuai kebutuhan. Urutan bisa diatur dengan tombol ▲▼.
+                                </p>
+                            </div>
+                            <div className="flex items-center gap-2 shrink-0">
                                 <button
                                     type="button"
-                                    onClick={addRow}
-                                    className="text-sm font-semibold text-primary hover:underline"
+                                    onClick={() => addBlock('text')}
+                                    className="text-sm font-semibold text-primary hover:underline whitespace-nowrap"
                                 >
-                                    + Tambah Baris
+                                    + Teks
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => addBlock('table')}
+                                    className="text-sm font-semibold text-primary hover:underline whitespace-nowrap"
+                                >
+                                    + Tabel
                                 </button>
                             </div>
+                        </div>
+
+                        {blocks.map((block, index) => (
+                            <Block
+                                key={index}
+                                block={block}
+                                index={index}
+                                total={blocks.length}
+                                onChange={(next) => updateBlock(index, next)}
+                                onRemove={() => removeBlock(index)}
+                                onMoveUp={() => moveBlock(index, -1)}
+                                onMoveDown={() => moveBlock(index, 1)}
+                            />
+                        ))}
+
+                        {Object.keys(errors).some((k) => k.startsWith('meta.blocks')) && (
+                            <p className="text-red-500 text-xs">Lengkapi kolom Nama dan Peringkat pada setiap baris tabel.</p>
                         )}
                     </div>
 

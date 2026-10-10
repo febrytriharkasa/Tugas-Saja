@@ -30,7 +30,7 @@ class PageController extends Controller
     {
         $data = $request->validate([
             'title' => 'required|string|max:255',
-            'group' => 'required|in:tentang,laman',
+            'group' => 'required|in:tentang,laman,arsip',
             'display_type' => 'required|in:text,category',
             'category_id' => 'nullable|required_if:display_type,category|exists:categories,id',
             'content' => 'nullable|required_if:display_type,text|string',
@@ -61,7 +61,7 @@ class PageController extends Controller
     {
         $data = $request->validate([
             'title' => 'required|string|max:255',
-            'group' => 'required|in:tentang,laman',
+            'group' => 'required|in:tentang,laman,arsip',
             'display_type' => 'required|in:text,category',
             'category_id' => 'nullable|required_if:display_type,category|exists:categories,id',
             'content' => 'nullable|required_if:display_type,text|string',

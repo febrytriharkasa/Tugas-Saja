@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Category;
 use App\Models\Gallery;
 use App\Models\Page;
 use App\Models\Post;
@@ -59,7 +60,13 @@ class HomeController extends Controller
             'galeri' => ['title' => 'Galeri Aktivitas', 'items' => Gallery::latest()->paginate(16)],
         ];
 
-        abort_unless(isset($configs[$type]), 404);
+        if (! isset($configs[$type])) {
+            $category = Category::where('slug', $type)->firstOrFail();
+            $configs[$type] = [
+                'title' => $category->name,
+                'items' => $this->categoryPosts($category->slug, null, true),
+            ];
+        }
 
         return Inertia::render('Public/Archive', [
             'title' => $configs[$type]['title'],

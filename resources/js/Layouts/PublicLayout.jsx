@@ -13,7 +13,7 @@ function Chevron({ open = false }) {
 export default function PublicLayout({ children, settings = {} }) {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [openMenu, setOpenMenu] = useState(null);
-    const { aboutPages = [], customPages = [], settings: sharedSettings = {} } = usePage().props;
+    const { aboutPages = [], customPages = [], archivePages = [], settings: sharedSettings = {} } = usePage().props;
     const siteSettings = { ...sharedSettings, ...settings };
 
     const toggleMenu = (name) => setOpenMenu(openMenu === name ? null : name);
@@ -84,7 +84,7 @@ export default function PublicLayout({ children, settings = {} }) {
                                 <button type="button" onClick={() => toggleMenu('archive')} aria-expanded={openMenu === 'archive'} className="flex min-h-11 items-center gap-1 rounded-lg px-3 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">
                                     Arsip <Chevron open={openMenu === 'archive'} />
                                 </button>
-                                {openMenu === 'archive' && <div className="absolute right-0 top-full mt-2 w-48 rounded-xl border border-slate-200 bg-white p-2 shadow-card">{archiveLinks.map(([label, href]) => <Link key={href} href={href} onClick={closeMenus} className="block rounded-lg px-3 py-2 text-sm text-slate-700 transition hover:bg-emerald-50 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">{label}</Link>)}</div>}
+                                {openMenu === 'archive' && <div className="absolute right-0 top-full mt-2 w-56 rounded-xl border border-slate-200 bg-white p-2 shadow-card">{archiveLinks.map(([label, href]) => <Link key={href} href={href} onClick={closeMenus} className="block rounded-lg px-3 py-2 text-sm text-slate-700 transition hover:bg-emerald-50 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">{label}</Link>)}{archivePages.length > 0 && <div>{pageLinks(archivePages)}</div>}</div>}
                             </div>
                             <Link href="/statistik" className="rounded-lg px-3 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">Statistik</Link>
                         </div>
@@ -111,7 +111,7 @@ export default function PublicLayout({ children, settings = {} }) {
                             <Link href="/berita" onClick={closeMenus} className="block min-h-11 rounded-lg px-3 py-2.5 text-sm font-semibold text-slate-700">Berita</Link>
                             <div>
                                 <button type="button" onClick={() => toggleMenu('archive')} aria-expanded={openMenu === 'archive'} className="flex min-h-11 w-full items-center justify-between rounded-lg px-3 py-2.5 text-left text-sm font-semibold text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">Arsip <Chevron open={openMenu === 'archive'} /></button>
-                                {openMenu === 'archive' && <div className="ml-3 border-l border-slate-200 pl-2">{archiveLinks.map(([label, href]) => <Link key={href} href={href} onClick={closeMenus} className="block min-h-11 rounded-lg px-3 py-2.5 text-sm text-slate-700">{label}</Link>)}</div>}
+                                {openMenu === 'archive' && <div className="ml-3 border-l border-slate-200 pl-2">{archiveLinks.map(([label, href]) => <Link key={href} href={href} onClick={closeMenus} className="block min-h-11 rounded-lg px-3 py-2.5 text-sm text-slate-700">{label}</Link>)}{archivePages.length > 0 && <div className="my-2 border-t border-slate-200 pt-2">{pageLinks(archivePages)}</div>}</div>}
                             </div>
                             <Link href="/statistik" onClick={closeMenus} className="block min-h-11 rounded-lg px-3 py-2.5 text-sm font-semibold text-slate-700">Statistik</Link>
                         </div>

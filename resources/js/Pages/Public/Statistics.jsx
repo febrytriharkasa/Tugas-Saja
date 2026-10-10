@@ -18,9 +18,8 @@ export default function Statistics({ settings, counts }) {
     return (
         <PublicLayout>
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-                <Badge variant="primary" className="mb-4">Data & Angka</Badge>
                 <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900 mb-4">Statistik Sekolah</h1>
-                <p className="text-slate-600 mb-10 max-w-2xl">
+                <p className="mt-2 text-xs font-bold uppercase tracking-[0.14em] text-secondary">
                     Data statistik dan informasi kuantitatif SMA Al Islam Krian.
                 </p>
 

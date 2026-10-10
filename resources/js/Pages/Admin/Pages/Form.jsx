@@ -47,6 +47,7 @@ export default function PageForm({ page, categories }) {
                         >
                             <option value="tentang">Tentang Kami</option>
                             <option value="laman">Laman Kustom</option>
+                            <option value="arsip">Arsip Kustom</option>
                         </select>
                     </div>
 

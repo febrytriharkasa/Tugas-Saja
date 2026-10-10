@@ -1,58 +1,191 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# SMALISKA Web
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Portal sekolah SMA Al Islam Krian. Dibangun dengan Laravel, Inertia React, Tailwind CSS, dan MySQL atau SQLite.
 
-## About Laravel
+## Kebutuhan
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- PHP 8.3 atau lebih baru
+- Composer 2
+- Node.js 20 atau lebih baru
+- npm
+- MySQL 8 jika memakai MySQL
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
-
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
-
-## Learning Laravel
-
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
-
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
-
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+## Instalasi
 
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+git clone <repository-url>
+cd sekolah-web
+composer install
+npm install
+copy .env.example .env
+php artisan key:generate
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+Di macOS atau Linux, ganti `copy` dengan:
 
-## Contributing
+```bash
+cp .env.example .env
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+## Konfigurasi lingkungan
 
-## Code of Conduct
+Atur nilai berikut pada `.env`:
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+```env
+APP_NAME=SMALISKA
+APP_ENV=local
+APP_KEY=
+APP_DEBUG=true
+APP_URL=http://localhost:8000
 
-## Security Vulnerabilities
+APP_LOCALE=id
+APP_FALLBACK_LOCALE=id
+APP_FAKER_LOCALE=id_ID
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=smaliska
+DB_USERNAME=root
+DB_PASSWORD=
 
-## License
+SESSION_DRIVER=database
+CACHE_STORE=database
+QUEUE_CONNECTION=database
+FILESYSTEM_DISK=public
+```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Jangan commit file `.env`. Isi `APP_KEY`, kredensial database, dan konfigurasi produksi hanya di server atau secret manager.
+
+### Opsi SQLite
+
+Untuk pengembangan tanpa MySQL:
+
+```env
+DB_CONNECTION=sqlite
+```
+
+Pastikan file `database/database.sqlite` tersedia, lalu jalankan migrasi.
+
+### Opsi MySQL
+
+Buat database terlebih dahulu:
+
+```sql
+CREATE DATABASE smaliska CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+```
+
+Lalu isi `DB_DATABASE`, `DB_USERNAME`, dan `DB_PASSWORD` pada `.env`.
+
+## Database dan data awal
+
+Jalankan migrasi dan seeder utama:
+
+```bash
+php artisan migrate --seed
+```
+
+Untuk menghapus seluruh tabel, membuat ulang skema, lalu mengisi ulang data awal:
+
+```bash
+php artisan migrate:fresh --seed
+```
+
+Perintah `migrate:fresh` menghapus seluruh data database aktif.
+
+Seeder utama membuat akun admin, kategori, pengaturan situs, halaman, konten contoh, staf, dan galeri.
+
+### Akun dummy
+
+| Email | Password | Role |
+| --- | --- | --- |
+| `admin@smaliska.sch.id` | `password` | superadmin |
+| `humas@smaliska.sch.id` | `password` | admin |
+| `it@smaliska.sch.id` | `password` | admin |
+
+Ganti password dummy sebelum deployment.
+
+### Dummy post dengan tabel data
+
+Jalankan seeder berikut untuk membuat tiga post dengan tabel pada metadata:
+
+```bash
+php artisan db:seed --class=DummyPostWithTableSeeder
+```
+
+Data dibuat atau diperbarui berdasarkan slug untuk kategori:
+
+- Prestasi: hasil Olimpiade Sains
+- Pengumuman: hasil seleksi delegasi kompetisi
+- Ekstrakurikuler: perolehan medali Tapak Suci
+
+Setiap tabel disimpan pada `metadata.achievement_table` dengan struktur berikut:
+
+```json
+{
+  "achievement_table": [
+    {
+      "name": "Nama peserta atau kelas",
+      "rank": "Juara atau peringkat",
+      "event": "Lomba atau keterangan"
+    }
+  ]
+}
+```
+
+## Penyimpanan gambar
+
+Post dan galeri memakai disk `public`. Buat symbolic link sekali setelah instalasi:
+
+```bash
+php artisan storage:link
+```
+
+## Menjalankan aplikasi
+
+Untuk menjalankan Laravel dan Vite bersamaan:
+
+```bash
+composer run dev
+```
+
+Atau jalankan terpisah:
+
+```bash
+php artisan serve
+npm run dev
+```
+
+Build aset produksi:
+
+```bash
+npm run build
+```
+
+## Pengelolaan konten
+
+1. Masuk melalui `/login` memakai akun admin.
+2. Buka menu admin untuk membuat kategori, post, halaman, galeri, staf, dan pengaturan situs.
+3. Pada form post, aktifkan **Tabel Data (Opsional)** bila konten membutuhkan daftar terstruktur.
+4. Isi kolom Nama, Peringkat, dan Keterangan. Tambahkan atau hapus baris sesuai kebutuhan.
+5. Terbitkan post agar tampil pada halaman publik.
+
+Tabel dapat dipakai pada kategori apa pun. Halaman detail post menampilkan tabel otomatis bila `metadata.achievement_table` berisi data.
+
+## Pengujian dan format kode
+
+```bash
+php artisan test
+vendor/bin/pint --format agent
+npm run build
+```
+
+## Struktur penting
+
+```text
+app/Http/Controllers/Admin/PostController.php  Validasi dan simpan post
+resources/js/Pages/Admin/Posts/Form.jsx        Form post dan editor tabel
+resources/js/Pages/Public/PostDetail.jsx       Tampilan detail post publik
+database/seeders/DatabaseSeeder.php            Data awal aplikasi
+database/seeders/DummyPostWithTableSeeder.php  Data dummy tabel post
+```

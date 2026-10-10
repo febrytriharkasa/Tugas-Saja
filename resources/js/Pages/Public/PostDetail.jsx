@@ -9,8 +9,6 @@ function Breadcrumbs({ post }) {
                     <Link href="/" className="hover:text-primary transition-colors flex items-center gap-1">
                         Beranda
                     </Link>
-                    <span className="text-slate-300">/</span>
-                    <Link href="/berita" className="hover:text-primary transition-colors">Berita</Link>
                     {post.category && (
                         <>
                             <span className="text-slate-300">/</span>
@@ -37,17 +35,21 @@ function MetaChip({ label, value, accentClass = 'bg-emerald-50 text-emerald-700'
     );
 }
 
-function AchievementTable({ rows }) {
+function AchievementTable({ rows, description }) {
     if (!Array.isArray(rows) || rows.length === 0) {
         return null;
     }
     const hasEvent = rows.some((r) => r.event);
     return (
-        <div className="mt-8 overflow-hidden rounded-xl border border-slate-200 shadow-sm">
-            <div className="bg-primary px-5 py-3">
-                <h3 className="text-sm font-bold text-white">Daftar Data</h3>
-            </div>
-            <div className="overflow-x-auto">
+        <div className="mt-8">
+            {description && (
+                <p className="mb-3 text-sm italic text-slate-600 border-l-4 border-primary/40 pl-3">{description}</p>
+            )}
+            <div className="overflow-hidden rounded-xl border border-slate-200 shadow-sm">
+                <div className="bg-primary px-5 py-3">
+                    <h3 className="text-sm font-bold text-white">Daftar Data</h3>
+                </div>
+                <div className="overflow-x-auto">
                 <table className="w-full text-sm text-left border-collapse">
                     <thead>
                         <tr className="bg-slate-50 border-b border-slate-200 text-xs font-semibold text-slate-600 uppercase tracking-wide">
@@ -74,6 +76,7 @@ function AchievementTable({ rows }) {
                         ))}
                     </tbody>
                 </table>
+                </div>
             </div>
         </div>
     );
@@ -81,7 +84,7 @@ function AchievementTable({ rows }) {
 
 function FlatMetadata({ metadata }) {
     const flat = Object.entries(metadata || {}).filter(
-        ([key, val]) => key !== 'achievement_table' && val !== null && val !== '',
+        ([key, val]) => key !== 'achievement_table' && key !== 'tables' && key !== 'blocks' && val !== null && val !== '',
     );
     if (flat.length === 0) {
         return null;
@@ -102,9 +105,13 @@ export default function PostDetail({ post, relatedPosts = [] }) {
 
     const readingMinutes = Math.max(1, Math.round((post.content || '').split(/\s+/).length / 200));
 
-    const achievementTable = Array.isArray(post.metadata?.achievement_table)
-        ? post.metadata.achievement_table
-        : null;
+    const blocks = Array.isArray(post.metadata?.blocks)
+        ? post.metadata.blocks
+        : Array.isArray(post.metadata?.tables)
+          ? post.metadata.tables.map((t) => ({ type: 'table', description: t.description, rows: t.rows }))
+          : Array.isArray(post.metadata?.achievement_table)
+            ? [{ type: 'table', description: '', rows: post.metadata.achievement_table }]
+            : [];
 
     return (
         <PublicLayout>
@@ -117,9 +124,7 @@ export default function PostDetail({ post, relatedPosts = [] }) {
                         <header className="flex flex-col gap-4 pb-6">
                             <div className="flex flex-wrap items-center gap-2">
                                 {post.category && (
-                                    <span className="px-3 py-1 rounded-full bg-primary text-white text-xs font-bold uppercase tracking-wide">
-                                        {post.category.name}
-                                    </span>
+                                    <p className="mt-2 text-xs font-bold uppercase tracking-[0.14em] text-secondary">{post.category.name}</p>
                                 )}
                             </div>
 
@@ -172,7 +177,19 @@ export default function PostDetail({ post, relatedPosts = [] }) {
                             {post.content}
                         </div>
 
-                        {achievementTable && <AchievementTable rows={achievementTable} />}
+                        {blocks.map((block, idx) => {
+                            if (block.type === 'text') {
+                                return (
+                                    <div key={idx} className="mt-6 prose prose-slate max-w-none text-slate-700 leading-relaxed whitespace-pre-line text-base">
+                                        {block.content}
+                                    </div>
+                                );
+                            }
+                            if (block.type === 'table') {
+                                return <AchievementTable key={idx} rows={block.rows} description={block.description} />;
+                            }
+                            return null;
+                        })}
 
                         <FlatMetadata metadata={post.metadata} />
 
