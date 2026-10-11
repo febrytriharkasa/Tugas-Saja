@@ -112,12 +112,14 @@ class PostController extends Controller
             'meta.*' => ['nullable'],
             'meta.blocks' => ['nullable', 'array'],
             'meta.blocks.*.type' => ['required_with:meta.blocks', Rule::in(['text', 'table'])],
-            'meta.blocks.*.content' => ['required_if:meta.blocks.*.type,text', 'string'],
+            'meta.blocks.*.content' => ['nullable', 'string'],
+            'meta.blocks.*.title' => ['nullable', 'string', 'max:255'],
             'meta.blocks.*.description' => ['nullable', 'string', 'max:500'],
+            'meta.blocks.*.columns' => ['nullable', 'array'],
+            'meta.blocks.*.columns.*' => ['nullable', 'string', 'max:100'],
             'meta.blocks.*.rows' => ['required_if:meta.blocks.*.type,table', 'array'],
-            'meta.blocks.*.rows.*.name' => ['required_with:meta.blocks.*.rows', 'string', 'max:255'],
-            'meta.blocks.*.rows.*.rank' => ['required_with:meta.blocks.*.rows', 'string', 'max:100'],
-            'meta.blocks.*.rows.*.event' => ['nullable', 'string', 'max:255'],
+            'meta.blocks.*.rows.*' => ['nullable'],
+            'meta.blocks.*.rows.*.*' => ['nullable', 'string', 'max:1000'],
         ]);
     }
 

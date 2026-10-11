@@ -13,7 +13,10 @@ class CategoryController extends Controller
     public function index()
     {
         return Inertia::render('Admin/Categories/Index', [
-            'categories' => Category::withCount('posts')->latest()->get(),
+            'categories' => Category::withCount('posts')->latest()->get()->map(fn (Category $category) => [
+                ...$category->toArray(),
+                'is_fixed_on_home' => $category->isFixedOnHome(),
+            ]),
         ]);
     }
 
@@ -32,6 +35,7 @@ class CategoryController extends Controller
             'name' => $validated['name'],
             'slug' => Str::slug($validated['name']),
             'metadata_schema' => array_values($validated['metadata_schema'] ?? []),
+            'show_on_home' => $validated['show_on_home'] ?? false,
         ]);
 
         return redirect()->route('admin.categories.index')->with('success', 'Kategori berhasil ditambahkan.');
@@ -40,14 +44,14 @@ class CategoryController extends Controller
     public function show(Category $category)
     {
         return Inertia::render('Admin/Categories/Show', [
-            'category' => $category->loadCount('posts'),
+            'category' => [...$category->loadCount('posts')->toArray(), 'is_fixed_on_home' => $category->isFixedOnHome()],
         ]);
     }
 
     public function edit(Category $category)
     {
         return Inertia::render('Admin/Categories/Form', [
-            'category' => $category,
+            'category' => [...$category->toArray(), 'is_fixed_on_home' => $category->isFixedOnHome()],
         ]);
     }
 
@@ -57,8 +61,9 @@ class CategoryController extends Controller
 
         $category->update([
             'name' => $validated['name'],
-            'slug' => Str::slug($validated['name']),
+            'slug' => $category->isFixedOnHome() ? $category->slug : Str::slug($validated['name']),
             'metadata_schema' => array_values($validated['metadata_schema'] ?? []),
+            'show_on_home' => $category->isFixedOnHome() || ($validated['show_on_home'] ?? false),
         ]);
 
         return redirect()->route('admin.categories.index')->with('success', 'Kategori berhasil diperbarui.');
@@ -66,6 +71,10 @@ class CategoryController extends Controller
 
     public function destroy(Category $category)
     {
+        if ($category->isFixedOnHome()) {
+            return redirect()->route('admin.categories.index')->with('error', 'Kategori Berita wajib tersedia di beranda dan tidak dapat dihapus.');
+        }
+
         $category->delete();
 
         return redirect()->route('admin.categories.index')->with('success', 'Kategori berhasil dihapus.');
@@ -81,6 +90,7 @@ class CategoryController extends Controller
             'metadata_schema.*.key' => 'required|string|max:50',
             'metadata_schema.*.label' => 'required|string|max:100',
             'metadata_schema.*.type' => 'required|string|in:text,date,number',
+            'show_on_home' => 'nullable|boolean',
         ]);
     }
 }

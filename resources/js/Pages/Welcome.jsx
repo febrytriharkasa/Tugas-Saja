@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import { useEffect, useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
 import PublicLayout from '@/Layouts/PublicLayout';
 import Card from '@/Components/Card';
 import ChatWidget from '@/Components/ChatWidget';
@@ -14,7 +14,7 @@ function SectionHeading({ eyebrow, title, href, linkLabel = 'Lihat semua', dark 
         <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             <div>
                 <h2 className={`mt-2 text-2xl font-extrabold tracking-tight sm:text-3xl ${dark ? 'text-white' : 'text-slate-900'}`}>{title}</h2>
-                <p className={`mt-2 text-xs font-bold uppercase tracking-[0.14em] ${dark ? 'text-emerald-200' : 'text-secondary'}`}>{eyebrow}</p>
+                {eyebrow && <p className={`mt-2 text-xs font-bold uppercase tracking-[0.14em] ${dark ? 'text-emerald-200' : 'text-secondary'}`}>{eyebrow}</p>}
             </div>
             {href && <ArrowLink href={href}>{linkLabel}</ArrowLink>}
         </div>
@@ -25,12 +25,96 @@ function EmptyState({ children }) {
     return <div className="rounded-xl border border-dashed border-slate-300 bg-white px-6 py-10 text-center text-sm text-slate-600">{children}</div>;
 }
 
-export default function Welcome({ settings = {}, posts = [], announcements = [], agendas = [], achievements = [], galleries = [], facilities = [], staff = [], testimonials = [] }) {
+function formatPostDate(post) {
+    const value = post.metadata?.event_date || post.metadata?.tanggal_agenda || post.published_at;
+    return value ? new Date(value).toLocaleDateString('id-ID') : '-';
+}
+
+function PostCard({ post, delay = 0 }) {
+    return (
+        <motion.div
+            initial={{ opacity: 0, y: 25 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.4, delay }}
+        >
+            <Card hover className="flex flex-col overflow-hidden h-full">
+                <Link href={`/berita/${post.slug}`} className="block">
+                    <div className="h-48 w-full bg-slate-100 shrink-0">
+                        {post.featured_image ? <img src={post.featured_image} alt={post.title} className="h-full w-full object-cover" /> : <div className="flex h-full w-full items-center justify-center text-xs text-slate-400 font-medium">Gambar tidak tersedia</div>}
+                    </div>
+                </Link>
+                <div className="flex flex-1 flex-col p-5 justify-between">
+                    <div>
+                        <div className="flex items-center gap-2 text-xs text-slate-600">
+                            <span className="font-bold text-primary">{post.category?.name || 'Konten'}</span>
+                            <span>{formatPostDate(post)}</span>
+                        </div>
+                        <h3 className="mt-3 line-clamp-2 text-lg font-bold text-slate-900">
+                            <Link href={`/berita/${post.slug}`} className="hover:text-primary">{post.title}</Link>
+                        </h3>
+                    </div>
+                    <div className="mt-4">
+                        <ArrowLink href={`/berita/${post.slug}`}>Baca selengkapnya</ArrowLink>
+                    </div>
+                </div>
+            </Card>
+        </motion.div>
+    );
+}
+
+function PostSection({ id, eyebrow, title, href, posts, tone = 'plain' }) {
+    return (
+        <section id={id} className={tone === 'muted' ? 'bg-slate-50 py-16 sm:py-20' : 'bg-white py-16 sm:py-20'}>
+            <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                <SectionHeading eyebrow={eyebrow} title={title} href={href} />
+                {posts.length ? (
+                    <div className="grid gap-6 md:grid-cols-3">
+                        {posts.slice(0, 3).map((post, idx) => (
+                            <PostCard key={post.id} post={post} delay={idx * 0.1} />
+                        ))}
+                    </div>
+                ) : <EmptyState>Belum ada konten pada kategori ini.</EmptyState>}
+            </div>
+        </section>
+    );
+}
+
+function AlumniSection({ id, title, href, posts }) {
+    return (
+        <section id={id} className="bg-primary py-16 text-white sm:py-20">
+            <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                <SectionHeading eyebrow="Kisah alumni" title={title} href={href} dark />
+                <div className="grid gap-6 md:grid-cols-2">
+                    {posts.length ? (
+                        posts.slice(0, 4).map((testi, idx) => (
+                            <motion.div
+                                key={testi.id}
+                                initial={{ opacity: 0, y: 25 }}
+                                whileInView={{ opacity: 1, y: 0 }}
+                                viewport={{ once: true }}
+                                transition={{ duration: 0.4, delay: idx * 0.1 }}
+                            >
+                                <Card hover className="bg-white p-6 h-full">
+                                    <p className="text-sm italic leading-7 text-slate-600">“{testi.content}”</p>
+                                    <p className="mt-5 font-bold text-slate-900">{testi.title}</p>
+                                    <p className="mt-1 text-xs text-slate-600">Alumni {testi.metadata?.graduation_year || '-'} · {testi.metadata?.current_profession || 'Profesi belum diisi'}</p>
+                                </Card>
+                            </motion.div>
+                        ))
+                    ) : <div className="md:col-span-2"><EmptyState>Belum ada cerita alumni.</EmptyState></div>}
+                </div>
+            </div>
+        </section>
+    );
+}
+
+export default function Welcome({ settings = {}, posts = [], homeSections = [], galleries = [], staff = [] }) {
     const slides = [
         {
-            tag: settings.hero_slide_1_tag || 'Portal resmi SMALISKA',
+            tag: settings.hero_slide_1_tag || 'Portal resmi SMA XYZ',
             title: settings.hero_slide_1_title || settings.hero_title || 'Membentuk Generasi Rabbani & Berprestasi',
-            subtitle: settings.hero_slide_1_subtitle || settings.hero_subtitle || 'Selamat Datang di Portal Resmi SMA Al Islam Krian (SMALISKA). Pendidikan Islam modern berbasis teknologi & akhlakul karimah di Sidoarjo.',
+            subtitle: settings.hero_slide_1_subtitle || settings.hero_subtitle || 'Selamat Datang di Portal Resmi SMA XYZ. Pendidikan Islam modern berbasis teknologi & akhlakul karimah di Sidoarjo.',
             btnText: settings.hero_slide_1_btn_text || 'Sambutan Kepala Sekolah',
             btnUrl: settings.hero_slide_1_btn_url || '#sambutan',
             image: settings.hero_slide_1_image || settings.hero_background_image || null,
@@ -38,15 +122,14 @@ export default function Welcome({ settings = {}, posts = [], announcements = [],
         {
             tag: settings.hero_slide_2_tag || 'Penerimaan Siswa Baru',
             title: settings.hero_slide_2_title || 'Pendaftaran Peserta Didik Baru',
-            subtitle: settings.hero_slide_2_subtitle || 'Buka peluang masa depan terbaikmu bersama SMALISKA. Bergabunglah dengan pendidikan Islam modern berwawasan global.',
+            subtitle: settings.hero_slide_2_subtitle || 'Buka peluang masa depan terbaikmu bersama SMA XYZ. Bergabunglah dengan pendidikan Islam modern berwawasan global.',
             btnText: settings.hero_slide_2_btn_text || 'Daftar Sekarang',
-            btnUrl: settings.hero_slide_2_btn_url || settings.ppdb_link || 'https://ppdb.smaliska.sch.id',
+            btnUrl: settings.hero_slide_2_btn_url || settings.ppdb_link || 'https://ppdb.smaxyz.sch.id',
             image: settings.hero_slide_2_image || null,
         },
     ];
 
     const [currentSlide, setCurrentSlide] = useState(0);
-    const prefersReducedMotion = false;
 
     useEffect(() => {
         const timer = setInterval(() => {
@@ -56,6 +139,10 @@ export default function Welcome({ settings = {}, posts = [], announcements = [],
     }, [slides.length]);
 
     const activeSlide = slides[currentSlide];
+
+    const toneFor = (index) => (index % 2 === 0 ? 'muted' : 'plain');
+    const galeriIndex = homeSections.length + 1;
+    const gtkIndex = homeSections.length + 2;
 
     return (
         <PublicLayout settings={settings}>
@@ -71,9 +158,8 @@ export default function Welcome({ settings = {}, posts = [], announcements = [],
                         />
                     ) : null
                 ))}
-                
+
                 <div className={`absolute inset-0 -z-10 transition-colors duration-1000 ${activeSlide.image ? 'bg-slate-950/75' : 'bg-primary'}`} />
-                {/* <div className="absolute inset-0 -z-10 bg-gradient-to-r from-slate-950/90 via-primary/75 to-primary/35" /> */}
 
                 <div className="mx-auto grid min-h-[800px] max-w-7xl items-center gap-10 px-4 pt-20 sm:px-6 lg:grid-cols-[minmax(0,1.25fr)_minmax(18rem,0.75fr)] lg:px-8 lg:pb-20 w-full relative z-10">
                     <div className="max-w-3xl min-h-[360px] flex items-center">
@@ -188,9 +274,9 @@ export default function Welcome({ settings = {}, posts = [], announcements = [],
             <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-14 relative z-20">
                 <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-6 shadow-card">
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    {[{ title: settings.quick_link_1_title || 'Pendaftaran', url: settings.quick_link_1_url || 'https://ppdb.smaliska.sch.id', desc: settings.quick_link_1_desc || 'Portal Resmi Pendaftaran PPDB Online' },
-                        { title: settings.quick_link_2_title || 'Yapalis via mobile', url: settings.quick_link_2_url || 'https://mobile.yapalis.or.id', desc: settings.quick_link_2_desc || 'Aplikasi Layanan Mobile Yapalis' },
-                        { title: settings.quick_link_3_title || 'Perpustakaan Yapalis', url: settings.quick_link_3_url || 'https://perpus.yapalis.or.id', desc: settings.quick_link_3_desc || 'Layanan Perpustakaan Digital' },
+                    {[{ title: settings.quick_link_1_title || 'Pendaftaran', url: settings.quick_link_1_url || 'https://ppdb.smaxyz.sch.id', desc: settings.quick_link_1_desc || 'Portal Resmi Pendaftaran PPDB Online' },
+                        { title: settings.quick_link_2_title || 'SMA XYZ via mobile', url: settings.quick_link_2_url || 'https://mobile.smaxyz.or.id', desc: settings.quick_link_2_desc || 'Aplikasi Layanan Mobile SMA XYZ' },
+                        { title: settings.quick_link_3_title || 'Perpustakaan SMA XYZ', url: settings.quick_link_3_url || 'https://perpus.smaxyz.or.id', desc: settings.quick_link_3_desc || 'Layanan Perpustakaan Digital' },
                     ].map((link, idx) => (
                         <motion.div
                             key={idx}
@@ -200,7 +286,7 @@ export default function Welcome({ settings = {}, posts = [], announcements = [],
                             transition={{ duration: 0.4, delay: idx * 0.1 }}
                         >
                             <a href={link.url} target="_blank" rel="noopener noreferrer" className="block group h-full">
-                                <Card hover className="p-6 h-full flex flex-col justify-between border-slate-200/80 group-hover:border-primary transition bg-surface-container-low">
+                                <Card hover className="p-6 h-full flex flex-col justify-between border-slate-200/80 bg-surface-container-low hover:bg-surface-container transition bg-surface-container-low">
                                     <div>
                                         <span className="text-xs font-bold uppercase tracking-wider text-primary">Layanan Pintas</span>
                                         <h3 className="mt-2 text-xl font-extrabold text-slate-900 group-hover:text-primary transition">{link.title}</h3>
@@ -218,174 +304,40 @@ export default function Welcome({ settings = {}, posts = [], announcements = [],
                 </div>
             </section>
 
-            <section id="berita" className="bg-slate-50 py-16 sm:py-20">
-                <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                    <SectionHeading eyebrow="Update terkini seputar sekolah" title="Berita sekolah" href="/berita" />
-                    {posts.length ? (
-                        <div className="grid gap-6 md:grid-cols-3">
-                            {posts.slice(0, 3).map((post, idx) => (
-                                <motion.div
-                                    key={post.id}
-                                    initial={{ opacity: 0, y: 25 }}
-                                    whileInView={{ opacity: 1, y: 0 }}
-                                    viewport={{ once: true }}
-                                    transition={{ duration: 0.4, delay: idx * 0.1 }}
-                                >
-                                    <Card hover className="flex flex-col overflow-hidden h-full">
-                                        <Link href={`/berita/${post.slug}`} className="block">
-                                            <div className="h-48 w-full bg-slate-100 shrink-0">
-                                                {post.featured_image ? <img src={post.featured_image} alt={post.title} className="h-full w-full object-cover" /> : <div className="flex h-full w-full items-center justify-center text-xs text-slate-400 font-medium">Gambar tidak tersedia</div>}
-                                            </div>
-                                        </Link>
-                                        <div className="flex flex-1 flex-col p-5 justify-between">
-                                            <div>
-                                                <div className="flex items-center gap-2 text-xs text-slate-600">
-                                                    <span className="font-bold text-primary">{post.category?.name || 'Berita'}</span>
-                                                    <span>{post.published_at ? new Date(post.published_at).toLocaleDateString('id-ID') : '-'}</span>
-                                                </div>
-                                                <h3 className="mt-3 line-clamp-2 text-lg font-bold text-slate-900">
-                                                    <Link href={`/berita/${post.slug}`} className="hover:text-primary">{post.title}</Link>
-                                                </h3>
-                                            </div>
-                                            <div className="mt-4">
-                                                <ArrowLink href={`/berita/${post.slug}`}>Baca selengkapnya</ArrowLink>
-                                            </div>
-                                        </div>
-                                    </Card>
-                                </motion.div>
-                            ))}
-                        </div>
-                    ) : <EmptyState>Belum ada berita yang diterbitkan.</EmptyState>}
-                </div>
-            </section>
+            {/* Berita is permanent: it always leads the home page. */}
+            <PostSection
+                id="berita"
+                eyebrow="Update terkini seputar sekolah"
+                title="Berita sekolah"
+                href="/berita"
+                posts={posts}
+                tone={toneFor(0)}
+            />
 
-            <section id="pengumuman" className="bg-white py-16 sm:py-20">
-                <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                    <SectionHeading eyebrow="Informasi penting terkini" title="Pengumuman" href="/arsip/pengumuman" />
-                    {announcements.length ? (
-                        <div className="grid gap-6 md:grid-cols-3">
-                            {announcements.slice(0, 3).map((item, idx) => (
-                                <motion.div
-                                    key={item.id}
-                                    initial={{ opacity: 0, y: 25 }}
-                                    whileInView={{ opacity: 1, y: 0 }}
-                                    viewport={{ once: true }}
-                                    transition={{ duration: 0.4, delay: idx * 0.1 }}
-                                >
-                                    <Card hover className="flex flex-col overflow-hidden h-full">
-                                        <Link href={`/berita/${item.slug}`} className="block">
-                                            <div className="h-48 w-full bg-slate-100 shrink-0">
-                                                {item.featured_image ? <img src={item.featured_image} alt={item.title} className="h-full w-full object-cover" /> : <div className="flex h-full w-full items-center justify-center text-xs text-slate-400 font-medium">Gambar tidak tersedia</div>}
-                                            </div>
-                                        </Link>
-                                        <div className="flex flex-1 flex-col p-5 justify-between">
-                                            <div>
-                                                <div className="flex items-center gap-2 text-xs text-slate-600">
-                                                    <span className="font-bold text-tertiary">{item.category?.name || 'Pengumuman'}</span>
-                                                    <span>{item.published_at ? new Date(item.published_at).toLocaleDateString('id-ID') : '-'}</span>
-                                                </div>
-                                                <h3 className="mt-3 line-clamp-2 text-lg font-bold text-slate-900">
-                                                    <Link href={`/berita/${item.slug}`} className="hover:text-primary">{item.title}</Link>
-                                                </h3>
-                                            </div>
-                                            <div className="mt-4">
-                                                <ArrowLink href={`/berita/${item.slug}`}>Baca selengkapnya</ArrowLink>
-                                            </div>
-                                        </div>
-                                    </Card>
-                                </motion.div>
-                            ))}
-                        </div>
-                    ) : <EmptyState>Belum ada pengumuman.</EmptyState>}
-                </div>
-            </section>
+            {/* Sections the editor enabled per category, in the order set in Kategori. */}
+            {homeSections.map((section, idx) => (
+                section.slug === 'cerita-alumni' ? (
+                    <AlumniSection
+                        key={section.id}
+                        id={section.slug}
+                        title={section.name}
+                        href={`/arsip/${section.slug}`}
+                        posts={section.posts}
+                    />
+                ) : (
+                    <PostSection
+                        key={section.id}
+                        id={section.slug}
+                        title={section.name}
+                        href={`/arsip/${section.slug}`}
+                        posts={section.posts}
+                        tone={toneFor(idx + 1)}
+                    />
+                )
+            ))}
 
-            <section id="agenda" className="bg-slate-50 py-16 sm:py-20">
-                <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                    <SectionHeading eyebrow="Jadwal kegiatan terkini" title="Agenda sekolah" href="/arsip/agenda" />
-                    {agendas.length ? (
-                        <div className="grid gap-6 md:grid-cols-3">
-                            {agendas.slice(0, 3).map((agenda, idx) => {
-                                const dateVal = agenda.metadata?.event_date || agenda.published_at;
-                                return (
-                                    <motion.div
-                                        key={agenda.id}
-                                        initial={{ opacity: 0, y: 25 }}
-                                        whileInView={{ opacity: 1, y: 0 }}
-                                        viewport={{ once: true }}
-                                        transition={{ duration: 0.4, delay: idx * 0.1 }}
-                                    >
-                                        <Card hover className="flex flex-col overflow-hidden h-full">
-                                            <Link href={`/berita/${agenda.slug}`} className="block">
-                                                <div className="h-48 w-full bg-slate-100 shrink-0">
-                                                    {agenda.featured_image ? <img src={agenda.featured_image} alt={agenda.title} className="h-full w-full object-cover" /> : <div className="flex h-full w-full items-center justify-center text-xs text-slate-400 font-medium">Gambar tidak tersedia</div>}
-                                                </div>
-                                            </Link>
-                                            <div className="flex flex-1 flex-col p-5 justify-between">
-                                                <div>
-                                                    <div className="flex items-center gap-2 text-xs text-slate-600">
-                                                        <span className="font-bold text-secondary">{agenda.category?.name || 'Agenda'}</span>
-                                                        <span>{dateVal ? new Date(dateVal).toLocaleDateString('id-ID') : '-'}</span>
-                                                    </div>
-                                                    <h3 className="mt-3 line-clamp-2 text-lg font-bold text-slate-900">
-                                                        <Link href={`/berita/${agenda.slug}`} className="hover:text-primary">{agenda.title}</Link>
-                                                    </h3>
-                                                </div>
-                                                <div className="mt-4">
-                                                    <ArrowLink href={`/berita/${agenda.slug}`}>Baca selengkapnya</ArrowLink>
-                                                </div>
-                                            </div>
-                                        </Card>
-                                    </motion.div>
-                                );
-                            })}
-                        </div>
-                    ) : <EmptyState>Belum ada agenda sekolah.</EmptyState>}
-                </div>
-            </section>
-
-            <section id="prestasi" className="bg-white py-16 sm:py-20">
-                <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                    <SectionHeading eyebrow="Prestasi terbaru yang berhasil kami raih" title="Prestasi terbaru" href="/arsip/prestasi" />
-                    {achievements.length ? (
-                        <div className="grid gap-6 md:grid-cols-3">
-                            {achievements.slice(0, 6).map((ach, idx) => (
-                                <motion.div
-                                    key={ach.id}
-                                    initial={{ opacity: 0, y: 25 }}
-                                    whileInView={{ opacity: 1, y: 0 }}
-                                    viewport={{ once: true }}
-                                    transition={{ duration: 0.4, delay: idx * 0.1 }}
-                                >
-                                    <Card hover className="flex flex-col overflow-hidden h-full">
-                                        <Link href={`/berita/${ach.slug}`} className="block">
-                                            <div className="h-48 w-full bg-slate-100 shrink-0">
-                                                {ach.featured_image ? <img src={ach.featured_image} alt={ach.title} className="h-full w-full object-cover" /> : <div className="flex h-full w-full items-center justify-center text-xs text-slate-400 font-medium">Gambar tidak tersedia</div>}
-                                            </div>
-                                        </Link>
-                                        <div className="flex flex-1 flex-col p-5 justify-between">
-                                            <div>
-                                                <div className="flex items-center gap-2 text-xs text-slate-600">
-                                                    <p className="text-xs font-bold uppercase tracking-wide text-tertiary">{ach.category?.name || 'Prestasi'}</p>
-                                                    <span>{ach.published_at ? new Date(ach.published_at).toLocaleDateString('id-ID') : '-'}</span>
-                                                </div>
-                                                <h3 className="mt-2 line-clamp-2 text-lg font-bold text-slate-900">
-                                                    <Link href={`/berita/${ach.slug}`} className="hover:text-primary">{ach.title}</Link>
-                                                </h3>
-                                            </div>
-                                            <div className="mt-4">
-                                                <ArrowLink href={`/berita/${ach.slug}`}>Baca selengkapnya</ArrowLink>
-                                            </div>
-                                        </div>
-                                    </Card>
-                                </motion.div>
-                            ))}
-                        </div>
-                    ) : <EmptyState>Belum ada prestasi yang diterbitkan.</EmptyState>}
-                </div>
-            </section>
-
-            <section id="galeri" className="bg-slate-50 py-16 sm:py-20">
+            {/* Galeri aktivitas and Guru & Tendik are permanent, after the adjustable sections. */}
+            <section id="galeri" className={toneFor(galeriIndex) === 'muted' ? 'bg-slate-50 py-16 sm:py-20' : 'bg-white py-16 sm:py-20'}>
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <SectionHeading eyebrow="Lihat kegiatan kami ketika di sekolah" title="Galeri aktivitas" href="/arsip/galeri" />
                     {galleries.length ? (
@@ -410,44 +362,7 @@ export default function Welcome({ settings = {}, posts = [], announcements = [],
                 </div>
             </section>
 
-            <section id="fasilitas" className="bg-white py-16 sm:py-20">
-                <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                    <SectionHeading eyebrow="Untuk menunjang kegiatan belajar mengajar" title="Fasilitas sekolah" href="/laman/fasilitas" />
-                    {facilities.length ? (
-                        <div className="grid gap-6 md:grid-cols-3">
-                            {facilities.slice(0, 6).map((facility, idx) => (
-                                <motion.div
-                                    key={facility.id}
-                                    initial={{ opacity: 0, y: 25 }}
-                                    whileInView={{ opacity: 1, y: 0 }}
-                                    viewport={{ once: true }}
-                                    transition={{ duration: 0.4, delay: idx * 0.1 }}
-                                >
-                                    <Card hover className="overflow-hidden flex flex-col h-full">
-                                        <Link href={`/berita/${facility.slug}`} className="block">
-                                            <div className="aspect-[16/9] bg-slate-100">
-                                                {facility.featured_image ? <img src={facility.featured_image} alt={facility.title} className="h-full w-full object-cover" /> : <div className="flex h-full w-full items-center justify-center text-xs text-slate-400 font-medium">Gambar tidak tersedia</div>}
-                                            </div>
-                                        </Link>
-                                        <div className="p-5 flex-1 flex flex-col justify-between">
-                                            <div>
-                                                <h3 className="font-bold text-slate-900">
-                                                    <Link href={`/berita/${facility.slug}`} className="hover:text-primary">{facility.title}</Link>
-                                                </h3>
-                                            </div>
-                                            <div className="mt-3">
-                                                <ArrowLink href={`/berita/${facility.slug}`}>Lihat detail</ArrowLink>
-                                            </div>
-                                        </div>
-                                    </Card>
-                                </motion.div>
-                            ))}
-                        </div>
-                    ) : <EmptyState>Belum ada data fasilitas.</EmptyState>}
-                </div>
-            </section>
-
-            <section id="gtk" className="bg-slate-50 py-16 sm:py-20">
+            <section id="gtk" className={toneFor(gtkIndex) === 'muted' ? 'bg-slate-50 py-16 sm:py-20' : 'bg-white py-16 sm:py-20'}>
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <SectionHeading eyebrow="Tenaga pendidik profesional" title="Guru dan tenaga kependidikan" href="/laman/guru-tendik" />
                     {staff.length ? (
@@ -471,31 +386,6 @@ export default function Welcome({ settings = {}, posts = [], announcements = [],
                             ))}
                         </div>
                     ) : <EmptyState>Belum ada data Guru dan Tendik.</EmptyState>}
-                </div>
-            </section>
-
-            <section id="alumni" className="bg-primary py-16 text-white sm:py-20">
-                <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                    <SectionHeading eyebrow="Kisah alumni" title="Cerita dari alumni SMALISKA" dark />
-                    <div className="grid gap-6 md:grid-cols-2">
-                        {testimonials.length ? (
-                            testimonials.slice(0, 4).map((testi, idx) => (
-                                <motion.div
-                                    key={testi.id}
-                                    initial={{ opacity: 0, y: 25 }}
-                                    whileInView={{ opacity: 1, y: 0 }}
-                                    viewport={{ once: true }}
-                                    transition={{ duration: 0.4, delay: idx * 0.1 }}
-                                >
-                                    <Card hover className="bg-white p-6 h-full">
-                                        <p className="text-sm italic leading-7 text-slate-600">“{testi.content}”</p>
-                                        <p className="mt-5 font-bold text-slate-900">{testi.title}</p>
-                                        <p className="mt-1 text-xs text-slate-600">Alumni {testi.metadata?.graduation_year || '-'} · {testi.metadata?.current_profession || 'Profesi belum diisi'}</p>
-                                    </Card>
-                                </motion.div>
-                            ))
-                        ) : <div className="md:col-span-2"><EmptyState>Belum ada cerita alumni.</EmptyState></div>}
-                    </div>
                 </div>
             </section>
 

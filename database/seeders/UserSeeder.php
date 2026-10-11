@@ -13,31 +13,31 @@ class UserSeeder extends Seeder
         $users = [
             [
                 'name' => 'Dr. H. Ahmad Dahlan, M.Pd.',
-                'email' => 'admin@smaliska.sch.id',
+                'email' => 'admin@smaxyz.sch.id',
                 'password' => Hash::make('password'),
                 'role' => 'superadmin',
             ],
             [
                 'name' => 'Siti Aminah, S.Pd.',
-                'email' => 'humas@smaliska.sch.id',
+                'email' => 'humas@smaxyz.sch.id',
                 'password' => Hash::make('password'),
                 'role' => 'admin',
             ],
             [
                 'name' => 'Budi Santoso, S.Kom.',
-                'email' => 'it@smaliska.sch.id',
+                'email' => 'it@smaxyz.sch.id',
                 'password' => Hash::make('password'),
                 'role' => 'admin',
             ],
             [
                 'name' => 'Rina Wulandari, M.Si.',
-                'email' => 'kurikulum@smaliska.sch.id',
+                'email' => 'kurikulum@smaxyz.sch.id',
                 'password' => Hash::make('password'),
                 'role' => 'admin',
             ],
             [
                 'name' => 'M. Rizky Pratama, S.Pd.',
-                'email' => 'kesiswaan@smaliska.sch.id',
+                'email' => 'kesiswaan@smaxyz.sch.id',
                 'password' => Hash::make('password'),
                 'role' => 'admin',
             ],

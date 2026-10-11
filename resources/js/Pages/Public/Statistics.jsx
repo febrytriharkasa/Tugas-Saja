@@ -20,7 +20,7 @@ export default function Statistics({ settings, counts }) {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
                 <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900 mb-4">Statistik Sekolah</h1>
                 <p className="mt-2 text-xs font-bold uppercase tracking-[0.14em] text-secondary">
-                    Data statistik dan informasi kuantitatif SMA Al Islam Krian.
+                    Data statistik dan informasi kuantitatif SMA XYZ.
                 </p>
 
                 <div className="grid md:grid-cols-4 gap-6">

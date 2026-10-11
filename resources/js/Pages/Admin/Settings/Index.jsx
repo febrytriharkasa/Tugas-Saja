@@ -66,7 +66,7 @@ export default function SettingsIndex({ settings }) {
                                     type="text"
                                     value={data.hero_slide_1_tag || ''}
                                     onChange={(e) => setData('hero_slide_1_tag', e.target.value)}
-                                    placeholder="Contoh: Portal resmi SMALISKA"
+                                    placeholder="Contoh: Portal resmi SMA XYZ"
                                     className="mt-1 block w-full rounded-lg border-slate-300 text-sm focus:border-primary focus:ring-primary"
                                 />
                             </div>

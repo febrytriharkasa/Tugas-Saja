@@ -47,7 +47,7 @@ export default function PublicLayout({ children, settings = {} }) {
                     <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-2 text-xs sm:px-6 lg:px-8">
                         <div className="flex min-w-0 items-center gap-4">
                             <span className="truncate">{siteSettings.contact_phone || '(031) 8971234'}</span>
-                            <span className="hidden truncate sm:inline">{siteSettings.contact_email || 'info@smaliska.sch.id'}</span>
+                            <span className="hidden truncate sm:inline">{siteSettings.contact_email || 'info@smaxyz.sch.id'}</span>
                         </div>
                         <a href={siteSettings.ppdb_link || '#'} className="min-h-8 shrink-0 rounded bg-secondary px-3 py-1.5 font-semibold text-white transition hover:bg-secondary-light focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-slate-850">
                             Daftar PPDB
@@ -60,8 +60,8 @@ export default function PublicLayout({ children, settings = {} }) {
                         <Link href="/" className="flex min-w-0 items-center gap-3 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2">
                             <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-primary text-sm font-extrabold text-white shadow-sm">SA</span>
                             <span className="min-w-0">
-                                <span className="block truncate text-sm font-extrabold tracking-tight text-primary sm:text-base">{siteSettings.site_name || 'SMA Al Islam Krian'}</span>
-                                <span className="hidden text-xs text-slate-600 sm:block">Portal resmi SMALISKA</span>
+                                <span className="block truncate text-sm font-extrabold tracking-tight text-primary sm:text-base">{siteSettings.site_name || 'SMA XYZ'}</span>
+                                <span className="hidden text-xs text-slate-600 sm:block">Portal resmi SMA XYZ</span>
                             </span>
                         </Link>
 
@@ -135,7 +135,7 @@ export default function PublicLayout({ children, settings = {} }) {
                 <div className="mx-auto grid max-w-7xl gap-10 px-4 py-12 sm:px-6 md:grid-cols-3 lg:px-8">
                     <div className="md:col-span-2 space-y-6">
                         <div>
-                            <p className="text-xl font-extrabold">{siteSettings.site_name || 'SMA Al Islam Krian'}</p>
+                            <p className="text-xl font-extrabold">{siteSettings.site_name || 'SMA XYZ'}</p>
                             <p className="mt-2 max-w-md text-sm leading-6 text-slate-300">{siteSettings.site_tagline || 'Berakhlak Mulia, Berprestasi Tinggi, Berwawasan Global'}</p>
                         </div>
 
@@ -144,7 +144,7 @@ export default function PublicLayout({ children, settings = {} }) {
                             <div className="mt-2 space-y-1 text-sm text-slate-300">
                                 <p>{siteSettings.contact_address || 'Jl. Kyai Mojo No. 1, Krian, Sidoarjo'}</p>
                                 <p>{siteSettings.contact_phone || '(031) 8971234'}</p>
-                                <p>{siteSettings.contact_email || 'info@smaliska.sch.id'}</p>
+                                <p>{siteSettings.contact_email || 'info@smaxyz.sch.id'}</p>
                             </div>
                         </div>
 
@@ -200,7 +200,7 @@ export default function PublicLayout({ children, settings = {} }) {
                         </div>
                     </div>
                 </div>
-                <div className="border-t border-slate-700 px-4 py-5 text-center text-xs text-slate-400">© {new Date().getFullYear()} {siteSettings.site_name || 'SMA Al Islam Krian'}. Hak Cipta Dilindungi.</div>
+                <div className="border-t border-slate-700 px-4 py-5 text-center text-xs text-slate-400">© {new Date().getFullYear()} {siteSettings.site_name || 'SMA XYZ'}. Hak Cipta Dilindungi.</div>
             </footer>
         </div>
     );

@@ -21,8 +21,8 @@ class DummyPostWithTableSeeder extends Seeder
             [
                 'user_id' => $user->id,
                 'category_id' => 4,
-                'title' => 'Siswa SMALISKA Raih Prestasi Gemilang di OSN Tingkat Provinsi Jawa Timur 2026',
-                'content' => "Prestasi membanggakan kembali ditorehkan oleh siswa-siswi SMA Muhammadiyah 1 Krian (SMALISKA) dalam ajang Olimpiade Sains Nasional (OSN) Tingkat Provinsi Jawa Timur tahun 2026.\n\nKompetisi bergengsi ini diikuti oleh ratusan peserta dari berbagai SMA/MA se-Jawa Timur. Berkat kerja keras, bimbingan intensif para guru pembina, dan doa keluarga besar sekolah, tiga siswa berhasil mengamankan gelar juara dan berhak melaju ke tingkat nasional.\n\nPihak sekolah menyampaikan apresiasi setinggi-tingginya kepada para delegasi dan pembimbing atas capaian yang mengharumkan nama sekolah di kancah provinsi.",
+                'title' => 'Siswa SMA XYZ Raih Prestasi Gemilang di OSN Tingkat Provinsi Jawa Timur 2026',
+                'content' => "Prestasi membanggakan kembali ditorehkan oleh siswa-siswi SMA XYZ dalam ajang Olimpiade Sains Nasional (OSN) Tingkat Provinsi Jawa Timur tahun 2026.\n\nKompetisi bergengsi ini diikuti oleh ratusan peserta dari berbagai SMA/MA se-Jawa Timur. Berkat kerja keras, bimbingan intensif para guru pembina, dan doa keluarga besar sekolah, tiga siswa berhasil mengamankan gelar juara dan berhak melaju ke tingkat nasional.\n\nPihak sekolah menyampaikan apresiasi setinggi-tingginya kepada para delegasi dan pembimbing atas capaian yang mengharumkan nama sekolah di kancah provinsi.",
                 'status' => 'published',
                 'published_at' => now()->subDays(2),
                 'metadata' => [
@@ -64,8 +64,8 @@ class DummyPostWithTableSeeder extends Seeder
             [
                 'user_id' => $user->id,
                 'category_id' => 8,
-                'title' => 'Kontingen Tapak Suci SMALISKA Bawa Pulang 4 Medali pada Kejuaraan Piala Bupati 2026',
-                'content' => "Keluarga besar SMALISKA kembali bersyukur atas capaian membanggakan dari kontingen Ekstrakurikuler Tapak Suci Putera Muhammadiyah.\n\nDalam kejuaraan terbuka tingkat kabupaten yang berlangsung akhir pekan lalu, para atlet muda berhasil menampilkan teknik terbaik dan sportivitas tinggi, sehingga mengumpulkan medali di berbagai kelas tanding.\n\nBerikut rekapitulasi capaian kontingen sekolah:",
+                'title' => 'Kontingen Tapak Suci SMA XYZ Bawa Pulang 4 Medali pada Kejuaraan Piala Bupati 2026',
+                'content' => "Keluarga besar SMA XYZ kembali bersyukur atas capaian membanggakan dari kontingen Ekstrakurikuler Tapak Suci Putera Muhammadiyah.\n\nDalam kejuaraan terbuka tingkat kabupaten yang berlangsung akhir pekan lalu, para atlet muda berhasil menampilkan teknik terbaik dan sportivitas tinggi, sehingga mengumpulkan medali di berbagai kelas tanding.\n\nBerikut rekapitulasi capaian kontingen sekolah:",
                 'status' => 'published',
                 'published_at' => now(),
                 'metadata' => [

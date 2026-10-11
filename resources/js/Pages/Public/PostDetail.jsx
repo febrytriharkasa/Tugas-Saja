@@ -1,5 +1,6 @@
 import { Link, router } from '@inertiajs/react';
 import PublicLayout from '@/Layouts/PublicLayout';
+import { blocksFromMetadata } from '@/lib/postBlocks';
 
 function Breadcrumbs({ post }) {
     return (
@@ -10,10 +11,10 @@ function Breadcrumbs({ post }) {
                         Beranda
                     </Link>
                     {post.category && (
-                        <>
+                        <Link href={`/arsip/${post.category.slug}`} className="hover:text-primary transition-colors flex items-center gap-1">
                             <span className="text-slate-300">/</span>
                             <span className="hover:text-primary transition-colors">{post.category.name}</span>
-                        </>
+                        </Link>
                     )}
                     <span className="text-slate-300">/</span>
                     <span className="text-primary font-semibold line-clamp-1 max-w-xs md:max-w-md">{post.title}</span>
@@ -35,11 +36,10 @@ function MetaChip({ label, value, accentClass = 'bg-emerald-50 text-emerald-700'
     );
 }
 
-function AchievementTable({ rows, description }) {
-    if (!Array.isArray(rows) || rows.length === 0) {
+function DataTable({ title, description, columns, rows }) {
+    if (!Array.isArray(columns) || columns.length === 0 || !Array.isArray(rows) || rows.length === 0) {
         return null;
     }
-    const hasEvent = rows.some((r) => r.event);
     return (
         <div className="mt-8">
             {description && (
@@ -47,31 +47,27 @@ function AchievementTable({ rows, description }) {
             )}
             <div className="overflow-hidden rounded-xl border border-slate-200 shadow-sm">
                 <div className="bg-primary px-5 py-3">
-                    <h3 className="text-sm font-bold text-white">Daftar Data</h3>
+                    <h3 className="text-sm font-bold text-white">{title || 'Daftar Data'}</h3>
                 </div>
                 <div className="overflow-x-auto">
-                <table className="w-full text-sm text-left border-collapse">
+                <table className="min-w-full text-sm text-left border-collapse">
                     <thead>
                         <tr className="bg-slate-50 border-b border-slate-200 text-xs font-semibold text-slate-600 uppercase tracking-wide">
                             <th className="px-5 py-3 w-10">#</th>
-                            <th className="px-5 py-3">Nama / Kelas</th>
-                            <th className="px-5 py-3">Peringkat</th>
-                            {hasEvent && <th className="px-5 py-3">Keterangan</th>}
+                            {columns.map((column, index) => (
+                                <th key={index} className="whitespace-nowrap px-5 py-3">{column || `Kolom ${index + 1}`}</th>
+                            ))}
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100">
-                        {rows.map((row, idx) => (
-                            <tr key={idx} className={`transition-colors ${idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/50'} hover:bg-emerald-50/40`}>
-                                <td className="px-5 py-3 text-slate-400 font-medium">{idx + 1}</td>
-                                <td className="px-5 py-3 font-semibold text-slate-800">{row.name || '-'}</td>
-                                <td className="px-5 py-3">
-                                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-primary/10 text-primary">
-                                        {row.rank || '-'}
-                                    </span>
-                                </td>
-                                {hasEvent && (
-                                    <td className="px-5 py-3 text-slate-600">{row.event || '-'}</td>
-                                )}
+                        {rows.map((row, rowIndex) => (
+                            <tr key={rowIndex} className={`transition-colors ${rowIndex % 2 === 0 ? 'bg-white' : 'bg-slate-50/50'} hover:bg-emerald-50/40`}>
+                                <td className="px-5 py-3 text-slate-400 font-medium">{rowIndex + 1}</td>
+                                {columns.map((_, columnIndex) => (
+                                    <td key={columnIndex} className="px-5 py-3 text-slate-700">
+                                        {row[columnIndex] || '-'}
+                                    </td>
+                                ))}
                             </tr>
                         ))}
                     </tbody>
@@ -82,7 +78,12 @@ function AchievementTable({ rows, description }) {
     );
 }
 
-function FlatMetadata({ metadata }) {
+function FlatMetadata({ metadata, schema }) {
+    const labels = Object.fromEntries(
+        (Array.isArray(schema) ? schema : [])
+            .filter((field) => field?.key && field?.label)
+            .map((field) => [field.key, field.label]),
+    );
     const flat = Object.entries(metadata || {}).filter(
         ([key, val]) => key !== 'achievement_table' && key !== 'tables' && key !== 'blocks' && val !== null && val !== '',
     );
@@ -92,7 +93,7 @@ function FlatMetadata({ metadata }) {
     return (
         <div className="mt-6 flex flex-wrap gap-2">
             {flat.map(([k, v]) => (
-                <MetaChip key={k} label={k} value={String(v)} accentClass="bg-slate-100 text-slate-600" />
+                <MetaChip key={k} label={labels[k] || k} value={String(v)} accentClass="bg-slate-100 text-slate-600" />
             ))}
         </div>
     );
@@ -105,13 +106,7 @@ export default function PostDetail({ post, relatedPosts = [] }) {
 
     const readingMinutes = Math.max(1, Math.round((post.content || '').split(/\s+/).length / 200));
 
-    const blocks = Array.isArray(post.metadata?.blocks)
-        ? post.metadata.blocks
-        : Array.isArray(post.metadata?.tables)
-          ? post.metadata.tables.map((t) => ({ type: 'table', description: t.description, rows: t.rows }))
-          : Array.isArray(post.metadata?.achievement_table)
-            ? [{ type: 'table', description: '', rows: post.metadata.achievement_table }]
-            : [];
+    const blocks = blocksFromMetadata(post.metadata);
 
     return (
         <PublicLayout>
@@ -138,7 +133,7 @@ export default function PostDetail({ post, relatedPosts = [] }) {
                                         {(post.user?.name || 'H').charAt(0).toUpperCase()}
                                     </div>
                                     <div className="flex flex-col">
-                                        <span className="text-sm font-bold text-slate-800">{post.user?.name || 'Humas SMALISKA'}</span>
+                                        <span className="text-sm font-bold text-slate-800">{post.user?.name || 'Humas SMA XYZ'}</span>
                                         <span className="text-xs text-slate-500">Tim Media &amp; Publikasi</span>
                                     </div>
                                 </div>
@@ -168,7 +163,7 @@ export default function PostDetail({ post, relatedPosts = [] }) {
                                     />
                                 </div>
                                 <figcaption className="mt-2 text-xs text-slate-500 italic px-2">
-                                    Dokumentasi — {post.category?.name || 'SMALISKA'}
+                                    Dokumentasi — {post.category?.name || 'SMA XYZ'}
                                 </figcaption>
                             </figure>
                         )}
@@ -186,12 +181,20 @@ export default function PostDetail({ post, relatedPosts = [] }) {
                                 );
                             }
                             if (block.type === 'table') {
-                                return <AchievementTable key={idx} rows={block.rows} description={block.description} />;
+                                return (
+                                    <DataTable
+                                        key={idx}
+                                        title={block.title}
+                                        description={block.description}
+                                        columns={block.columns}
+                                        rows={block.rows}
+                                    />
+                                );
                             }
                             return null;
                         })}
 
-                        <FlatMetadata metadata={post.metadata} />
+                        <FlatMetadata metadata={post.metadata} schema={post.category?.metadata_schema} />
 
                         <div className="mt-8 pt-6 border-t border-slate-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-slate-50 rounded-2xl p-4">
                             <div className="flex flex-wrap items-center gap-2">
@@ -294,7 +297,7 @@ export default function PostDetail({ post, relatedPosts = [] }) {
                         <div className="rounded-2xl bg-primary text-white shadow-md flex flex-col gap-3 p-5 relative overflow-hidden">
                             <div className="absolute -right-6 -bottom-6 w-28 h-28 rounded-full bg-white/10 pointer-events-none" />
                             <span className="text-xs font-bold text-emerald-200 uppercase tracking-wide">PPDB 2026 / 2027</span>
-                            <h4 className="font-bold text-lg leading-tight">Bergabung Bersama Generasi Unggul Smaliska</h4>
+                            <h4 className="font-bold text-lg leading-tight">Bergabung Bersama Generasi Unggul SMA XYZ</h4>
                             <p className="text-sm text-white/80">Pendaftaran Gelombang 1 telah dibuka. Dapatkan jalur beasiswa tahfidz dan prestasi akademik.</p>
                             <a
                                 href="#"

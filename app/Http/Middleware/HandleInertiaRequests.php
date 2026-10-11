@@ -36,6 +36,10 @@ class HandleInertiaRequests extends Middleware
             'auth' => [
                 'user' => $request->user(),
             ],
+            'flash' => [
+                'success' => $request->session()->get('success'),
+                'error' => $request->session()->get('error'),
+            ],
             'settings' => fn () => SiteSetting::all()->pluck('value', 'key'),
             'aboutPages' => fn () => Page::where('group', 'tentang')
                 ->where('is_published', true)

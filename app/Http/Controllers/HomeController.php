@@ -8,6 +8,7 @@ use App\Models\Page;
 use App\Models\Post;
 use App\Models\SiteSetting;
 use App\Models\Staff;
+use Illuminate\Support\Collection;
 use Inertia\Inertia;
 
 class HomeController extends Controller
@@ -19,13 +20,33 @@ class HomeController extends Controller
         return Inertia::render('Welcome', [
             'settings' => $settings,
             'posts' => $this->categoryPosts('berita', 6),
-            'announcements' => $this->categoryPosts('pengumuman', 5),
-            'agendas' => $this->categoryPosts('agenda', 5),
-            'achievements' => $this->categoryPosts('prestasi', 6),
+            'homeSections' => $this->homeSections(),
             'galleries' => Gallery::latest()->take(8)->get(),
-            'facilities' => $this->categoryPosts('fasilitas', 6),
             'staff' => Staff::latest()->take(8)->get(),
-            'testimonials' => $this->categoryPosts('cerita-alumni', 4),
+        ]);
+    }
+
+    /**
+     * Categories the editor chose to show on the home page, in their set order.
+     *
+     * @return Collection<int, array{id: int, name: string, slug: string, posts: Collection<int, Post>}>
+     */
+    private function homeSections()
+    {
+        $categories = Category::shownOnHome()->get();
+
+        $postsByCategory = Post::with('category')
+            ->where('status', 'published')
+            ->whereIn('category_id', $categories->pluck('id'))
+            ->latest('published_at')
+            ->get()
+            ->groupBy('category_id');
+
+        return $categories->map(fn (Category $category) => [
+            'id' => $category->id,
+            'name' => $category->name,
+            'slug' => $category->slug,
+            'posts' => $postsByCategory->get($category->id, collect())->take(3)->values(),
         ]);
     }
 

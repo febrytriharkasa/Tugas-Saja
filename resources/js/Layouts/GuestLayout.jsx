@@ -8,8 +8,8 @@ export default function GuestLayout({ children }) {
                 <Link href="/" className="relative inline-flex w-fit items-center gap-4 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-4 focus-visible:ring-offset-primary">
                     <span className="grid h-12 w-12 place-items-center rounded-lg bg-white text-lg font-extrabold text-primary">SA</span>
                     <span>
-                        <span className="block text-lg font-bold tracking-tight text-white">SMA Al Islam Krian</span>
-                        <span className="block text-sm text-emerald-100">Portal resmi SMALISKA</span>
+                        <span className="block text-lg font-bold tracking-tight text-white">SMA XYZ</span>
+                        <span className="block text-sm text-emerald-100">Portal resmi SMA XYZ</span>
                     </span>
                 </Link>
 
@@ -23,7 +23,7 @@ export default function GuestLayout({ children }) {
                     </p>
                 </div>
 
-                <p className="relative text-xs text-emerald-100/80">SMA Al Islam Krian, Sidoarjo</p>
+                <p className="relative text-xs text-emerald-100/80">SMA XYZ, Sidoarjo</p>
             </section>
 
             <section className="flex min-h-screen items-center justify-center px-4 py-8 sm:px-8 lg:px-12">
@@ -31,8 +31,8 @@ export default function GuestLayout({ children }) {
                     <Link href="/" className="mb-10 inline-flex items-center gap-3 rounded-lg lg:hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2">
                         <span className="grid h-11 w-11 place-items-center rounded-lg bg-primary text-base font-extrabold text-white">SA</span>
                         <span>
-                            <span className="block font-bold tracking-tight text-slate-900">SMA Al Islam Krian</span>
-                            <span className="block text-xs text-slate-600">Portal resmi SMALISKA</span>
+                            <span className="block font-bold tracking-tight text-slate-900">SMA XYZ</span>
+                            <span className="block text-xs text-slate-600">Portal resmi SMA XYZ</span>
                         </span>
                     </Link>
 

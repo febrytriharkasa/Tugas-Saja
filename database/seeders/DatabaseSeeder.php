@@ -17,61 +17,68 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([UserSeeder::class]);
 
-        $admin = User::where('email', 'admin@smaliska.sch.id')->first();
-        $humas = User::where('email', 'humas@smaliska.sch.id')->first();
+        $admin = User::where('email', 'admin@smaxyz.sch.id')->first();
+        $humas = User::where('email', 'humas@smaxyz.sch.id')->first();
 
         // 1. Categories (semua konten lewat posts)
-        $catBerita = Category::firstOrCreate(['slug' => 'berita'], ['name' => 'Berita']);
-        $catPengumuman = Category::firstOrCreate(['slug' => 'pengumuman'], ['name' => 'Pengumuman']);
-        $catAgenda = Category::firstOrCreate(['slug' => 'agenda'], ['name' => 'Agenda']);
-        $catPrestasi = Category::firstOrCreate(['slug' => 'prestasi'], ['name' => 'Prestasi']);
-        $catFasilitas = Category::firstOrCreate(['slug' => 'fasilitas'], ['name' => 'Fasilitas']);
-        $catAlumni = Category::firstOrCreate(['slug' => 'cerita-alumni'], ['name' => 'Cerita Alumni']);
+        $catBerita = Category::firstOrCreate(['slug' => 'berita'], ['name' => 'Berita', 'show_on_home' => true]);
+        $catPengumuman = Category::firstOrCreate(['slug' => 'pengumuman'], ['name' => 'Pengumuman', 'show_on_home' => true]);
+        $catAgenda = Category::firstOrCreate(['slug' => 'agenda'], [
+            'name' => 'Agenda',
+            'show_on_home' => true,
+            'metadata_schema' => [
+                ['key' => 'event_date', 'label' => 'Tanggal Agenda', 'type' => 'date'],
+                ['key' => 'location', 'label' => 'Lokasi', 'type' => 'text'],
+            ],
+        ]);
+        $catPrestasi = Category::firstOrCreate(['slug' => 'prestasi'], ['name' => 'Prestasi', 'show_on_home' => true]);
+        $catFasilitas = Category::firstOrCreate(['slug' => 'fasilitas'], ['name' => 'Fasilitas', 'show_on_home' => true]);
+        $catAlumni = Category::firstOrCreate(['slug' => 'cerita-alumni'], ['name' => 'Cerita Alumni', 'show_on_home' => true]);
         $catKegiatan = Category::firstOrCreate(['slug' => 'kegiatan'], ['name' => 'Kegiatan Sekolah']);
         $catEkstra = Category::firstOrCreate(['slug' => 'ekstrakurikuler'], ['name' => 'Ekstrakurikuler']);
 
         // 2. Site Settings
         $settings = [
-            ['key' => 'site_name',       'value' => 'SMA Al Islam Krian',                                      'type' => 'text',  'group_name' => 'general'],
+            ['key' => 'site_name',       'value' => 'SMA XYZ',                                      'type' => 'text',  'group_name' => 'general'],
             ['key' => 'site_tagline',    'value' => 'Berakhlak Mulia, Berprestasi Tinggi, Berwawasan Global',  'type' => 'text',  'group_name' => 'general'],
             ['key' => 'hero_title',      'value' => 'Membentuk Generasi Rabbani & Berprestasi',                'type' => 'text',  'group_name' => 'hero'],
-            ['key' => 'hero_subtitle',   'value' => 'Selamat Datang di Portal Resmi SMA Al Islam Krian (SMALISKA). Pendidikan Islam modern berbasis teknologi & akhlakul karimah di Sidoarjo.', 'type' => 'text', 'group_name' => 'hero'],
+            ['key' => 'hero_subtitle',   'value' => 'Selamat Datang di Portal Resmi SMA XYZ. Pendidikan Islam modern berbasis teknologi & akhlakul karimah di Sidoarjo.', 'type' => 'text', 'group_name' => 'hero'],
             ['key' => 'hero_background', 'value' => '#065F46',                                                 'type' => 'color', 'group_name' => 'hero'],
-            ['key' => 'hero_slide_1_tag',      'value' => 'Portal resmi SMALISKA',                                  'type' => 'text',  'group_name' => 'hero'],
+            ['key' => 'hero_slide_1_tag',      'value' => 'Portal resmi SMA XYZ',                                  'type' => 'text',  'group_name' => 'hero'],
             ['key' => 'hero_slide_1_title',    'value' => 'Membentuk Generasi Rabbani & Berprestasi',                'type' => 'text',  'group_name' => 'hero'],
-            ['key' => 'hero_slide_1_subtitle', 'value' => 'Selamat Datang di Portal Resmi SMA Al Islam Krian (SMALISKA). Pendidikan Islam modern berbasis teknologi & akhlakul karimah di Sidoarjo.', 'type' => 'text', 'group_name' => 'hero'],
+            ['key' => 'hero_slide_1_subtitle', 'value' => 'Selamat Datang di Portal Resmi SMA XYZ. Pendidikan Islam modern berbasis teknologi & akhlakul karimah di Sidoarjo.', 'type' => 'text', 'group_name' => 'hero'],
             ['key' => 'hero_slide_1_btn_text', 'value' => 'Sambutan Kepala Sekolah',                                'type' => 'text',  'group_name' => 'hero'],
             ['key' => 'hero_slide_1_btn_url',  'value' => '#sambutan',                                               'type' => 'text',  'group_name' => 'hero'],
             ['key' => 'hero_slide_1_image',    'value' => '',                                                       'type' => 'image', 'group_name' => 'hero'],
 
             ['key' => 'hero_slide_2_tag',      'value' => 'PPDB Online 2025/2026',                                  'type' => 'text',  'group_name' => 'hero'],
             ['key' => 'hero_slide_2_title',    'value' => 'Pendaftaran Peserta Didik Baru',                         'type' => 'text',  'group_name' => 'hero'],
-            ['key' => 'hero_slide_2_subtitle', 'value' => 'Buka peluang masa depan terbaikmu bersama SMALISKA. Bergabunglah dengan pendidikan Islam modern berwawasan global.', 'type' => 'text', 'group_name' => 'hero'],
+            ['key' => 'hero_slide_2_subtitle', 'value' => 'Buka peluang masa depan terbaikmu bersama SMA XYZ. Bergabunglah dengan pendidikan Islam modern berwawasan global.', 'type' => 'text', 'group_name' => 'hero'],
             ['key' => 'hero_slide_2_btn_text', 'value' => 'Daftar Sekarang',                                         'type' => 'text',  'group_name' => 'hero'],
-            ['key' => 'hero_slide_2_btn_url',  'value' => 'https://ppdb.smaliska.sch.id',                            'type' => 'text',  'group_name' => 'hero'],
+            ['key' => 'hero_slide_2_btn_url',  'value' => 'https://ppdb.smaxyz.sch.id',                            'type' => 'text',  'group_name' => 'hero'],
             ['key' => 'hero_slide_2_image',    'value' => '',                                                       'type' => 'image', 'group_name' => 'hero'],
             ['key' => 'contact_phone',   'value' => '(031) 8971234',                                           'type' => 'text',  'group_name' => 'contact'],
-            ['key' => 'contact_email',   'value' => 'info@smaliska.sch.id',                                    'type' => 'text',  'group_name' => 'contact'],
+            ['key' => 'contact_email',   'value' => 'info@smaxyz.sch.id',                                    'type' => 'text',  'group_name' => 'contact'],
             ['key' => 'contact_address', 'value' => 'Jl. Kyai Mojo No. 1, Krian, Sidoarjo, Jawa Timur 61262', 'type' => 'text',  'group_name' => 'contact'],
-            ['key' => 'ppdb_link',       'value' => 'https://ppdb.smaliska.sch.id',                            'type' => 'text',  'group_name' => 'links'],
+            ['key' => 'ppdb_link',       'value' => 'https://ppdb.smaxyz.sch.id',                            'type' => 'text',  'group_name' => 'links'],
             ['key' => 'quick_link_1_title', 'value' => 'Pendaftaran', 'type' => 'text', 'group_name' => 'links'],
-            ['key' => 'quick_link_1_url',   'value' => 'https://ppdb.smaliska.sch.id', 'type' => 'text', 'group_name' => 'links'],
+            ['key' => 'quick_link_1_url',   'value' => 'https://ppdb.smaxyz.sch.id', 'type' => 'text', 'group_name' => 'links'],
             ['key' => 'quick_link_1_desc',  'value' => 'Portal Resmi Pendaftaran PPDB Online', 'type' => 'text', 'group_name' => 'links'],
-            ['key' => 'quick_link_2_title', 'value' => 'Yapalis via mobile', 'type' => 'text', 'group_name' => 'links'],
-            ['key' => 'quick_link_2_url',   'value' => 'https://mobile.yapalis.or.id', 'type' => 'text', 'group_name' => 'links'],
-            ['key' => 'quick_link_2_desc',  'value' => 'Aplikasi Layanan Mobile Yapalis', 'type' => 'text', 'group_name' => 'links'],
-            ['key' => 'quick_link_3_title', 'value' => 'perpustakaan Yapalis', 'type' => 'text', 'group_name' => 'links'],
-            ['key' => 'quick_link_3_url',   'value' => 'https://perpus.yapalis.or.id', 'type' => 'text', 'group_name' => 'links'],
+            ['key' => 'quick_link_2_title', 'value' => 'SMA XYZ via mobile', 'type' => 'text', 'group_name' => 'links'],
+            ['key' => 'quick_link_2_url',   'value' => 'https://mobile.smaxyz.or.id', 'type' => 'text', 'group_name' => 'links'],
+            ['key' => 'quick_link_2_desc',  'value' => 'Aplikasi Layanan Mobile SMA XYZ', 'type' => 'text', 'group_name' => 'links'],
+            ['key' => 'quick_link_3_title', 'value' => 'perpustakaan SMA XYZ', 'type' => 'text', 'group_name' => 'links'],
+            ['key' => 'quick_link_3_url',   'value' => 'https://perpus.smaxyz.or.id', 'type' => 'text', 'group_name' => 'links'],
             ['key' => 'quick_link_3_desc',  'value' => 'Layanan Perpustakaan Digital', 'type' => 'text', 'group_name' => 'links'],
-            ['key' => 'welcome_message', 'value' => "Assalamu'alaikum Wr. Wb. Segala puji syukur kami panjatkan ke hadirat Allah SWT atas rahmat dan hidayah-Nya sehingga SMA Al Islam Krian terus konsisten menjadi pelopor sekolah Islam berprestasi di Jawa Timur. Kami memadukan Kurikulum Merdeka dengan pendidikan karakter Al-Qur'an dan penguasaan teknologi digital modern untuk menyiapkan lulusan yang siap bersaing secara global.", 'type' => 'text', 'group_name' => 'general'],
+            ['key' => 'welcome_message', 'value' => "Assalamu'alaikum Wr. Wb. Segala puji syukur kami panjatkan ke hadirat Allah SWT atas rahmat dan hidayah-Nya sehingga SMA XYZ terus konsisten menjadi pelopor sekolah Islam berprestasi di Jawa Timur. Kami memadukan Kurikulum Merdeka dengan pendidikan karakter Al-Qur'an dan penguasaan teknologi digital modern untuk menyiapkan lulusan yang siap bersaing secara global.", 'type' => 'text', 'group_name' => 'general'],
             ['key' => 'principal_name',  'value' => 'Dr. H. Ahmad Dahlan, M.Pd.',                             'type' => 'text',  'group_name' => 'general'],
-            ['key' => 'social_facebook',   'value' => 'https://facebook.com/SMALISKA',        'type' => 'text',  'group_name' => 'social'],
-            ['key' => 'social_instagram',  'value' => 'https://instagram.com/SMALISKA',       'type' => 'text',  'group_name' => 'social'],
-            ['key' => 'social_twitter',    'value' => 'https://twitter.com/SMALISKA',          'type' => 'text',  'group_name' => 'social'],
-            ['key' => 'social_youtube',    'value' => 'https://youtube.com/SMALISKA',          'type' => 'text',  'group_name' => 'social'],
-            ['key' => 'social_linkedin',   'value' => 'https://linkedin.com/company/SMALISKA', 'type' => 'text',  'group_name' => 'social'],
+            ['key' => 'social_facebook',   'value' => 'https://facebook.com/SMAXYZ',        'type' => 'text',  'group_name' => 'social'],
+            ['key' => 'social_instagram',  'value' => 'https://instagram.com/SMAXYZ',       'type' => 'text',  'group_name' => 'social'],
+            ['key' => 'social_twitter',    'value' => 'https://twitter.com/SMAXYZ',          'type' => 'text',  'group_name' => 'social'],
+            ['key' => 'social_youtube',    'value' => 'https://youtube.com/SMAXYZ',          'type' => 'text',  'group_name' => 'social'],
+            ['key' => 'social_linkedin',   'value' => 'https://linkedin.com/company/SMAXYZ', 'type' => 'text',  'group_name' => 'social'],
             ['key' => 'social_whatsapp',   'value' => 'https://wa.me/628123456789',            'type' => 'text',  'group_name' => 'social'],
-            ['key' => 'social_tiktok',     'value' => 'https://tiktok.com/@SMALISKA',          'type' => 'text',  'group_name' => 'social'],
+            ['key' => 'social_tiktok',     'value' => 'https://tiktok.com/@SMAXYZ',          'type' => 'text',  'group_name' => 'social'],
             ['key' => 'principal_photo', 'value' => '',                                                        'type' => 'image', 'group_name' => 'general'],
             ['key' => 'total_students',  'value' => '850+',                                                    'type' => 'text',  'group_name' => 'statistics'],
             ['key' => 'total_teachers',  'value' => '45',                                                      'type' => 'text',  'group_name' => 'statistics'],
@@ -85,25 +92,25 @@ class DatabaseSeeder extends Seeder
         // 3. Pages
         $pages = [
             ['title' => 'Sejarah', 'slug' => 'sejarah', 'group' => 'tentang', 'is_published' => true,
-                'content' => "SMA Al Islam Krian didirikan pada tahun 1978 di bawah naungan Yayasan Pendidikan Al Islam Krian. Berawal dari niat suci para tokoh masyarakat dan ulama setempat untuk menghadirkan lembaga pendidikan tingkat menengah atas yang bernafaskan Islam.\n\nSeiring berjalannya waktu, SMALISKA tumbuh pesat dari sekolah berbasis komunitas menjadi salah satu SMA swasta rujukan terfavorit di Kabupaten Sidoarjo. Dengan akreditasi A (Unggul), SMALISKA kini memiliki laboratorium komputer canggih, masjid megah, serta jaringan alumni yang tersebar di perguruan tinggi ternama dan berbagai industri nasional."],
+                'content' => "SMA XYZ didirikan pada tahun 1978 di bawah naungan Yayasan Pendidikan SMA XYZ. Berawal dari niat suci para tokoh masyarakat dan ulama setempat untuk menghadirkan lembaga pendidikan tingkat menengah atas yang bernafaskan Islam.\n\nSeiring berjalannya waktu, SMA XYZ tumbuh pesat dari sekolah berbasis komunitas menjadi salah satu SMA swasta rujukan terfavorit di Kabupaten Sidoarjo. Dengan akreditasi A (Unggul), SMA XYZ kini memiliki laboratorium komputer canggih, masjid megah, serta jaringan alumni yang tersebar di perguruan tinggi ternama dan berbagai industri nasional."],
             ['title' => 'Visi, Misi dan Tujuan', 'slug' => 'visi-misi-tujuan', 'group' => 'tentang', 'is_published' => true,
                 'content' => "VISI:\n\"Terwujudnya Generasi Rabbani yang Berakhlak Mulia, Unggul dalam IPTEK, Berwawasan Global, dan Berbudaya Lingkungan.\"\n\nMISI:\n1. Menyelenggarakan pendidikan berbasis karakter Al-Qur'an dan As-Sunnah.\n2. Mengembangkan kurikulum merdeka terintegrasi teknologi informasi dan komunikasi.\n3. Meningkatkan prestasi akademik dan non-akademik siswa di tingkat nasional dan internasional.\n4. Membina kemampuan berbahasa asing (Arab & Inggris) secara aktif.\n5. Mewujudkan lingkungan sekolah yang bersih, hijau, dan kondusif bagi pembelajaran."],
             ['title' => 'Sambutan', 'slug' => 'sambutan', 'group' => 'tentang', 'is_published' => true,
-                'content' => "Assalamu'alaikum Wr. Wb.\n\nSelamat datang di website resmi SMA Al Islam Krian. Sebagai institusi pendidikan Islam modern, kami berkomitmen untuk memberikan layanan pendidikan terbaik yang menyeimbangkan antara kecerdasan intelektual (IQ), kecerdasan emosional (EQ), dan kecerdasan spiritual (SQ).\n\nWassalamu'alaikum Wr. Wb.\n\nDr. H. Ahmad Dahlan, M.Pd."],
+                'content' => "Assalamu'alaikum Wr. Wb.\n\nSelamat datang di website resmi SMA XYZ. Sebagai institusi pendidikan Islam modern, kami berkomitmen untuk memberikan layanan pendidikan terbaik yang menyeimbangkan antara kecerdasan intelektual (IQ), kecerdasan emosional (EQ), dan kecerdasan spiritual (SQ).\n\nWassalamu'alaikum Wr. Wb.\n\nDr. H. Ahmad Dahlan, M.Pd."],
             ['title' => 'Kerjasama', 'slug' => 'kerjasama', 'group' => 'tentang', 'is_published' => true,
-                'content' => "SMA Al Islam Krian menjalin kerjasama strategis dengan:\n\n1. Universitas Airlangga (UNAIR) - Pembinaan Olimpiade Sains\n2. Institut Teknologi Sepuluh Nopember (ITS) - Pelatihan Coding & Robotika\n3. Markaz Lughah Al-Arabiyah Cairo - Sertifikasi Bahasa Arab\n4. Ruangguru - Kemitraan Pembelajaran Digital\n5. PT PLN & Bank Syariah Indonesia - Beasiswa Pendidikan"],
+                'content' => "SMA XYZ menjalin kerjasama strategis dengan:\n\n1. Universitas Airlangga (UNAIR) - Pembinaan Olimpiade Sains\n2. Institut Teknologi Sepuluh Nopember (ITS) - Pelatihan Coding & Robotika\n3. Markaz Lughah Al-Arabiyah Cairo - Sertifikasi Bahasa Arab\n4. Ruangguru - Kemitraan Pembelajaran Digital\n5. PT PLN & Bank Syariah Indonesia - Beasiswa Pendidikan"],
             ['title' => 'Fasilitas', 'slug' => 'fasilitas', 'group' => 'tentang', 'is_published' => true,
-                'content' => 'SMALISKA menyediakan ruang kelas nyaman, laboratorium komputer dan IPA, perpustakaan digital, masjid, lapangan olahraga, serta studio multimedia untuk mendukung pembelajaran dan pengembangan bakat siswa.'],
+                'content' => 'SMA XYZ menyediakan ruang kelas nyaman, laboratorium komputer dan IPA, perpustakaan digital, masjid, lapangan olahraga, serta studio multimedia untuk mendukung pembelajaran dan pengembangan bakat siswa.'],
             ['title' => 'Guru dan Tendik', 'slug' => 'guru-tendik', 'group' => 'tentang', 'is_published' => true,
-                'content' => 'Guru dan tenaga kependidikan SMALISKA terdiri dari pendidik profesional dan staf layanan sekolah yang mendukung proses akademik, administrasi, serta pengembangan karakter siswa.'],
+                'content' => 'Guru dan tenaga kependidikan SMA XYZ terdiri dari pendidik profesional dan staf layanan sekolah yang mendukung proses akademik, administrasi, serta pengembangan karakter siswa.'],
             ['title' => 'GTK', 'slug' => 'gtk', 'group' => 'tentang', 'is_published' => true,
-                'content' => 'SMALISKA didukung oleh 45 Guru berkualifikasi S1 & S2 lulusan PTN terkemuka (UNAIR, ITS, UNESA, UINSA) serta 18 Tenaga Kependidikan profesional.'],
+                'content' => 'SMA XYZ didukung oleh 45 Guru berkualifikasi S1 & S2 lulusan PTN terkemuka (UNAIR, ITS, UNESA, UINSA) serta 18 Tenaga Kependidikan profesional.'],
             ['title' => 'Struktur Organisasi', 'slug' => 'struktur-organisasi', 'group' => 'tentang', 'is_published' => true,
                 'content' => "- Ketua Yayasan: H. Muhammad Ridwan, M.M.\n- Kepala Sekolah: Dr. H. Ahmad Dahlan, M.Pd.\n- Waka Kurikulum: Rina Wulandari, M.Si.\n- Waka Kesiswaan: M. Rizky Pratama, S.Pd.\n- Waka Humas: Siti Aminah, S.Pd.\n- Kepala TU: Budi Santoso, S.Kom."],
             ['title' => 'Petunjuk Pendaftaran PPDB', 'slug' => 'petunjuk-ppdb', 'group' => 'laman', 'is_published' => true,
-                'content' => "1. Akses portal https://ppdb.smaliska.sch.id\n2. Buat akun dengan NIK & Email aktif.\n3. Isi formulir dan unggah berkas (Rapor SMP, Akta Lahir, KK).\n4. Pilih jalur: Prestasi Akademik, Tahfidz, atau Reguler.\n5. Bayar biaya pendaftaran via BSI/Transfer Bank.\n6. Ikuti tes pemetaan potensi & wawancara karakter."],
+                'content' => "1. Akses portal https://ppdb.smaxyz.sch.id\n2. Buat akun dengan NIK & Email aktif.\n3. Isi formulir dan unggah berkas (Rapor SMP, Akta Lahir, KK).\n4. Pilih jalur: Prestasi Akademik, Tahfidz, atau Reguler.\n5. Bayar biaya pendaftaran via BSI/Transfer Bank.\n6. Ikuti tes pemetaan potensi & wawancara karakter."],
             ['title' => 'Program Unggulan Tahfidz', 'slug' => 'program-tahfidz', 'group' => 'laman', 'is_published' => true,
-                'content' => "Program Tahfidzul Qur'an SMALISKA:\n- Target hafalan 3-5 Juz selama 3 tahun.\n- Pembimbing Hafiz & Hafizah bersertifikat Sanad.\n- Setoran hafalan harian sebelum jam KBM.\n- Wisuda Tahfidz tahunan dengan ijazah resmi yayasan."],
+                'content' => "Program Tahfidzul Qur'an SMA XYZ:\n- Target hafalan 3-5 Juz selama 3 tahun.\n- Pembimbing Hafiz & Hafizah bersertifikat Sanad.\n- Setoran hafalan harian sebelum jam KBM.\n- Wisuda Tahfidz tahunan dengan ijazah resmi yayasan."],
         ];
         foreach ($pages as $p) {
             Page::updateOrCreate(['slug' => $p['slug']], $p);
@@ -115,14 +122,14 @@ class DatabaseSeeder extends Seeder
                 'title' => 'Penerimaan Peserta Didik Baru (PPDB) TA 2026/2027 Resmi Dibuka',
                 'slug' => 'ppdb-2026-2027-dibuka',
                 'category_id' => $catPengumuman->id,
-                'content' => "SMA Al Islam Krian resmi membuka PPDB Gelombang I untuk TA 2026/2027.\n\nPotongan biaya khusus dan beasiswa penuh tersedia bagi calon siswa hafal Al-Qur'an minimal 3 Juz atau juara Olimpiade tingkat kabupaten.\n\nPendaftaran 1 Oktober – 31 Desember 2026 via website atau datang langsung ke sekretariat PPDB.",
+                'content' => "SMA XYZ resmi membuka PPDB Gelombang I untuk TA 2026/2027.\n\nPotongan biaya khusus dan beasiswa penuh tersedia bagi calon siswa hafal Al-Qur'an minimal 3 Juz atau juara Olimpiade tingkat kabupaten.\n\nPendaftaran 1 Oktober – 31 Desember 2026 via website atau datang langsung ke sekretariat PPDB.",
                 'status' => 'published', 'published_at' => now(),
             ],
             [
-                'title' => 'Siswa SMALISKA Raih Medali Emas OSN Matematika & Fisika 2026',
+                'title' => 'Siswa SMA XYZ Raih Medali Emas OSN Matematika & Fisika 2026',
                 'slug' => 'emas-osn-matematika-fisika-2026',
                 'category_id' => $catBerita->id,
-                'content' => "Dua siswa SMALISKA meraih Medali Emas dalam OSN tingkat Kabupaten Sidoarjo.\n\nJuara 1 Matematika: Muhammad Farhan (XI MIPA 1). Juara 1 Fisika: Nabilah Putri (XII MIPA 2).\n\nKeduanya lolos mewakili Sidoarjo ke tingkat Provinsi Jawa Timur.",
+                'content' => "Dua siswa SMA XYZ meraih Medali Emas dalam OSN tingkat Kabupaten Sidoarjo.\n\nJuara 1 Matematika: Muhammad Farhan (XI MIPA 1). Juara 1 Fisika: Nabilah Putri (XII MIPA 2).\n\nKeduanya lolos mewakili Sidoarjo ke tingkat Provinsi Jawa Timur.",
                 'status' => 'published', 'published_at' => now()->subDays(2),
             ],
             [
@@ -136,14 +143,14 @@ class DatabaseSeeder extends Seeder
                 'title' => 'Workshop Digital Innovation: Belajar React & Laravel',
                 'slug' => 'workshop-react-laravel',
                 'category_id' => $catBerita->id,
-                'content' => "Lab Komputer SMALISKA menggelar Workshop Web Development bertema 'Building Modern Web Apps with React & Laravel' diikuti 50 siswa Klub Coding. Narasumber alumni SMALISKA yang kini Senior Software Engineer.",
+                'content' => "Lab Komputer SMA XYZ menggelar Workshop Web Development bertema 'Building Modern Web Apps with React & Laravel' diikuti 50 siswa Klub Coding. Narasumber alumni SMA XYZ yang kini Senior Software Engineer.",
                 'status' => 'published', 'published_at' => now()->subDays(10),
             ],
             [
-                'title' => 'Tim Futsal SMALISKA Juara 1 Sidoarjo High School Cup 2026',
+                'title' => 'Tim Futsal SMA XYZ Juara 1 Sidoarjo High School Cup 2026',
                 'slug' => 'futsal-juara-1-sidoarjo-cup-2026',
                 'category_id' => $catEkstra->id,
-                'content' => 'Tim Futsal SMALISKA meraih Juara 1 menundukkan SMAN 1 Krian di final dengan skor 3-2. Kapten tim sekaligus meraih penghargaan Best Player.',
+                'content' => 'Tim Futsal SMA XYZ meraih Juara 1 menundukkan SMAN 1 Krian di final dengan skor 3-2. Kapten tim sekaligus meraih penghargaan Best Player.',
                 'status' => 'published', 'published_at' => now()->subDays(15),
             ],
             [
@@ -162,7 +169,7 @@ class DatabaseSeeder extends Seeder
                 'slug' => 'pertemuan-wali-murid-mid-semester',
                 'category_id' => $catAgenda->id,
                 'content' => 'Sosialisasi perkembangan belajar siswa serta penerimaan laporan hasil belajar pertengahan semester ganjil.',
-                'metadata' => ['event_date' => now()->addDays(7)->toDateString(), 'location' => 'Aula Utama SMALISKA'],
+                'metadata' => ['event_date' => now()->addDays(7)->toDateString(), 'location' => 'Aula Utama SMA XYZ'],
                 'status' => 'published', 'published_at' => now()->subDays(1),
             ],
             [
@@ -170,7 +177,7 @@ class DatabaseSeeder extends Seeder
                 'slug' => 'agenda-uts-ganjil-2026',
                 'category_id' => $catAgenda->id,
                 'content' => 'Pelaksanaan ujian tertulis dan praktikum CBT untuk seluruh kelas X, XI, dan XII.',
-                'metadata' => ['event_date' => now()->addDays(14)->toDateString(), 'location' => 'Ruang Ujian CBT SMALISKA'],
+                'metadata' => ['event_date' => now()->addDays(14)->toDateString(), 'location' => 'Ruang Ujian CBT SMA XYZ'],
                 'status' => 'published', 'published_at' => now()->subDays(2),
             ],
             [
@@ -178,7 +185,7 @@ class DatabaseSeeder extends Seeder
                 'slug' => 'hari-santri-nasional-2026',
                 'category_id' => $catAgenda->id,
                 'content' => 'Upacara bendera peringatan Hari Santri dilanjutkan pawai taaruf keliling Krian.',
-                'metadata' => ['event_date' => now()->addDays(25)->toDateString(), 'location' => 'Lapangan Utama SMALISKA'],
+                'metadata' => ['event_date' => now()->addDays(25)->toDateString(), 'location' => 'Lapangan Utama SMA XYZ'],
                 'status' => 'published', 'published_at' => now()->subDays(3),
             ],
             [
@@ -194,7 +201,7 @@ class DatabaseSeeder extends Seeder
                 'slug' => 'pensi-pameran-karya-2026',
                 'category_id' => $catAgenda->id,
                 'content' => 'Ajang kreativitas siswa menampilkan seni budaya Islam, bazar kewirausahaan, dan pameran produk digital.',
-                'metadata' => ['event_date' => now()->addDays(50)->toDateString(), 'location' => 'Halaman Kampus SMALISKA'],
+                'metadata' => ['event_date' => now()->addDays(50)->toDateString(), 'location' => 'Halaman Kampus SMA XYZ'],
                 'status' => 'published', 'published_at' => now()->subDays(5),
             ],
         ];
@@ -229,8 +236,8 @@ class DatabaseSeeder extends Seeder
                 'title' => 'Juara 1 Futsal Sidoarjo High School Cup 2026',
                 'slug' => 'prestasi-futsal-sidoarjo-cup-2026',
                 'category_id' => $catPrestasi->id,
-                'content' => 'Tim Futsal SMALISKA menjuarai turnamen futsal antar SMA se-Kabupaten Sidoarjo.',
-                'metadata' => ['participant_name' => 'Tim Futsal SMALISKA', 'rank' => 'Juara 1', 'year' => 2026],
+                'content' => 'Tim Futsal SMA XYZ menjuarai turnamen futsal antar SMA se-Kabupaten Sidoarjo.',
+                'metadata' => ['participant_name' => 'Tim Futsal SMA XYZ', 'rank' => 'Juara 1', 'year' => 2026],
                 'status' => 'published', 'published_at' => now()->subDays(15),
             ],
             [
@@ -261,10 +268,10 @@ class DatabaseSeeder extends Seeder
         ];
 
         $alumniData = [
-            ['title' => 'dr. Farhan Al-Ghifari', 'content' => "Pendidikan di SMALISKA memberi dua fondasi penting: disiplin sains akademik dan hafalan Al-Qur'an yang menenangkan jiwa saat tekanan kuliah kedokteran.", 'slug' => 'dr-farhan-al-ghifari', 'metadata' => ['graduation_year' => 2020, 'current_profession' => 'Dokter Muda / Mahasiswa FK Universitas Airlangga']],
-            ['title' => 'Nabila Syakira, S.T.', 'content' => 'Klub Komputer dan Coding di SMALISKA menjadi pintu awal karir saya di industri IT nasional. Guru-gurunya sangat mendukung bakat siswa!', 'slug' => 'nabila-syakira', 'metadata' => ['graduation_year' => 2021, 'current_profession' => 'Cloud Engineer di Bank Syariah Indonesia Jakarta']],
-            ['title' => 'Muhammad Hafiz, Lc.', 'content' => 'Bimbingan Bahasa Arab intensif di SMALISKA memudahkan saya lolos seleksi beasiswa Al-Azhar Mesir tanpa kendala bahasa.', 'slug' => 'muhammad-hafiz', 'metadata' => ['graduation_year' => 2019, 'current_profession' => 'Alumni Universitas Al-Azhar Kairo / Dai Muda']],
-            ['title' => 'Anisa Rahmawati, S.M.', 'content' => 'Pameran Kewirausahaan di sekolah mengajarkan saya berani eksekusi ide bisnis sejak kelas 11. Bangga menjadi alumni SMALISKA.', 'slug' => 'anisa-rahmawati', 'metadata' => ['graduation_year' => 2022, 'current_profession' => 'Entrepreneur / Founder Startup Fashion Muslim Sidoarjo']],
+            ['title' => 'dr. Farhan Al-Ghifari', 'content' => "Pendidikan di SMA XYZ memberi dua fondasi penting: disiplin sains akademik dan hafalan Al-Qur'an yang menenangkan jiwa saat tekanan kuliah kedokteran.", 'slug' => 'dr-farhan-al-ghifari', 'metadata' => ['graduation_year' => 2020, 'current_profession' => 'Dokter Muda / Mahasiswa FK Universitas Airlangga']],
+            ['title' => 'Nabila Syakira, S.T.', 'content' => 'Klub Komputer dan Coding di SMA XYZ menjadi pintu awal karir saya di industri IT nasional. Guru-gurunya sangat mendukung bakat siswa!', 'slug' => 'nabila-syakira', 'metadata' => ['graduation_year' => 2021, 'current_profession' => 'Cloud Engineer di Bank Syariah Indonesia Jakarta']],
+            ['title' => 'Muhammad Hafiz, Lc.', 'content' => 'Bimbingan Bahasa Arab intensif di SMA XYZ memudahkan saya lolos seleksi beasiswa Al-Azhar Mesir tanpa kendala bahasa.', 'slug' => 'muhammad-hafiz', 'metadata' => ['graduation_year' => 2019, 'current_profession' => 'Alumni Universitas Al-Azhar Kairo / Dai Muda']],
+            ['title' => 'Anisa Rahmawati, S.M.', 'content' => 'Pameran Kewirausahaan di sekolah mengajarkan saya berani eksekusi ide bisnis sejak kelas 11. Bangga menjadi alumni SMA XYZ.', 'slug' => 'anisa-rahmawati', 'metadata' => ['graduation_year' => 2022, 'current_profession' => 'Entrepreneur / Founder Startup Fashion Muslim Sidoarjo']],
         ];
 
         foreach ([...$beritaData, ...$agendaData, ...$prestasiData] as $pData) {
@@ -294,16 +301,16 @@ class DatabaseSeeder extends Seeder
 
         // 7. Staff
         $staffData = [
-            ['name' => 'Dr. H. Ahmad Dahlan, M.Pd.',       'role' => 'Kepala Sekolah',              'type' => 'gtk',    'email' => 'dahlan@smaliska.sch.id',  'phone' => '081234567890'],
-            ['name' => 'Rina Wulandari, M.Si.',             'role' => 'Waka Kurikulum / Guru Fisika', 'type' => 'guru',   'email' => 'rina@smaliska.sch.id',    'phone' => '081234567891'],
-            ['name' => 'M. Rizky Pratama, S.Pd.',           'role' => 'Waka Kesiswaan / Guru PJOK',  'type' => 'guru',   'email' => 'rizky@smaliska.sch.id',   'phone' => '081234567892'],
-            ['name' => 'Siti Aminah, S.Pd.',                'role' => 'Waka Humas / Guru B. Inggris', 'type' => 'guru',   'email' => 'aminah@smaliska.sch.id',  'phone' => '081234567893'],
-            ['name' => 'Ustadz H. Abdul Samad, Lc., M.H.', 'role' => 'Guru PAI & Koordinator Tahfidz', 'type' => 'guru', 'email' => 'samad@smaliska.sch.id',   'phone' => '081234567894'],
-            ['name' => 'Budi Santoso, S.Kom.',              'role' => 'Kepala Tata Usaha / IT Staff', 'type' => 'tendik', 'email' => 'budi@smaliska.sch.id',    'phone' => '081234567895'],
-            ['name' => 'Dewi Kartika, S.Si.',               'role' => 'Guru Biologi & Pembina OSIS',  'type' => 'guru',   'email' => 'dewi@smaliska.sch.id',    'phone' => '081234567896'],
-            ['name' => 'Eko Prasetyo, S.Pd.',               'role' => 'Guru Matematika',              'type' => 'guru',   'email' => 'eko@smaliska.sch.id',     'phone' => '081234567897'],
-            ['name' => 'Hj. Nurul Hidayah, S.Ag.',          'role' => 'Guru Bahasa Arab',             'type' => 'guru',   'email' => 'nurul@smaliska.sch.id',   'phone' => '081234567898'],
-            ['name' => 'Bambang Utomo, A.Md.',              'role' => 'Staf Perpustakaan',            'type' => 'tendik', 'email' => 'bambang@smaliska.sch.id', 'phone' => '081234567899'],
+            ['name' => 'Dr. H. Ahmad Dahlan, M.Pd.',       'role' => 'Kepala Sekolah',              'type' => 'gtk',    'email' => 'dahlan@smaxyz.sch.id',  'phone' => '081234567890'],
+            ['name' => 'Rina Wulandari, M.Si.',             'role' => 'Waka Kurikulum / Guru Fisika', 'type' => 'guru',   'email' => 'rina@smaxyz.sch.id',    'phone' => '081234567891'],
+            ['name' => 'M. Rizky Pratama, S.Pd.',           'role' => 'Waka Kesiswaan / Guru PJOK',  'type' => 'guru',   'email' => 'rizky@smaxyz.sch.id',   'phone' => '081234567892'],
+            ['name' => 'Siti Aminah, S.Pd.',                'role' => 'Waka Humas / Guru B. Inggris', 'type' => 'guru',   'email' => 'aminah@smaxyz.sch.id',  'phone' => '081234567893'],
+            ['name' => 'Ustadz H. Abdul Samad, Lc., M.H.', 'role' => 'Guru PAI & Koordinator Tahfidz', 'type' => 'guru', 'email' => 'samad@smaxyz.sch.id',   'phone' => '081234567894'],
+            ['name' => 'Budi Santoso, S.Kom.',              'role' => 'Kepala Tata Usaha / IT Staff', 'type' => 'tendik', 'email' => 'budi@smaxyz.sch.id',    'phone' => '081234567895'],
+            ['name' => 'Dewi Kartika, S.Si.',               'role' => 'Guru Biologi & Pembina OSIS',  'type' => 'guru',   'email' => 'dewi@smaxyz.sch.id',    'phone' => '081234567896'],
+            ['name' => 'Eko Prasetyo, S.Pd.',               'role' => 'Guru Matematika',              'type' => 'guru',   'email' => 'eko@smaxyz.sch.id',     'phone' => '081234567897'],
+            ['name' => 'Hj. Nurul Hidayah, S.Ag.',          'role' => 'Guru Bahasa Arab',             'type' => 'guru',   'email' => 'nurul@smaxyz.sch.id',   'phone' => '081234567898'],
+            ['name' => 'Bambang Utomo, A.Md.',              'role' => 'Staf Perpustakaan',            'type' => 'tendik', 'email' => 'bambang@smaxyz.sch.id', 'phone' => '081234567899'],
         ];
         foreach ($staffData as $s) {
             Staff::updateOrCreate(['email' => $s['email']], $s);
@@ -311,8 +318,8 @@ class DatabaseSeeder extends Seeder
 
         // 8. Galleries
         $galleriesData = [
-            'Upacara Peringatan Hari Kemerdekaan RI di SMALISKA',
-            'Kunjungan Edukasi Industri Komputer Siswa SMALISKA',
+            'Upacara Peringatan Hari Kemerdekaan RI di SMA XYZ',
+            'Kunjungan Edukasi Industri Komputer Siswa SMA XYZ',
             'Wisuda Tahfidz Al-Qur\'an Angkatan ke-15',
             'Juara Futsal Sidoarjo High School Cup 2026',
             'Bakti Sosial & Pembagian Takjil Ramadhan',

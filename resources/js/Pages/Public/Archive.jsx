@@ -51,7 +51,7 @@ export default function Archive({ title, type, items }) {
             return (
                 <div className="grid gap-6 md:grid-cols-3">
                     {items.data.map((agenda) => {
-                        const dateVal = agenda.metadata?.event_date || agenda.published_at;
+                        const dateVal = agenda.metadata?.event_date || agenda.metadata?.tanggal_agenda || agenda.published_at;
                         return (
                             <Card key={agenda.id} hover className="flex flex-col overflow-hidden h-full">
                                 <Link href={`/berita/${agenda.slug}`} className="block shrink-0">
