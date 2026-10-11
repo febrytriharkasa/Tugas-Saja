@@ -159,7 +159,7 @@ export default function PostDetail({ post, relatedPosts = [] }) {
                                     <img
                                         src={post.featured_image}
                                         alt={post.title}
-                                        className="w-full h-72 sm:h-96 object-cover"
+                                        className="w-full h-full sm:h-full object-cover"
                                     />
                                 </div>
                                 <figcaption className="mt-2 text-xs text-slate-500 italic px-2">
@@ -216,7 +216,7 @@ export default function PostDetail({ post, relatedPosts = [] }) {
 
                         {relatedPosts.length > 0 && (
                             <div className="mt-10">
-                                <h3 className="text-lg font-bold text-slate-900 mb-4">Artikel Terkait</h3>
+                                <h3 className="text-xl font-bold text-slate-900 mb-4">Artikel Terkait</h3>
                                 <div className="grid sm:grid-cols-3 gap-4">
                                     {relatedPosts.map((rel) => (
                                         <Link
@@ -225,9 +225,9 @@ export default function PostDetail({ post, relatedPosts = [] }) {
                                             className="group rounded-xl border border-slate-200 bg-white hover:border-primary hover:shadow-md transition-all overflow-hidden flex flex-col"
                                         >
                                             {rel.featured_image ? (
-                                                <img src={rel.featured_image} alt={rel.title} className="h-36 w-full object-cover" />
+                                                <img src={rel.featured_image} alt={rel.title} className="relative aspect-[16/10] overflow-hidden object-cover" />
                                             ) : (
-                                                <div className="h-36 w-full bg-slate-100 flex items-center justify-center text-xs text-slate-400">Tidak ada gambar</div>
+                                                <div className="relative aspect-[16/10] overflow-hidden bg-slate-100 flex items-center justify-center text-xs text-slate-400">Tidak ada gambar</div>
                                             )}
                                             <div className="p-4 flex flex-col gap-1.5 flex-1">
                                                 {rel.category && (
@@ -246,7 +246,7 @@ export default function PostDetail({ post, relatedPosts = [] }) {
 
                     <aside className="lg:col-span-4 flex flex-col gap-6 lg:sticky lg:top-28">
                         <div className="rounded-2xl border border-slate-200 bg-white shadow-sm flex flex-col gap-4 p-5">
-                            <span className="font-bold text-slate-800 text-sm">Cari Informasi</span>
+                            <span className="font-bold text-slate-800 text-xl">Cari Informasi</span>
                             <div className="flex gap-2">
                                 <input
                                     type="text"
@@ -267,26 +267,26 @@ export default function PostDetail({ post, relatedPosts = [] }) {
                         {relatedPosts.length > 0 && (
                             <div className="rounded-2xl border border-slate-200 bg-white shadow-sm flex flex-col gap-4 p-5">
                                 <div className="flex items-center justify-between">
-                                    <span className="font-bold text-slate-800 text-sm">Berita Terkait</span>
-                                    <Link href="/berita" className="text-xs font-bold text-primary hover:underline">Lihat Semua</Link>
+                                    <span className="font-bold text-slate-800 text-xl">Berita Terkait</span>
+                                    <Link href="/berita" className="text-sm font-bold text-primary hover:underline">Lihat Semua</Link>
                                 </div>
                                 <div className="flex flex-col gap-4">
                                     {relatedPosts.map((rel) => (
-                                        <Link key={rel.id} href={`/berita/${rel.slug}`} className="flex items-center gap-3 group">
-                                            <div className="w-16 h-16 rounded-xl overflow-hidden flex-shrink-0 bg-slate-100">
+                                        <Link key={rel.id} href={`/berita/${rel.slug}`} className="flex gap-3 group">
+                                            <div className="w-24 h-24 rounded-xl overflow-hidden flex-shrink-0 bg-slate-100">
                                                 {rel.featured_image ? (
                                                     <img src={rel.featured_image} alt={rel.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
                                                 ) : (
                                                     <div className="w-full h-full flex items-center justify-center text-slate-400 text-xs">-</div>
                                                 )}
                                             </div>
-                                            <div className="flex flex-col min-w-0">
+                                            <div className="flex flex-col justify-between h-24 min-w-0 py-1">
+                                                <span className="text-sm font-semibold text-slate-800 group-hover:text-primary transition-colors line-clamp-3 leading-snug">
+                                                    {rel.title}
+                                                </span>
                                                 {rel.published_at && (
                                                     <span className="text-xs text-slate-400">{new Date(rel.published_at).toLocaleDateString('id-ID')}</span>
                                                 )}
-                                                <span className="text-sm font-semibold text-slate-800 group-hover:text-primary transition-colors line-clamp-2 leading-snug">
-                                                    {rel.title}
-                                                </span>
                                             </div>
                                         </Link>
                                     ))}

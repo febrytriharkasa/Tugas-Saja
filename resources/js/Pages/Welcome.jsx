@@ -40,7 +40,7 @@ function PostCard({ post, delay = 0 }) {
         >
             <Card hover className="flex flex-col overflow-hidden h-full">
                 <Link href={`/berita/${post.slug}`} className="block">
-                    <div className="h-48 w-full bg-slate-100 shrink-0">
+                    <div className="relative aspect-[16/10] overflow-hidden bg-slate-100 shrink-0">
                         {post.featured_image ? <img src={post.featured_image} alt={post.title} className="h-full w-full object-cover" /> : <div className="flex h-full w-full items-center justify-center text-xs text-slate-400 font-medium">Gambar tidak tersedia</div>}
                     </div>
                 </Link>
@@ -286,7 +286,7 @@ export default function Welcome({ settings = {}, posts = [], homeSections = [], 
                             transition={{ duration: 0.4, delay: idx * 0.1 }}
                         >
                             <a href={link.url} target="_blank" rel="noopener noreferrer" className="block group h-full">
-                                <Card hover className="p-6 h-full flex flex-col justify-between border-slate-200/80 bg-surface-container-low hover:bg-surface-container transition bg-surface-container-low">
+                                <Card hover className="p-6 h-full flex flex-col justify-between border-slate-200/80 transition bg-surface-container-low">
                                     <div>
                                         <span className="text-xs font-bold uppercase tracking-wider text-primary">Layanan Pintas</span>
                                         <h3 className="mt-2 text-xl font-extrabold text-slate-900 group-hover:text-primary transition">{link.title}</h3>
@@ -307,8 +307,8 @@ export default function Welcome({ settings = {}, posts = [], homeSections = [], 
             {/* Berita is permanent: it always leads the home page. */}
             <PostSection
                 id="berita"
-                eyebrow="Update terkini seputar sekolah"
-                title="Berita sekolah"
+                eyebrow="Update terkini seputar berita sekolah"
+                title="Berita Sekolah"
                 href="/berita"
                 posts={posts}
                 tone={toneFor(0)}
@@ -327,6 +327,7 @@ export default function Welcome({ settings = {}, posts = [], homeSections = [], 
                 ) : (
                     <PostSection
                         key={section.id}
+                        eyebrow={`Update terkini seputar ${section.name} sekolah`}
                         id={section.slug}
                         title={section.name}
                         href={`/arsip/${section.slug}`}

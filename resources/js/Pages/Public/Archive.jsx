@@ -13,7 +13,7 @@ export default function Archive({ title, type, items }) {
                     {items.data.map((post) => (
                         <Card key={post.id} hover className="flex flex-col overflow-hidden h-full">
                             <Link href={`/berita/${post.slug}`} className="block shrink-0">
-                                <div className="h-48 w-full bg-slate-100 flex items-center justify-center">
+                                <div className="relative aspect-[16/10] overflow-hidden bg-slate-100 flex items-center justify-center">
                                     {post.featured_image ? (
                                         <img
                                             src={post.featured_image}

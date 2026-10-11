@@ -11,7 +11,21 @@ export default function CategoryForm({ category }) {
         metadata_schema: category?.metadata_schema || [],
         show_on_home: isFixedOnHome || category?.show_on_home || false,
     });
-    const updateSchema = (index, field, value) => setData('metadata_schema', data.metadata_schema.map((item, itemIndex) => itemIndex === index ? { ...item, [field]: value } : item));
+    
+    const updateSchema = (index, field, value) => {
+        const updatedSchema = data.metadata_schema.map((item, itemIndex) => {
+            if (itemIndex === index) {
+                const updated = { ...item, [field]: value };
+                if (field === 'type') {
+                    updated.key = value;
+                }
+                return updated;
+            }
+            return item;
+        });
+        setData('metadata_schema', updatedSchema);
+    };
+    
     const submit = (event) => { event.preventDefault(); (isEdit ? put : post)(isEdit ? `/admin/categories/${category.id}` : '/admin/categories'); };
 
     return (
@@ -47,13 +61,12 @@ export default function CategoryForm({ category }) {
                     <div>
                         <div className="flex items-center justify-between gap-4">
                             <label className="text-sm font-semibold text-slate-700">Field Metadata</label>
-                            <button type="button" onClick={() => setData('metadata_schema', [...data.metadata_schema, { key: '', label: '', type: 'text' }])} className="min-h-11 text-sm font-semibold text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">Tambah Field</button>
+                            <button type="button" onClick={() => setData('metadata_schema', [...data.metadata_schema, { key: 'text', label: '', type: 'text' }])} className="min-h-11 text-sm font-semibold text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">Tambah Field</button>
                         </div>
                         <div className="mt-3 space-y-3">
                             {data.metadata_schema.map((field, index) => (
-                                <div key={index} className="grid gap-3 rounded-lg border border-slate-200 bg-slate-50 p-3 sm:grid-cols-[1fr_1fr_8rem_auto]">
+                                <div key={index} className="grid gap-3 rounded-lg border border-slate-200 bg-slate-50 p-3 sm:grid-cols-[1fr_8rem_auto]">
                                     <input value={field.label} onChange={event => updateSchema(index, 'label', event.target.value)} placeholder="Label" aria-label={`Label metadata ${index + 1}`} className="rounded-lg border-slate-300 text-sm" />
-                                    <input value={field.key} onChange={event => updateSchema(index, 'key', event.target.value)} placeholder="Key" aria-label={`Key metadata ${index + 1}`} className="rounded-lg border-slate-300 text-sm" />
                                     <select value={field.type} onChange={event => updateSchema(index, 'type', event.target.value)} aria-label={`Tipe metadata ${index + 1}`} className="rounded-lg border-slate-300 text-sm"><option value="text">Teks</option><option value="date">Tanggal</option><option value="number">Angka</option></select>
                                     <button type="button" onClick={() => setData('metadata_schema', data.metadata_schema.filter((_, itemIndex) => itemIndex !== index))} className="min-h-11 text-sm font-semibold text-red-600 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600">Hapus</button>
                                 </div>
