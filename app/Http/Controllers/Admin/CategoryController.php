@@ -63,7 +63,7 @@ class CategoryController extends Controller
             'name' => $validated['name'],
             'slug' => $category->isFixedOnHome() ? $category->slug : Str::slug($validated['name']),
             'metadata_schema' => array_values($validated['metadata_schema'] ?? []),
-            'show_on_home' => $category->isFixedOnHome() || ($validated['show_on_home'] ?? false),
+            'show_on_home' => $category->isFixedOnHome() || ($validated['show_on_home'] ?? $category->show_on_home),
         ]);
 
         return redirect()->route('admin.categories.index')->with('success', 'Kategori berhasil diperbarui.');

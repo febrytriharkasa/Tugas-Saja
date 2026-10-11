@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\GalleryController;
+use App\Http\Controllers\Admin\HomeContentController;
 use App\Http\Controllers\Admin\PageController;
 use App\Http\Controllers\Admin\PostController;
 use App\Http\Controllers\Admin\SiteSettingController;
@@ -25,6 +26,8 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
     Route::resource('posts', PostController::class);
     Route::resource('pages', PageController::class);
     Route::resource('categories', CategoryController::class);
+    Route::get('/home-content', [HomeContentController::class, 'index'])->name('home-content.index');
+    Route::put('/home-content', [HomeContentController::class, 'update'])->name('home-content.update');
     Route::resource('galleries', GalleryController::class);
     Route::resource('staff', StaffController::class)->parameters(['staff' => 'staff']);
     Route::redirect('/content', '/admin/staff');

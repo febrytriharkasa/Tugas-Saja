@@ -5,11 +5,9 @@ import { useForm } from '@inertiajs/react';
 
 export default function CategoryForm({ category }) {
     const isEdit = !!category;
-    const isFixedOnHome = category?.is_fixed_on_home || false;
     const { data, setData, post, put, processing, errors } = useForm({
         name: category?.name || '',
         metadata_schema: category?.metadata_schema || [],
-        show_on_home: isFixedOnHome || category?.show_on_home || false,
     });
     
     const updateSchema = (index, field, value) => {
@@ -36,26 +34,6 @@ export default function CategoryForm({ category }) {
                         <label htmlFor="category-name" className="block text-sm font-semibold text-slate-700">Nama Kategori</label>
                         <input id="category-name" value={data.name} onChange={event => setData('name', event.target.value)} className="mt-1 block w-full rounded-lg border-slate-300 text-sm focus:border-primary focus:ring-primary" />
                         {errors.name && <p className="mt-1 text-xs text-red-600">{errors.name}</p>}
-                    </div>
-
-                    <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
-                        <div className="flex items-start gap-3">
-                            <input
-                                id="show-on-home"
-                                type="checkbox"
-                                checked={data.show_on_home}
-                                disabled={isFixedOnHome}
-                                onChange={event => setData('show_on_home', event.target.checked)}
-                                className="mt-1 h-5 w-5 rounded border-slate-300 text-primary focus:ring-primary disabled:opacity-60"
-                            />
-                            <div>
-                                <label htmlFor="show-on-home" className="text-sm font-semibold text-slate-800">Tampilkan di beranda</label>
-                                <p className="mt-1 text-xs leading-5 text-slate-600">
-                                    {isFixedOnHome ? 'Berita permanen di beranda dan tidak dapat disembunyikan.' : 'Konten kategori tampil setelah Berita dan sebelum Galeri aktivitas.'}
-                                </p>
-                            </div>
-                        </div>
-                        {errors.show_on_home && <p className="mt-2 text-xs text-red-600">{errors.show_on_home}</p>}
                     </div>
 
                     <div>
