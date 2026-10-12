@@ -16,12 +16,11 @@ class Category extends Model
      *
      * @var list<string>
      */
-    public const FIXED_HOME_SLUGS = ['berita'];
+    public const FIXED_HOME_SLUGS = ['berita', 'galeri'];
 
-    protected $fillable = ['name', 'slug', 'metadata', 'metadata_schema', 'show_on_home'];
+    protected $fillable = ['name', 'slug', 'metadata_schema', 'show_on_home'];
 
     protected $casts = [
-        'metadata' => 'array',
         'metadata_schema' => 'array',
         'show_on_home' => 'boolean',
     ];

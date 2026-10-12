@@ -1,6 +1,56 @@
 import { Link, router } from '@inertiajs/react';
 import PublicLayout from '@/Layouts/PublicLayout';
-import { blocksFromMetadata } from '@/lib/postBlocks';
+import { blocksFromMetadata, youtubeThumbnailUrl } from '@/lib/postBlocks';
+
+// Media can be an uploaded image, an uploaded video, or a YouTube link.
+// Turning a YouTube URL into an embed URL keeps the video inside the article instead of sending readers away.
+function youtubeEmbedUrl(url) {
+    if (!url) {
+        return null;
+    }
+    const match = url.match(
+        /(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/|live\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/,
+    );
+    return match ? `https://www.youtube.com/embed/${match[1]}` : null;
+}
+
+function PostMedia({ post }) {
+    const youtube = post.media_type === 'video' ? youtubeEmbedUrl(post.video_url) : null;
+
+    if (youtube) {
+        return (
+            <figure className="mb-6">
+                <div className="aspect-video w-full overflow-hidden rounded-2xl bg-slate-900 shadow-md">
+                    <iframe
+                        src={youtube}
+                        title={post.title}
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                        className="h-full w-full border-0"
+                    />
+                </div>
+                <figcaption className="mt-2 text-xs text-slate-500 italic px-2">
+                    Video — {post.category?.name || 'SMA XYZ'}
+                </figcaption>
+            </figure>
+        );
+    }
+
+    if (post.featured_image) {
+        return (
+            <figure className="mb-6">
+                <div className="w-full rounded-2xl overflow-hidden shadow-md bg-slate-100">
+                    <img src={post.featured_image} alt={post.title} className="w-full h-full sm:h-full object-cover" />
+                </div>
+                <figcaption className="mt-2 text-xs text-slate-500 italic px-2">
+                    Dokumentasi — {post.category?.name || 'SMA XYZ'}
+                </figcaption>
+            </figure>
+        );
+    }
+
+    return null;
+}
 
 function Breadcrumbs({ post }) {
     return (
@@ -153,20 +203,7 @@ export default function PostDetail({ post, relatedPosts = [] }) {
                             </div>
                         </header>
 
-                        {post.featured_image && (
-                            <figure className="mb-6">
-                                <div className="w-full rounded-2xl overflow-hidden shadow-md bg-slate-100">
-                                    <img
-                                        src={post.featured_image}
-                                        alt={post.title}
-                                        className="w-full h-full sm:h-full object-cover"
-                                    />
-                                </div>
-                                <figcaption className="mt-2 text-xs text-slate-500 italic px-2">
-                                    Dokumentasi — {post.category?.name || 'SMA XYZ'}
-                                </figcaption>
-                            </figure>
-                        )}
+                        <PostMedia post={post} />
 
                         <div className="prose prose-slate max-w-none text-slate-700 leading-relaxed whitespace-pre-line text-base">
                             {post.content}
@@ -218,27 +255,39 @@ export default function PostDetail({ post, relatedPosts = [] }) {
                             <div className="mt-10">
                                 <h3 className="text-xl font-bold text-slate-900 mb-4">Artikel Terkait</h3>
                                 <div className="grid sm:grid-cols-3 gap-4">
-                                    {relatedPosts.map((rel) => (
-                                        <Link
-                                            key={rel.id}
-                                            href={`/berita/${rel.slug}`}
-                                            className="group rounded-xl border border-slate-200 bg-white hover:border-primary hover:shadow-md transition-all overflow-hidden flex flex-col"
-                                        >
-                                            {rel.featured_image ? (
-                                                <img src={rel.featured_image} alt={rel.title} className="relative aspect-[16/10] overflow-hidden object-cover" />
-                                            ) : (
-                                                <div className="relative aspect-[16/10] overflow-hidden bg-slate-100 flex items-center justify-center text-xs text-slate-400">Tidak ada gambar</div>
-                                            )}
-                                            <div className="p-4 flex flex-col gap-1.5 flex-1">
-                                                {rel.category && (
-                                                    <span className="text-xs font-bold text-primary">{rel.category.name}</span>
+                                    {relatedPosts.map((rel) => {
+                                        const relThumb = rel.media_type === 'video' ? youtubeThumbnailUrl(rel.video_url) : rel.featured_image;
+                                        return (
+                                            <Link
+                                                key={rel.id}
+                                                href={`/berita/${rel.slug}`}
+                                                className="group rounded-xl border border-slate-200 bg-white hover:border-primary hover:shadow-md transition-all overflow-hidden flex flex-col"
+                                            >
+                                                {relThumb ? (
+                                                    <div className="relative aspect-[16/10] overflow-hidden">
+                                                        <img src={relThumb} alt={rel.title} className="h-full w-full object-cover" />
+                                                        {rel.media_type === 'video' && (
+                                                            <span className="absolute inset-0 flex items-center justify-center bg-slate-900/35" aria-hidden="true">
+                                                                <svg className="h-7 w-7 text-white drop-shadow" fill="currentColor" viewBox="0 0 24 24">
+                                                                    <path d="M8 5v14l11-7z" />
+                                                                </svg>
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                ) : (
+                                                    <div className="relative aspect-[16/10] overflow-hidden bg-slate-100 flex items-center justify-center text-xs text-slate-400">Tidak ada gambar</div>
                                                 )}
-                                                <h4 className="text-sm font-bold text-slate-800 group-hover:text-primary transition-colors line-clamp-2 leading-snug">
-                                                    {rel.title}
-                                                </h4>
-                                            </div>
-                                        </Link>
-                                    ))}
+                                                <div className="p-4 flex flex-col gap-1.5 flex-1">
+                                                    {rel.category && (
+                                                        <span className="text-xs font-bold text-primary">{rel.category.name}</span>
+                                                    )}
+                                                    <h4 className="text-sm font-bold text-slate-800 group-hover:text-primary transition-colors line-clamp-2 leading-snug">
+                                                        {rel.title}
+                                                    </h4>
+                                                </div>
+                                            </Link>
+                                        );
+                                    })}
                                 </div>
                             </div>
                         )}
@@ -271,25 +320,37 @@ export default function PostDetail({ post, relatedPosts = [] }) {
                                     <Link href="/berita" className="text-sm font-bold text-primary hover:underline">Lihat Semua</Link>
                                 </div>
                                 <div className="flex flex-col gap-4">
-                                    {relatedPosts.map((rel) => (
-                                        <Link key={rel.id} href={`/berita/${rel.slug}`} className="flex gap-3 group">
-                                            <div className="w-24 h-24 rounded-xl overflow-hidden flex-shrink-0 bg-slate-100">
-                                                {rel.featured_image ? (
-                                                    <img src={rel.featured_image} alt={rel.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
-                                                ) : (
-                                                    <div className="w-full h-full flex items-center justify-center text-slate-400 text-xs">-</div>
-                                                )}
-                                            </div>
-                                            <div className="flex flex-col justify-between h-24 min-w-0 py-1">
-                                                <span className="text-sm font-semibold text-slate-800 group-hover:text-primary transition-colors line-clamp-3 leading-snug">
-                                                    {rel.title}
-                                                </span>
-                                                {rel.published_at && (
-                                                    <span className="text-xs text-slate-400">{new Date(rel.published_at).toLocaleDateString('id-ID')}</span>
-                                                )}
-                                            </div>
-                                        </Link>
-                                    ))}
+                                    {relatedPosts.map((rel) => {
+                                        const relThumb = rel.media_type === 'video' ? youtubeThumbnailUrl(rel.video_url) : rel.featured_image;
+                                        return (
+                                            <Link key={rel.id} href={`/berita/${rel.slug}`} className="flex gap-3 group">
+                                                <div className="relative w-24 h-24 rounded-xl overflow-hidden flex-shrink-0 bg-slate-100">
+                                                    {relThumb ? (
+                                                        <>
+                                                            <img src={relThumb} alt={rel.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+                                                            {rel.media_type === 'video' && (
+                                                                <span className="absolute inset-0 flex items-center justify-center bg-slate-900/35" aria-hidden="true">
+                                                                    <svg className="h-6 w-6 text-white drop-shadow" fill="currentColor" viewBox="0 0 24 24">
+                                                                        <path d="M8 5v14l11-7z" />
+                                                                    </svg>
+                                                                </span>
+                                                            )}
+                                                        </>
+                                                    ) : (
+                                                        <div className="w-full h-full flex items-center justify-center text-slate-400 text-xs">-</div>
+                                                    )}
+                                                </div>
+                                                <div className="flex flex-col justify-between h-24 min-w-0 py-1">
+                                                    <span className="text-sm font-semibold text-slate-800 group-hover:text-primary transition-colors line-clamp-3 leading-snug">
+                                                        {rel.title}
+                                                    </span>
+                                                    {rel.published_at && (
+                                                        <span className="text-xs text-slate-400">{new Date(rel.published_at).toLocaleDateString('id-ID')}</span>
+                                                    )}
+                                                </div>
+                                            </Link>
+                                        );
+                                    })}
                                 </div>
                             </div>
                         )}

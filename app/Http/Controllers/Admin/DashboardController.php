@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Category;
-use App\Models\Gallery;
 use App\Models\Post;
 use App\Models\User;
 use Inertia\Inertia;
@@ -17,7 +16,7 @@ class DashboardController extends Controller
             'total_posts' => Post::count(),
             'published_posts' => Post::where('status', 'published')->count(),
             'total_categories' => Category::count(),
-            'total_galleries' => Gallery::count(),
+            'total_galleries' => Post::whereHas('category', fn ($query) => $query->where('slug', 'galeri'))->count(),
             'total_users' => User::count(),
         ];
 

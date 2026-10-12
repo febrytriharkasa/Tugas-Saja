@@ -3,13 +3,13 @@
 namespace Database\Seeders;
 
 use App\Models\Category;
-use App\Models\Gallery;
 use App\Models\Page;
 use App\Models\Post;
 use App\Models\SiteSetting;
 use App\Models\Staff;
 use App\Models\User;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Str;
 
 class DatabaseSeeder extends Seeder
 {
@@ -316,7 +316,8 @@ class DatabaseSeeder extends Seeder
             Staff::updateOrCreate(['email' => $s['email']], $s);
         }
 
-        // 8. Galleries
+        // 8. Galleries (disimpan sebagai posts kategori galeri)
+        $catGaleri = Category::firstOrCreate(['slug' => 'galeri'], ['name' => 'Galeri', 'show_on_home' => false]);
         $galleriesData = [
             'Upacara Peringatan Hari Kemerdekaan RI di SMA XYZ',
             'Kunjungan Edukasi Industri Komputer Siswa SMA XYZ',
@@ -328,7 +329,26 @@ class DatabaseSeeder extends Seeder
             'Studi Lapangan Pelatihan Kepemimpinan OSIS',
         ];
         foreach ($galleriesData as $title) {
-            Gallery::updateOrCreate(['title' => $title], ['title' => $title, 'media_type' => 'image', 'file_path' => '']);
+            Post::updateOrCreate(['slug' => Str::slug($title)], [
+                'user_id' => $humas->id,
+                'category_id' => $catGaleri->id,
+                'title' => $title,
+                'content' => '',
+                'media_type' => 'image',
+                'status' => 'published',
+                'published_at' => now(),
+            ]);
         }
+
+        Post::updateOrCreate(['slug' => 'dokumentasi-video-pesantren-kilat'], [
+            'user_id' => $humas->id,
+            'category_id' => $catGaleri->id,
+            'title' => 'Dokumentasi Video: Dokumentasi Video Pesantren Kilat Ramadhan',
+            'content' => 'Video dokumentasi kegiatan Pesantren Kilat Ramadhan yang diikuti seluruh siswa kelas X dan XI.',
+            'media_type' => 'video',
+            'video_url' => 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+            'status' => 'published',
+            'published_at' => now(),
+        ]);
     }
 }

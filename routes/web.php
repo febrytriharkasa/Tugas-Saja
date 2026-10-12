@@ -2,7 +2,6 @@
 
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\DashboardController;
-use App\Http\Controllers\Admin\GalleryController;
 use App\Http\Controllers\Admin\HomeContentController;
 use App\Http\Controllers\Admin\PageController;
 use App\Http\Controllers\Admin\PostController;
@@ -11,6 +10,7 @@ use App\Http\Controllers\Admin\StaffController;
 use App\Http\Controllers\ChatBotController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProfileController;
+use App\Models\Category;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -28,7 +28,12 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
     Route::resource('categories', CategoryController::class);
     Route::get('/home-content', [HomeContentController::class, 'index'])->name('home-content.index');
     Route::put('/home-content', [HomeContentController::class, 'update'])->name('home-content.update');
-    Route::resource('galleries', GalleryController::class);
+    Route::get('/galleries', fn () => redirect()->route('admin.posts.index', [
+        'category_id' => Category::where('slug', 'galeri')->value('id'),
+    ]))->name('galleries.index');
+    Route::get('/galleries/create', fn () => redirect()->route('admin.posts.create', [
+        'category_id' => Category::where('slug', 'galeri')->value('id'),
+    ]))->name('galleries.create');
     Route::resource('staff', StaffController::class)->parameters(['staff' => 'staff']);
     Route::redirect('/content', '/admin/staff');
 

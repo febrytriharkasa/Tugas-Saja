@@ -16,7 +16,6 @@ class CategorySeeder extends Seeder
             ['slug' => 'agenda'],
             [
                 'name' => 'Agenda',
-                'metadata' => [],
                 'metadata_schema' => [
                     ['key' => 'event_date', 'label' => 'Tanggal Agenda', 'type' => 'date'],
                     ['key' => 'location', 'label' => 'Lokasi', 'type' => 'text'],
@@ -28,7 +27,6 @@ class CategorySeeder extends Seeder
             ['slug' => 'prestasi'],
             [
                 'name' => 'Prestasi',
-                'metadata' => [],
                 'metadata_schema' => [
                     ['key' => 'participant_name', 'label' => 'Nama Peserta', 'type' => 'text'],
                     ['key' => 'rank', 'label' => 'Peringkat', 'type' => 'text'],

@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Category;
-use App\Models\Gallery;
 use App\Models\Page;
 use App\Models\Post;
 use App\Models\SiteSetting;
@@ -21,7 +20,7 @@ class HomeController extends Controller
             'settings' => $settings,
             'posts' => $this->categoryPosts('berita', 6),
             'homeSections' => $this->homeSections(),
-            'galleries' => Gallery::latest()->take(8)->get(),
+            'galleries' => $this->categoryPosts('galeri', 8),
             'staff' => Staff::latest()->take(8)->get(),
         ]);
     }
@@ -78,7 +77,7 @@ class HomeController extends Controller
             'pengumuman' => ['title' => 'Pengumuman', 'items' => $this->categoryPosts('pengumuman', null, true)],
             'agenda' => ['title' => 'Agenda', 'items' => $this->categoryPosts('agenda', null, true)],
             'prestasi' => ['title' => 'Prestasi', 'items' => $this->categoryPosts('prestasi', null, true)],
-            'galeri' => ['title' => 'Galeri Aktivitas', 'items' => Gallery::latest()->paginate(16)],
+            'galeri' => ['title' => 'Galeri Aktivitas', 'items' => $this->categoryPosts('galeri', null, true)],
         ];
 
         if (! isset($configs[$type])) {
@@ -102,7 +101,7 @@ class HomeController extends Controller
             'settings' => SiteSetting::where('group_name', 'statistics')->pluck('value', 'key'),
             'counts' => [
                 'posts' => Post::where('status', 'published')->count(),
-                'galleries' => Gallery::count(),
+                'galleries' => Post::whereHas('category', fn ($query) => $query->where('slug', 'galeri'))->count(),
                 'teachers' => Staff::where('type', 'guru')->count(),
                 'staff' => Staff::whereIn('type', ['tendik', 'gtk'])->count(),
             ],

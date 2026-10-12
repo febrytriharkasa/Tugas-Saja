@@ -4,6 +4,7 @@ import PublicLayout from '@/Layouts/PublicLayout';
 import Card from '@/Components/Card';
 import ChatWidget from '@/Components/ChatWidget';
 import { Link } from '@inertiajs/react';
+import { youtubeThumbnailUrl } from '@/lib/postBlocks';
 
 function ArrowLink({ href, children }) {
     return <Link href={href} className="inline-flex min-h-11 items-center gap-2 rounded-lg text-sm font-bold text-primary transition hover:gap-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">{children}<span aria-hidden="true">→</span></Link>;
@@ -31,6 +32,8 @@ function formatPostDate(post) {
 }
 
 function PostCard({ post, delay = 0 }) {
+    const thumbnail = post.media_type === 'video' ? youtubeThumbnailUrl(post.video_url) : post.featured_image;
+
     return (
         <motion.div
             initial={{ opacity: 0, y: 25 }}
@@ -41,7 +44,20 @@ function PostCard({ post, delay = 0 }) {
             <Card hover className="flex flex-col overflow-hidden h-full">
                 <Link href={`/berita/${post.slug}`} className="block">
                     <div className="relative aspect-[16/10] overflow-hidden bg-slate-100 shrink-0">
-                        {post.featured_image ? <img src={post.featured_image} alt={post.title} className="h-full w-full object-cover" /> : <div className="flex h-full w-full items-center justify-center text-xs text-slate-400 font-medium">Gambar tidak tersedia</div>}
+                        {thumbnail ? (
+                            <div className="relative h-full w-full">
+                                <img src={thumbnail} alt={post.title} className="h-full w-full object-cover" />
+                                {post.media_type === 'video' && (
+                                    <span className="absolute inset-0 flex items-center justify-center bg-slate-900/35" aria-hidden="true">
+                                        <svg className="h-9 w-9 text-white drop-shadow" fill="currentColor" viewBox="0 0 24 24">
+                                            <path d="M8 5v14l11-7z" />
+                                        </svg>
+                                    </span>
+                                )}
+                            </div>
+                        ) : (
+                            <div className="flex h-full w-full items-center justify-center text-xs text-slate-400 font-medium">Gambar tidak tersedia</div>
+                        )}
                     </div>
                 </Link>
                 <div className="flex flex-1 flex-col p-5 justify-between">

@@ -72,7 +72,7 @@ class CategoryController extends Controller
     public function destroy(Category $category)
     {
         if ($category->isFixedOnHome()) {
-            return redirect()->route('admin.categories.index')->with('error', 'Kategori Berita wajib tersedia di beranda dan tidak dapat dihapus.');
+            return redirect()->route('admin.categories.index')->with('error', 'Kategori tetap tidak dapat dihapus.');
         }
 
         $category->delete();

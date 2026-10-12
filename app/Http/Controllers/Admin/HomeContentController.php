@@ -16,6 +16,7 @@ class HomeContentController extends Controller
     {
         $categories = Category::query()
             ->select(['id', 'name', 'slug', 'show_on_home'])
+            ->where('slug', '!=', 'galeri')
             ->withCount([
                 'posts as published_posts_count' => fn ($query) => $query->where('status', 'published'),
             ])

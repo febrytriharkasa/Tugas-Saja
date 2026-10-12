@@ -6,7 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Page;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 
 class PageController extends Controller
@@ -28,15 +30,10 @@ class PageController extends Controller
 
     public function store(Request $request)
     {
-        $data = $request->validate([
-            'title' => 'required|string|max:255',
-            'group' => 'required|in:tentang,laman,arsip',
-            'display_type' => 'required|in:text,category',
-            'category_id' => 'nullable|required_if:display_type,category|exists:categories,id',
-            'content' => 'nullable|required_if:display_type,text|string',
-            'is_published' => 'required|boolean',
-        ]);
+        $data = $this->validatePage($request);
         $data['slug'] = $this->uniqueSlug($data['title']);
+        $data['image'] = $request->hasFile('image') ? $this->storeImage($request) : null;
+        $data['metadata'] = $this->metadata($data);
         Page::create($data);
 
         return redirect()->route('admin.pages.index')->with('success', 'Laman berhasil dibuat.');
@@ -59,14 +56,15 @@ class PageController extends Controller
 
     public function update(Request $request, Page $page)
     {
-        $data = $request->validate([
-            'title' => 'required|string|max:255',
-            'group' => 'required|in:tentang,laman,arsip',
-            'display_type' => 'required|in:text,category',
-            'category_id' => 'nullable|required_if:display_type,category|exists:categories,id',
-            'content' => 'nullable|required_if:display_type,text|string',
-            'is_published' => 'required|boolean',
-        ]);
+        $data = $this->validatePage($request);
+
+        if ($request->hasFile('image')) {
+            $this->deleteImage($page->image);
+            $data['image'] = $this->storeImage($request);
+        }
+
+        $data['metadata'] = $this->metadata($data);
+
         $page->update($data);
 
         return redirect()->route('admin.pages.index')->with('success', 'Laman berhasil diperbarui.');
@@ -74,9 +72,77 @@ class PageController extends Controller
 
     public function destroy(Page $page)
     {
+        $this->deleteImage($page->image);
         $page->delete();
 
         return redirect()->route('admin.pages.index')->with('success', 'Laman berhasil dihapus.');
+    }
+
+    private function validatePage(Request $request): array
+    {
+        return $request->validate([
+            'title' => ['required', 'string', 'max:255'],
+            'group' => ['required', Rule::in(['tentang', 'laman', 'arsip'])],
+            'display_type' => ['required', Rule::in(['text', 'category'])],
+            'category_id' => ['nullable', 'required_if:display_type,category', 'exists:categories,id'],
+            'content' => ['nullable', 'required_if:display_type,text', 'string'],
+            'is_published' => ['required', 'boolean'],
+            'image' => ['nullable', 'image', 'max:2048'],
+            'meta' => ['nullable', 'array'],
+            'meta.*' => ['nullable'],
+            'meta.blocks' => ['nullable', 'array'],
+            'meta.blocks.*.type' => ['required_with:meta.blocks', Rule::in(['text', 'table'])],
+            'meta.blocks.*.content' => ['nullable', 'string'],
+            'meta.blocks.*.title' => ['nullable', 'string', 'max:255'],
+            'meta.blocks.*.description' => ['nullable', 'string', 'max:500'],
+            'meta.blocks.*.columns' => ['nullable', 'array'],
+            'meta.blocks.*.columns.*' => ['nullable', 'string', 'max:100'],
+            'meta.blocks.*.rows' => ['required_if:meta.blocks.*.type,table', 'array'],
+            'meta.blocks.*.rows.*' => ['nullable'],
+            'meta.blocks.*.rows.*.*' => ['nullable', 'string', 'max:1000'],
+        ], [
+            'image.image' => 'Berkas gambar tidak valid.',
+            'content.required_if' => 'Konten wajib diisi untuk laman teks statis.',
+        ]);
+    }
+
+    private function metadata(array $validated): ?array
+    {
+        $blocks = $validated['meta']['blocks'] ?? [];
+
+        $blocks = array_values(array_filter($blocks, function ($block) {
+            if (! isset($block['type'])) {
+                return false;
+            }
+            if ($block['type'] === 'text') {
+                return ! empty(trim($block['content'] ?? ''));
+            }
+            if ($block['type'] === 'table') {
+                return ! empty($block['rows']);
+            }
+
+            return false;
+        }));
+
+        return empty($blocks) ? null : ['blocks' => $blocks];
+    }
+
+    private function storeImage(Request $request): string
+    {
+        return Storage::url($request->file('image')->store('pages', 'public'));
+    }
+
+    private function deleteImage(?string $path): void
+    {
+        if (! $path) {
+            return;
+        }
+
+        $relativePath = str_replace('/storage/', '', $path);
+
+        if (Storage::disk('public')->exists($relativePath)) {
+            Storage::disk('public')->delete($relativePath);
+        }
     }
 
     private function uniqueSlug(string $title): string

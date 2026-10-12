@@ -17,6 +17,8 @@ class Post extends Model
         'content',
         'metadata',
         'featured_image',
+        'media_type',
+        'video_url',
         'status',
         'published_at',
     ];

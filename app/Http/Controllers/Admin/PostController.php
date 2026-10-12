@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 
 class PostController extends Controller
@@ -32,11 +33,12 @@ class PostController extends Controller
         ]);
     }
 
-    public function create()
+    public function create(Request $request)
     {
         return Inertia::render('Admin/Posts/Form', [
             'categories' => Category::all(),
             'post' => null,
+            'initialCategoryId' => $request->integer('category_id') ?: null,
         ]);
     }
 
@@ -44,15 +46,18 @@ class PostController extends Controller
     {
         $validated = $this->validatePost($request);
         $category = Category::findOrFail($validated['category_id']);
+        $mediaType = $validated['media_type'] ?? 'image';
 
         Post::create([
             'user_id' => auth()->id(),
             'category_id' => $category->id,
             'title' => $validated['title'],
             'slug' => Str::slug($validated['title']).'-'.Str::lower(Str::random(5)),
-            'content' => $validated['content'],
+            'content' => $validated['content'] ?? '',
             'metadata' => $this->metadata($validated, $category->slug),
-            'featured_image' => $request->hasFile('featured_image') ? $this->storeImage($request) : null,
+            'featured_image' => $request->hasFile('featured_image') ? $this->storeMedia($request) : null,
+            'media_type' => $mediaType,
+            'video_url' => $mediaType === 'video' ? ($validated['video_url'] ?? null) : null,
             'status' => $validated['status'],
             'published_at' => $validated['status'] === 'published' ? now() : null,
         ]);
@@ -79,13 +84,25 @@ class PostController extends Controller
     {
         $validated = $this->validatePost($request);
         $category = Category::findOrFail($validated['category_id']);
+        $mediaType = $validated['media_type'] ?? 'image';
+        $featuredImage = $post->featured_image;
+
+        if ($request->hasFile('featured_image')) {
+            $this->deleteStoredMedia($post->featured_image);
+            $featuredImage = $this->storeMedia($request);
+        } elseif ($mediaType === 'video' || $mediaType !== $post->media_type) {
+            $this->deleteStoredMedia($post->featured_image);
+            $featuredImage = null;
+        }
 
         $post->update([
             'category_id' => $category->id,
             'title' => $validated['title'],
-            'content' => $validated['content'],
+            'content' => $validated['content'] ?? '',
             'metadata' => $this->metadata($validated, $category->slug),
-            'featured_image' => $request->hasFile('featured_image') ? $this->storeImage($request) : $post->featured_image,
+            'featured_image' => $featuredImage,
+            'media_type' => $mediaType,
+            'video_url' => $mediaType === 'video' ? ($validated['video_url'] ?? null) : null,
             'status' => $validated['status'],
             'published_at' => $validated['status'] === 'published' ? ($post->published_at ?? now()) : null,
         ]);
@@ -95,6 +112,7 @@ class PostController extends Controller
 
     public function destroy(Post $post)
     {
+        $this->deleteStoredMedia($post->featured_image);
         $post->delete();
 
         return redirect()->route('admin.posts.index')->with('success', 'Konten berhasil dihapus.');
@@ -102,12 +120,21 @@ class PostController extends Controller
 
     private function validatePost(Request $request): array
     {
-        return $request->validate([
+        $isGallery = Category::whereKey($request->input('category_id'))->where('slug', 'galeri')->exists();
+        $mediaType = $request->input('media_type', 'image');
+        $validated = $request->validate([
             'title' => ['required', 'string', 'max:255'],
             'category_id' => ['required', 'exists:categories,id'],
-            'content' => ['required', 'string'],
+            'content' => [$isGallery ? 'nullable' : 'required', 'string'],
             'status' => ['required', Rule::in(['draft', 'published'])],
-            'featured_image' => ['nullable', 'image', 'max:2048'],
+            'media_type' => ['nullable', Rule::in(['image', 'video'])],
+            'video_url' => [Rule::requiredIf($mediaType === 'video'), 'nullable', 'url:http,https', 'max:500'],
+            'featured_image' => [
+                Rule::prohibitedIf($mediaType === 'video'),
+                'nullable',
+                'image',
+                'max:2048',
+            ],
             'meta' => ['nullable', 'array'],
             'meta.*' => ['nullable'],
             'meta.blocks' => ['nullable', 'array'],
@@ -120,7 +147,18 @@ class PostController extends Controller
             'meta.blocks.*.rows' => ['required_if:meta.blocks.*.type,table', 'array'],
             'meta.blocks.*.rows.*' => ['nullable'],
             'meta.blocks.*.rows.*.*' => ['nullable', 'string', 'max:1000'],
+        ], [
+            'video_url.required' => 'Link video YouTube wajib diisi.',
+            'featured_image.prohibited' => 'File video tidak dapat diunggah. Masukkan link YouTube.',
         ]);
+
+        if ($mediaType === 'video' && ! $this->isYoutubeUrl($validated['video_url'])) {
+            throw ValidationException::withMessages([
+                'video_url' => 'Link video harus berasal dari YouTube.',
+            ]);
+        }
+
+        return $validated;
     }
 
     private function metadata(array $validated, string $categorySlug): ?array
@@ -175,8 +213,26 @@ class PostController extends Controller
         return ! empty($filtered) ? $filtered : null;
     }
 
-    private function storeImage(Request $request): string
+    private function storeMedia(Request $request): string
     {
         return Storage::url($request->file('featured_image')->store('posts', 'public'));
+    }
+
+    private function deleteStoredMedia(?string $path): void
+    {
+        if (! $path) {
+            return;
+        }
+
+        $relativePath = str_replace('/storage/', '', $path);
+
+        if (Storage::disk('public')->exists($relativePath)) {
+            Storage::disk('public')->delete($relativePath);
+        }
+    }
+
+    private function isYoutubeUrl(string $url): bool
+    {
+        return (bool) preg_match('/^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/.+$/', $url);
     }
 }

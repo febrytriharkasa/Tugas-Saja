@@ -3,7 +3,6 @@
 namespace Tests\Feature;
 
 use App\Models\Category;
-use App\Models\Gallery;
 use App\Models\Post;
 use App\Models\Staff;
 use App\Models\User;
@@ -80,37 +79,85 @@ class AdminResourceCrudTest extends TestCase
         $this->assertSame([['key' => 'lokasi', 'label' => 'Lokasi', 'type' => 'text']], $category->metadata_schema);
     }
 
-    public function test_gallery_update_keeps_existing_file_when_none_uploaded(): void
+    public function test_gallery_route_redirects_to_posts_filtered_by_gallery_category(): void
+    {
+        $user = $this->admin();
+        $category = Category::firstOrCreate(['slug' => 'galeri'], ['name' => 'Galeri']);
+
+        $this->actingAs($user)->get('/admin/galleries')
+            ->assertRedirect(route('admin.posts.index', ['category_id' => $category->id]));
+    }
+
+    public function test_gallery_can_be_created_as_post_with_media_type(): void
     {
         Storage::fake('public');
         $user = $this->admin();
-        $gallery = Gallery::create(['title' => 'Lama', 'media_type' => 'image', 'file_path' => '/storage/galleries/old.jpg']);
+        $category = Category::firstOrCreate(['slug' => 'galeri'], ['name' => 'Galeri']);
 
-        $this->actingAs($user)->put("/admin/galleries/{$gallery->id}", [
-            'title' => 'Judul Baru',
+        $this->actingAs($user)->post('/admin/posts', [
+            'title' => 'Dokumentasi Upacara',
+            'category_id' => $category->id,
+            'status' => 'published',
             'media_type' => 'image',
-        ])->assertRedirect(route('admin.galleries.index'));
+            'featured_image' => UploadedFile::fake()->image('foto.jpg'),
+        ])->assertRedirect(route('admin.posts.index'));
 
-        $this->assertDatabaseHas('galleries', [
-            'id' => $gallery->id,
-            'title' => 'Judul Baru',
-            'file_path' => '/storage/galleries/old.jpg',
+        $this->assertDatabaseHas('posts', [
+            'title' => 'Dokumentasi Upacara',
+            'category_id' => $category->id,
+            'media_type' => 'image',
+            'status' => 'published',
+        ]);
+        $this->assertCount(1, Storage::disk('public')->allFiles('posts'));
+    }
+
+    public function test_video_post_requires_youtube_url(): void
+    {
+        $user = $this->admin();
+        $category = Category::firstOrCreate(['slug' => 'galeri'], ['name' => 'Galeri']);
+
+        $this->actingAs($user)->post('/admin/posts', [
+            'title' => 'Video Tanpa Sumber',
+            'category_id' => $category->id,
+            'status' => 'published',
+            'media_type' => 'video',
+        ])->assertSessionHasErrors(['video_url']);
+    }
+
+    public function test_video_post_saves_youtube_url(): void
+    {
+        $user = $this->admin();
+        $category = Category::firstOrCreate(['slug' => 'galeri'], ['name' => 'Galeri']);
+
+        $this->actingAs($user)->post('/admin/posts', [
+            'title' => 'Video YouTube',
+            'category_id' => $category->id,
+            'status' => 'published',
+            'media_type' => 'video',
+            'video_url' => 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+        ])->assertRedirect(route('admin.posts.index'));
+
+        $this->assertDatabaseHas('posts', [
+            'title' => 'Video YouTube',
+            'media_type' => 'video',
+            'video_url' => 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
         ]);
     }
 
-    public function test_gallery_store_saves_uploaded_file(): void
+    public function test_non_youtube_url_rejected_for_video(): void
     {
-        Storage::fake('public');
         $user = $this->admin();
+        $category = Category::firstOrCreate(['slug' => 'galeri'], ['name' => 'Galeri']);
 
-        $this->actingAs($user)->post('/admin/galleries', [
-            'title' => 'Upacara',
-            'media_type' => 'image',
-            'file' => UploadedFile::fake()->image('foto.jpg'),
-        ])->assertRedirect(route('admin.galleries.index'));
+        $this->actingAs($user)->post('/admin/posts', [
+            'title' => 'Video URL Non-YouTube',
+            'category_id' => $category->id,
+            'status' => 'published',
+            'media_type' => 'video',
+            'video_url' => 'https://vimeo.com/123456789',
+        ])->assertSessionHasErrors(['video_url']);
 
-        $this->assertDatabaseHas('galleries', ['title' => 'Upacara']);
-        $this->assertCount(1, Storage::disk('public')->allFiles('galleries'));
+        $this->assertDatabaseMissing('posts', ['title' => 'Video URL Non-YouTube']);
     }
 
     public function test_post_can_be_created_with_achievement_table_metadata(): void

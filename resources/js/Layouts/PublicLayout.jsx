@@ -13,8 +13,23 @@ function Chevron({ open = false }) {
 export default function PublicLayout({ children, settings = {} }) {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [openMenu, setOpenMenu] = useState(null);
-    const { aboutPages = [], customPages = [], archivePages = [], settings: sharedSettings = {} } = usePage().props;
+    const { url, props } = usePage();
+    const { aboutPages = [], customPages = [], archivePages = [], settings: sharedSettings = {} } = props;
     const siteSettings = { ...sharedSettings, ...settings };
+
+    const currentUrl = url.split('?')[0];
+    const matches = (href) => currentUrl === href || currentUrl.startsWith(`${href}/`);
+    const isHome = currentUrl === '/';
+    const isNews = matches('/berita');
+    const isStats = matches('/statistik');
+    const isAbout = aboutPages.some((page) => matches(`/laman/${page.slug}`));
+    const isCustom = customPages.some((page) => matches(`/laman/${page.slug}`));
+    const isArchive = matches('/arsip') || archivePages.some((page) => matches(`/laman/${page.slug}`));
+
+    const navClass = (active) =>
+        `rounded-lg px-3 py-2 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
+            active ? 'bg-emerald-50 text-primary' : 'text-slate-700 hover:bg-slate-50 hover:text-primary'
+        }`;
 
     const toggleMenu = (name) => setOpenMenu(openMenu === name ? null : name);
     const closeMenus = () => {
@@ -22,16 +37,29 @@ export default function PublicLayout({ children, settings = {} }) {
         setMobileMenuOpen(false);
     };
 
-    const pageLinks = (pages) => pages.map((page) => (
-        <Link
-            key={page.slug}
-            href={`/laman/${page.slug}`}
-            onClick={closeMenus}
-            className="block rounded-lg px-3 py-2 text-sm text-slate-700 transition hover:bg-emerald-50 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-        >
-            {page.title}
-        </Link>
-    ));
+    const mobileNavClass = (active) =>
+        `block min-h-11 rounded-lg px-3 py-2.5 text-sm font-semibold ${
+            active ? 'bg-emerald-50 text-primary' : 'text-slate-700'
+        }`;
+
+    const pageLinks = (pages) => pages.map((page) => {
+        const href = `/laman/${page.slug}`;
+        const active = matches(href);
+
+        return (
+            <Link
+                key={page.slug}
+                href={href}
+                onClick={closeMenus}
+                aria-current={active ? 'page' : undefined}
+                className={`block rounded-lg px-3 py-2 text-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
+                    active ? 'bg-emerald-50 font-semibold text-primary' : 'text-slate-700 hover:bg-emerald-50 hover:text-primary'
+                }`}
+            >
+                {page.title}
+            </Link>
+        );
+    });
 
     const archiveLinks = [
         ['Pengumuman', '/arsip/pengumuman'],
@@ -66,27 +94,27 @@ export default function PublicLayout({ children, settings = {} }) {
                         </Link>
 
                         <div className="hidden items-center gap-1 lg:flex">
-                            <Link href="/" className="rounded-lg px-3 py-2 text-sm font-semibold text-primary transition hover:bg-emerald-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">Beranda</Link>
+                            <Link href="/" aria-current={isHome ? 'page' : undefined} className={navClass(isHome)}>Beranda</Link>
                             <div className="relative">
-                                <button type="button" onClick={() => toggleMenu('about')} aria-expanded={openMenu === 'about'} className="flex min-h-11 items-center gap-1 rounded-lg px-3 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">
+                                <button type="button" onClick={() => toggleMenu('about')} aria-expanded={openMenu === 'about'} className={`flex min-h-11 items-center gap-1 ${navClass(isAbout)}`}>
                                     Tentang Kami <Chevron open={openMenu === 'about'} />
                                 </button>
                                 {openMenu === 'about' && <div className="absolute left-0 top-full mt-2 w-60 rounded-xl border border-slate-200 bg-white p-2 shadow-card">{pageLinks(aboutPages)}</div>}
                             </div>
-                            <Link href="/berita" className="rounded-lg px-3 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">Berita</Link>
+                            <Link href="/berita" aria-current={isNews ? 'page' : undefined} className={navClass(isNews)}>Berita</Link>
                             <div className="relative">
-                                <button type="button" onClick={() => toggleMenu('pages')} aria-expanded={openMenu === 'pages'} className="flex min-h-11 items-center gap-1 rounded-lg px-3 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">
+                                <button type="button" onClick={() => toggleMenu('pages')} aria-expanded={openMenu === 'pages'} className={`flex min-h-11 items-center gap-1 ${navClass(isCustom)}`}>
                                     Laman <Chevron open={openMenu === 'pages'} />
                                 </button>
                                 {openMenu === 'pages' && <div className="absolute left-0 top-full mt-2 w-60 rounded-xl border border-slate-200 bg-white p-2 shadow-card">{pageLinks(customPages)}</div>}
                             </div>
                             <div className="relative">
-                                <button type="button" onClick={() => toggleMenu('archive')} aria-expanded={openMenu === 'archive'} className="flex min-h-11 items-center gap-1 rounded-lg px-3 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">
+                                <button type="button" onClick={() => toggleMenu('archive')} aria-expanded={openMenu === 'archive'} className={`flex min-h-11 items-center gap-1 ${navClass(isArchive)}`}>
                                     Arsip <Chevron open={openMenu === 'archive'} />
                                 </button>
-                                {openMenu === 'archive' && <div className="absolute right-0 top-full mt-2 w-56 rounded-xl border border-slate-200 bg-white p-2 shadow-card">{archiveLinks.map(([label, href]) => <Link key={href} href={href} onClick={closeMenus} className="block rounded-lg px-3 py-2 text-sm text-slate-700 transition hover:bg-emerald-50 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">{label}</Link>)}{archivePages.length > 0 && <div>{pageLinks(archivePages)}</div>}</div>}
+                                {openMenu === 'archive' && <div className="absolute right-0 top-full mt-2 w-56 rounded-xl border border-slate-200 bg-white p-2 shadow-card">{archiveLinks.map(([label, href]) => <Link key={href} href={href} onClick={closeMenus} aria-current={matches(href) ? 'page' : undefined} className={`block rounded-lg px-3 py-2 text-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${matches(href) ? 'bg-emerald-50 font-semibold text-primary' : 'text-slate-700 hover:bg-emerald-50 hover:text-primary'}`}>{label}</Link>)}{archivePages.length > 0 && <div>{pageLinks(archivePages)}</div>}</div>}
                             </div>
-                            <Link href="/statistik" className="rounded-lg px-3 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">Statistik</Link>
+                            <Link href="/statistik" aria-current={isStats ? 'page' : undefined} className={navClass(isStats)}>Statistik</Link>
                         </div>
 
                         <button type="button" onClick={() => setMobileMenuOpen(!mobileMenuOpen)} aria-expanded={mobileMenuOpen} aria-label={mobileMenuOpen ? 'Tutup menu' : 'Buka menu'} className="grid h-11 w-11 place-items-center rounded-lg text-slate-700 transition hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary lg:hidden">
@@ -96,24 +124,24 @@ export default function PublicLayout({ children, settings = {} }) {
 
                     {mobileMenuOpen && (
                         <div className="border-t border-slate-100 py-3 lg:hidden">
-                            <Link href="/" onClick={closeMenus} className="block min-h-11 rounded-lg px-3 py-2.5 text-sm font-semibold text-primary">Beranda</Link>
+                            <Link href="/" onClick={closeMenus} className={mobileNavClass(isHome)}>Beranda</Link>
                             {[
-                                ['about', 'Tentang Kami', aboutPages],
-                                ['pages', 'Laman', customPages],
-                            ].map(([name, label, pages]) => (
+                                ['about', 'Tentang Kami', aboutPages, isAbout],
+                                ['pages', 'Laman', customPages, isCustom],
+                            ].map(([name, label, pages, active]) => (
                                 <div key={name}>
-                                    <button type="button" onClick={() => toggleMenu(name)} aria-expanded={openMenu === name} className="flex min-h-11 w-full items-center justify-between rounded-lg px-3 py-2.5 text-left text-sm font-semibold text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">
+                                    <button type="button" onClick={() => toggleMenu(name)} aria-expanded={openMenu === name} className={`flex min-h-11 w-full items-center justify-between rounded-lg px-3 py-2.5 text-left text-sm font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${active ? 'bg-emerald-50 text-primary' : 'text-slate-700'}`}>
                                         {label} <Chevron open={openMenu === name} />
                                     </button>
                                     {openMenu === name && <div className="ml-3 border-l border-slate-200 pl-2">{pageLinks(pages)}</div>}
                                 </div>
                             ))}
-                            <Link href="/berita" onClick={closeMenus} className="block min-h-11 rounded-lg px-3 py-2.5 text-sm font-semibold text-slate-700">Berita</Link>
+                            <Link href="/berita" onClick={closeMenus} className={mobileNavClass(isNews)}>Berita</Link>
                             <div>
-                                <button type="button" onClick={() => toggleMenu('archive')} aria-expanded={openMenu === 'archive'} className="flex min-h-11 w-full items-center justify-between rounded-lg px-3 py-2.5 text-left text-sm font-semibold text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">Arsip <Chevron open={openMenu === 'archive'} /></button>
-                                {openMenu === 'archive' && <div className="ml-3 border-l border-slate-200 pl-2">{archiveLinks.map(([label, href]) => <Link key={href} href={href} onClick={closeMenus} className="block min-h-11 rounded-lg px-3 py-2.5 text-sm text-slate-700">{label}</Link>)}{archivePages.length > 0 && <div className="my-2 border-t border-slate-200 pt-2">{pageLinks(archivePages)}</div>}</div>}
+                                <button type="button" onClick={() => toggleMenu('archive')} aria-expanded={openMenu === 'archive'} className={`flex min-h-11 w-full items-center justify-between rounded-lg px-3 py-2.5 text-left text-sm font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${isArchive ? 'bg-emerald-50 text-primary' : 'text-slate-700'}`}>Arsip <Chevron open={openMenu === 'archive'} /></button>
+                                {openMenu === 'archive' && <div className="ml-3 border-l border-slate-200 pl-2">{archiveLinks.map(([label, href]) => <Link key={href} href={href} onClick={closeMenus} aria-current={matches(href) ? 'page' : undefined} className={`block min-h-11 rounded-lg px-3 py-2.5 text-sm ${matches(href) ? 'bg-emerald-50 font-semibold text-primary' : 'text-slate-700'}`}>{label}</Link>)}{archivePages.length > 0 && <div className="my-2 border-t border-slate-200 pt-2">{pageLinks(archivePages)}</div>}</div>}
                             </div>
-                            <Link href="/statistik" onClick={closeMenus} className="block min-h-11 rounded-lg px-3 py-2.5 text-sm font-semibold text-slate-700">Statistik</Link>
+                            <Link href="/statistik" onClick={closeMenus} className={mobileNavClass(isStats)}>Statistik</Link>
                         </div>
                     )}
                 </nav>

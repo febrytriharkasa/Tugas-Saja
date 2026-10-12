@@ -4,6 +4,14 @@ const LEGACY_COLUMNS = [
     { key: 'event', label: 'Keterangan' },
 ];
 
+export function youtubeThumbnailUrl(url) {
+    const match = url?.match(
+        /(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/|live\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/,
+    );
+
+    return match ? `https://i.ytimg.com/vi/${match[1]}/hqdefault.jpg` : null;
+}
+
 /**
  * Normalize a table block into { title, description, columns: string[], rows: string[][] }.
  * Legacy juara tables store rows as objects ({ name, rank, event }); they are converted to columns.

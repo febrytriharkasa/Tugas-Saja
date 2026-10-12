@@ -7,6 +7,8 @@ use App\Models\Page;
 use App\Models\Post;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
@@ -117,6 +119,100 @@ class AboutCategoryPagesTest extends TestCase
             ->where('title', 'Kegiatan Siswa')
             ->where('type', 'kegiatan-siswa')
             ->has('items.data', 1)
+        );
+    }
+
+    public function test_static_page_stores_image_and_blocks_metadata(): void
+    {
+        Storage::fake('public');
+        $user = User::factory()->create();
+
+        $this->actingAs($user)->post('/admin/pages', [
+            'title' => 'Sejarah Sekolah',
+            'group' => 'tentang',
+            'display_type' => 'text',
+            'content' => 'Isi sejarah sekolah.',
+            'is_published' => true,
+            'image' => UploadedFile::fake()->image('sejarah.jpg'),
+            'meta' => [
+                'blocks' => [
+                    [
+                        'type' => 'table',
+                        'title' => 'Periode Kepemimpinan',
+                        'description' => 'Daftar kepala sekolah.',
+                        'columns' => ['Nama', 'Tahun'],
+                        'rows' => [['Ahmad', '1990-2000']],
+                    ],
+                    [
+                        'type' => 'text',
+                        'content' => 'Catatan tambahan sejarah.',
+                    ],
+                ],
+            ],
+        ])->assertRedirect(route('admin.pages.index'));
+
+        $page = Page::where('title', 'Sejarah Sekolah')->first();
+        $this->assertNotNull($page);
+        $this->assertNotNull($page->image);
+        $this->assertCount(2, $page->metadata['blocks']);
+        $this->assertSame('Periode Kepemimpinan', $page->metadata['blocks'][0]['title']);
+        $this->assertCount(1, Storage::disk('public')->allFiles('pages'));
+    }
+
+    public function test_static_page_update_replaces_image_and_drops_empty_blocks(): void
+    {
+        Storage::fake('public');
+        $user = User::factory()->create();
+        $page = Page::create([
+            'title' => 'Visi Misi',
+            'slug' => 'visi-misi',
+            'group' => 'tentang',
+            'display_type' => 'text',
+            'content' => 'Visi misi sekolah.',
+            'is_published' => true,
+        ]);
+
+        $this->actingAs($user)->put("/admin/pages/{$page->id}", [
+            'title' => 'Visi Misi',
+            'group' => 'tentang',
+            'display_type' => 'text',
+            'content' => 'Visi misi sekolah diperbarui.',
+            'is_published' => true,
+            'image' => UploadedFile::fake()->image('visi.jpg'),
+            'meta' => [
+                'blocks' => [
+                    ['type' => 'text', 'content' => '   '],
+                ],
+            ],
+        ])->assertRedirect(route('admin.pages.index'));
+
+        $page->refresh();
+        $this->assertNotNull($page->image);
+        $this->assertNull($page->metadata);
+        $this->assertSame('Visi misi sekolah diperbarui.', $page->content);
+    }
+
+    public function test_public_static_page_receives_image_and_metadata(): void
+    {
+        $page = Page::create([
+            'title' => 'Sejarah Sekolah',
+            'slug' => 'sejarah',
+            'group' => 'tentang',
+            'display_type' => 'text',
+            'content' => 'Isi sejarah sekolah.',
+            'image' => '/storage/pages/sejarah.jpg',
+            'metadata' => [
+                'blocks' => [
+                    ['type' => 'text', 'content' => 'Catatan sejarah.'],
+                ],
+            ],
+            'is_published' => true,
+        ]);
+
+        $this->get('/laman/sejarah')->assertOk()->assertInertia(fn (Assert $assert) => $assert
+            ->component('Public/Page')
+            ->where('page.image', '/storage/pages/sejarah.jpg')
+            ->where('page.metadata.blocks.0.content', 'Catatan sejarah.')
         );
     }
 }

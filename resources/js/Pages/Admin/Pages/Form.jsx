@@ -1,26 +1,58 @@
 import AdminLayout from '@/Layouts/AdminLayout';
 import Card from '@/Components/Card';
 import Button from '@/Components/Button';
+import BlocksEditor from '@/Components/BlocksEditor';
+import { blocksFromMetadata } from '@/lib/postBlocks';
 import { useForm } from '@inertiajs/react';
+import { useEffect, useState } from 'react';
 
 export default function PageForm({ page, categories }) {
     const isEdit = !!page;
-    const { data, setData, post, put, processing, errors } = useForm({
+    const [imagePreview, setImagePreview] = useState(page?.image || null);
+    const [imagePreviewError, setImagePreviewError] = useState(false);
+    const { data, setData, post, processing, errors, transform } = useForm({
         title: page?.title || '',
         group: page?.group || 'tentang',
         display_type: page?.display_type || 'text',
         category_id: page?.category_id || '',
         content: page?.content || '',
+        image: null,
         is_published: page ? page.is_published : true,
+        meta: { blocks: blocksFromMetadata(page?.metadata) },
     });
+
+    useEffect(() => {
+        return () => {
+            if (imagePreview && !imagePreview.startsWith('/storage') && !imagePreview.startsWith('http')) {
+                URL.revokeObjectURL(imagePreview);
+            }
+        };
+    }, [imagePreview]);
+
+    const handleImageChange = (e) => {
+        const file = e.target.files[0] || null;
+        setData('image', file);
+        setImagePreviewError(false);
+        if (file) {
+            setImagePreview(URL.createObjectURL(file));
+        } else {
+            setImagePreview(page?.image || null);
+        }
+    };
+
+    const blocks = Array.isArray(data.meta.blocks) ? data.meta.blocks : [];
+
+    const setBlocks = (next) => setData('meta', { ...data.meta, blocks: next });
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        if (isEdit) {
-            put(`/admin/pages/${page.id}`);
-        } else {
-            post('/admin/pages');
-        }
+        transform((d) => ({
+            ...d,
+            ...(isEdit ? { _method: 'put' } : {}),
+        }));
+        post(isEdit ? `/admin/pages/${page.id}` : '/admin/pages', {
+            forceFormData: true,
+        });
     };
 
     return (
@@ -83,16 +115,49 @@ export default function PageForm({ page, categories }) {
                     )}
 
                     {data.display_type === 'text' && (
-                        <div>
-                            <label className="block text-sm font-medium text-slate-700">Konten</label>
-                            <textarea
-                                rows={10}
-                                value={data.content}
-                                onChange={(e) => setData('content', e.target.value)}
-                                className="mt-1 block w-full rounded-lg border-slate-300 text-sm focus:border-primary focus:ring-primary"
-                            />
-                            {errors.content && <p className="text-red-500 text-xs mt-1">{errors.content}</p>}
-                        </div>
+                        <>
+                            <div>
+                                <label className="block text-sm font-medium text-slate-700">Gambar (Opsional)</label>
+                                {imagePreview && !imagePreviewError ? (
+                                    <div className="mt-2 mb-2">
+                                        <img
+                                            src={imagePreview}
+                                            alt="Preview"
+                                            onError={() => setImagePreviewError(true)}
+                                            className="h-auto max-h-96 w-auto max-w-full rounded-lg border border-slate-200"
+                                        />
+                                        <p className="text-xs text-slate-500 mt-1">
+                                            {data.image ? 'Preview gambar baru.' : 'Gambar saat ini. Pilih file baru untuk mengganti.'}
+                                        </p>
+                                    </div>
+                                ) : isEdit && page?.image ? (
+                                    <div className="mt-2 mb-2 rounded-lg border border-dashed border-amber-300 bg-amber-50 p-3 text-xs text-amber-700">
+                                        Gambar tersimpan ({page.image}) tidak dapat dimuat.
+                                        Pastikan symlink <code>public/storage</code> aktif dan file masih ada.
+                                    </div>
+                                ) : null}
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={handleImageChange}
+                                    className="mt-1 block w-full rounded-lg border border-slate-300 text-sm file:mr-4 file:border-0 file:bg-slate-100 file:px-4 file:py-2 file:text-slate-700"
+                                />
+                                {errors.image && <p className="text-red-500 text-xs mt-1">{errors.image}</p>}
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-slate-700">Konten</label>
+                                <textarea
+                                    rows={10}
+                                    value={data.content}
+                                    onChange={(e) => setData('content', e.target.value)}
+                                    className="mt-1 block w-full rounded-lg border-slate-300 text-sm focus:border-primary focus:ring-primary"
+                                />
+                                {errors.content && <p className="text-red-500 text-xs mt-1">{errors.content}</p>}
+                            </div>
+
+                            <BlocksEditor blocks={blocks} onChange={setBlocks} errors={errors} />
+                        </>
                     )}
 
                     <div className="flex items-center gap-2">
