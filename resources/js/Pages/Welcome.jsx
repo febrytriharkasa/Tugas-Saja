@@ -3,8 +3,10 @@ import { AnimatePresence, motion } from 'framer-motion';
 import PublicLayout from '@/Layouts/PublicLayout';
 import Card from '@/Components/Card';
 import ChatWidget from '@/Components/ChatWidget';
+import MediaPreviewModal from '@/Components/MediaPreviewModal';
 import { Link } from '@inertiajs/react';
 import { youtubeThumbnailUrl } from '@/lib/postBlocks';
+import { postUrl } from '@/lib/postUrl';
 
 function ArrowLink({ href, children }) {
     return <Link href={href} className="inline-flex min-h-11 items-center gap-2 rounded-lg text-sm font-bold text-primary transition hover:gap-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">{children}<span aria-hidden="true">→</span></Link>;
@@ -42,7 +44,7 @@ function PostCard({ post, delay = 0 }) {
             transition={{ duration: 0.4, delay }}
         >
             <Card hover className="flex flex-col overflow-hidden h-full">
-                <Link href={`/berita/${post.slug}`} className="block">
+                <Link href={postUrl(post)} className="block">
                     <div className="relative aspect-[16/10] overflow-hidden bg-slate-100 shrink-0">
                         {thumbnail ? (
                             <div className="relative h-full w-full">
@@ -67,11 +69,16 @@ function PostCard({ post, delay = 0 }) {
                             <span>{formatPostDate(post)}</span>
                         </div>
                         <h3 className="mt-3 line-clamp-2 text-lg font-bold text-slate-900">
-                            <Link href={`/berita/${post.slug}`} className="hover:text-primary">{post.title}</Link>
+                            <Link href={postUrl(post)} className="hover:text-primary">{post.title}</Link>
                         </h3>
+                        {post.user?.name && (
+                            <p className="mt-2 text-xs text-slate-500">
+                                <span className="font-semibold text-slate-700">{post.user.name}</span>
+                            </p>
+                        )}
                     </div>
                     <div className="mt-4">
-                        <ArrowLink href={`/berita/${post.slug}`}>Baca selengkapnya</ArrowLink>
+                        <ArrowLink href={postUrl(post)}>Baca selengkapnya</ArrowLink>
                     </div>
                 </div>
             </Card>
@@ -146,6 +153,7 @@ export default function Welcome({ settings = {}, posts = [], homeSections = [], 
     ];
 
     const [currentSlide, setCurrentSlide] = useState(0);
+    const [previewItem, setPreviewItem] = useState(null);
 
     useEffect(() => {
         const timer = setInterval(() => {
@@ -359,7 +367,9 @@ export default function Welcome({ settings = {}, posts = [], homeSections = [], 
                     <SectionHeading eyebrow="Lihat kegiatan kami ketika di sekolah" title="Galeri aktivitas" href="/arsip/galeri" />
                     {galleries.length ? (
                         <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-                            {galleries.slice(0, 8).map((item, idx) => (
+                            {galleries.slice(0, 8).map((item, idx) => {
+                                const thumb = item.media_type === 'video' ? youtubeThumbnailUrl(item.video_url) : item.featured_image;
+                                return (
                                 <motion.div
                                     key={item.id}
                                     initial={{ opacity: 0, scale: 0.95 }}
@@ -367,13 +377,49 @@ export default function Welcome({ settings = {}, posts = [], homeSections = [], 
                                     viewport={{ once: true }}
                                     transition={{ duration: 0.3, delay: idx * 0.05 }}
                                 >
-                                    <Card className="overflow-hidden">
-                                        <div className="flex aspect-square items-end bg-slate-200 p-3">
-                                            <span className="line-clamp-2 text-xs font-bold text-slate-700">{item.title}</span>
+                                    <Card className="overflow-hidden flex flex-col h-full bg-white group">
+                                        <button
+                                            type="button"
+                                            onClick={() => setPreviewItem(item)}
+                                            className="relative aspect-square w-full bg-slate-100 overflow-hidden text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary cursor-zoom-in"
+                                            aria-label={`Lihat gambar penuh: ${item.title}`}
+                                        >
+                                            {thumb ? (
+                                                <div className="relative h-full w-full">
+                                                    <img
+                                                        src={thumb}
+                                                        alt={item.title}
+                                                        className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                                                    />
+                                                    {item.media_type === 'video' ? (
+                                                        <span className="absolute inset-0 flex items-center justify-center bg-slate-900/35" aria-hidden="true">
+                                                            <svg className="h-9 w-9 text-white drop-shadow" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
+                                                        </span>
+                                                    ) : (
+                                                        <span className="absolute bottom-2 right-2 rounded-md bg-slate-900/60 p-1.5 text-white opacity-0 group-hover:opacity-100 transition-opacity" aria-hidden="true">
+                                                            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M11 19a8 8 0 100-16 8 8 0 000 16zm-3-8h6m-3-3v6" />
+                                                            </svg>
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            ) : (
+                                                <div className="flex h-full w-full items-center justify-center text-xs text-slate-400 font-medium">Gambar tidak tersedia</div>
+                                            )}
+                                        </button>
+                                        <div className="p-3 bg-white flex-1 flex items-center">
+                                            <Link
+                                                href={postUrl(item)}
+                                                className="line-clamp-2 text-xs font-bold text-slate-800 hover:text-primary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded"
+                                                title={`Buka detail: ${item.title}`}
+                                            >
+                                                {item.title}
+                                            </Link>
                                         </div>
                                     </Card>
                                 </motion.div>
-                            ))}
+                                );
+                            })}
                         </div>
                     ) : <EmptyState>Belum ada dokumentasi galeri.</EmptyState>}
                 </div>
@@ -407,6 +453,7 @@ export default function Welcome({ settings = {}, posts = [], homeSections = [], 
             </section>
 
             <ChatWidget />
+            <MediaPreviewModal item={previewItem} onClose={() => setPreviewItem(null)} />
         </PublicLayout>
     );
 }

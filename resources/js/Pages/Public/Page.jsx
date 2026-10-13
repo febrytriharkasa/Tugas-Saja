@@ -109,6 +109,26 @@ export default function Page({ page }) {
                                 />
                             );
                         }
+                        if (block.type === 'callout') {
+                            return (
+                                <aside
+                                    key={index}
+                                    className="rounded-xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm text-emerald-900 leading-relaxed whitespace-pre-line"
+                                >
+                                    {block.content}
+                                </aside>
+                            );
+                        }
+                        if (block.type === 'blockquote') {
+                            return (
+                                <blockquote
+                                    key={index}
+                                    className="border-l-4 border-primary/40 pl-4 text-base italic text-slate-600 leading-relaxed whitespace-pre-line"
+                                >
+                                    {block.content}
+                                </blockquote>
+                            );
+                        }
 
                         return null;
                     })}

@@ -156,7 +156,12 @@ export default function PageForm({ page, categories }) {
                                 {errors.content && <p className="text-red-500 text-xs mt-1">{errors.content}</p>}
                             </div>
 
-                            <BlocksEditor blocks={blocks} onChange={setBlocks} errors={errors} />
+                            <BlocksEditor
+                                blocks={blocks}
+                                onChange={setBlocks}
+                                errors={errors}
+                                types={['text', 'table']}
+                            />
                         </>
                     )}
 

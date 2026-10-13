@@ -1,4 +1,18 @@
-import { createTableBlock } from '@/lib/postBlocks';
+import { createBlockquoteBlock, createCalloutBlock, createTableBlock } from '@/lib/postBlocks';
+
+const BLOCK_LABELS = {
+    text: 'Teks',
+    table: 'Tabel',
+    callout: 'Callout',
+    blockquote: 'Blockquote',
+};
+
+const BLOCK_FACTORIES = {
+    text: () => ({ type: 'text', content: '' }),
+    table: createTableBlock,
+    callout: createCalloutBlock,
+    blockquote: createBlockquoteBlock,
+};
 
 function TextBlock({ block, onChange }) {
     return (
@@ -9,6 +23,36 @@ function TextBlock({ block, onChange }) {
                 value={block.content || ''}
                 onChange={(e) => onChange({ ...block, content: e.target.value })}
                 placeholder="Tulis deskripsi atau keterangan di sini..."
+                className="mt-1 block w-full rounded-lg border-slate-300 text-sm focus:border-primary focus:ring-primary"
+            />
+        </div>
+    );
+}
+
+function CalloutBlock({ block, onChange }) {
+    return (
+        <div>
+            <label className="block text-xs font-semibold text-slate-600">Callout (Callout Box)</label>
+            <textarea
+                rows={4}
+                value={block.content || ''}
+                onChange={(e) => onChange({ ...block, content: e.target.value })}
+                placeholder="Tulis isi callout di sini..."
+                className="mt-1 block w-full rounded-lg border-slate-300 text-sm focus:border-primary focus:ring-primary"
+            />
+        </div>
+    );
+}
+
+function BlockquoteBlock({ block, onChange }) {
+    return (
+        <div>
+            <label className="block text-xs font-semibold text-slate-600">Blockquote (Kutipan)</label>
+            <textarea
+                rows={4}
+                value={block.content || ''}
+                onChange={(e) => onChange({ ...block, content: e.target.value })}
+                placeholder="Tulis isi kutipan di sini..."
                 className="mt-1 block w-full rounded-lg border-slate-300 text-sm focus:border-primary focus:ring-primary"
             />
         </div>
@@ -141,7 +185,7 @@ function Block({ block, index, total, onChange, onRemove, onMoveUp, onMoveDown }
         <div className="rounded-lg border border-slate-200 bg-white p-3 space-y-3">
             <div className="flex items-center justify-between gap-2">
                 <span className="text-xs font-semibold uppercase text-slate-500">
-                    {block.type === 'text' ? `Teks ${index + 1}` : `Tabel ${index + 1}`}
+                    {BLOCK_LABELS[block.type] || 'Blok'} {index + 1}
                 </span>
                 <div className="flex items-center gap-1">
                     <button
@@ -172,21 +216,33 @@ function Block({ block, index, total, onChange, onRemove, onMoveUp, onMoveDown }
                 </div>
             </div>
 
-            {block.type === 'text' ? (
-                <TextBlock block={block} onChange={onChange} />
-            ) : (
+            {block.type === 'callout' ? (
+                <CalloutBlock block={block} onChange={onChange} />
+            ) : block.type === 'blockquote' ? (
+                <BlockquoteBlock block={block} onChange={onChange} />
+            ) : block.type === 'table' ? (
                 <TableBlock block={block} onChange={onChange} />
+            ) : (
+                <TextBlock block={block} onChange={onChange} />
             )}
         </div>
     );
 }
 
 /**
- * Editor for the text/table metadata blocks, shared by the post and page forms.
+ * Editor for the metadata blocks, shared by the post and page forms.
  * The parent owns the array; this component only emits the next array.
+ * `types` limits which block kinds the form can add, so a form whose backend
+ * only accepts some kinds never offers the others.
  */
-export default function BlocksEditor({ blocks = [], onChange, errors = {}, errorPrefix = 'meta.blocks' }) {
-    const addBlock = (type) => onChange([...blocks, type === 'text' ? { type: 'text', content: '' } : createTableBlock()]);
+export default function BlocksEditor({
+    blocks = [],
+    onChange,
+    errors = {},
+    errorPrefix = 'meta.blocks',
+    types = ['text', 'table', 'callout', 'blockquote'],
+}) {
+    const addBlock = (type) => onChange([...blocks, BLOCK_FACTORIES[type]()]);
     const updateBlock = (index, next) => onChange(blocks.map((block, i) => (i === index ? next : block)));
     const removeBlock = (index) => onChange(blocks.filter((_, i) => i !== index));
     const moveBlock = (index, direction) => {
@@ -203,28 +259,24 @@ export default function BlocksEditor({ blocks = [], onChange, errors = {}, error
 
     return (
         <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 space-y-3">
-            <div className="flex items-center justify-between gap-2">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-2">
                 <div>
                     <label className="text-sm font-semibold text-slate-700">Blok Tambahan (Opsional)</label>
                     <p className="text-xs text-slate-500 mt-0.5">
-                        Tambah teks atau tabel sesuai kebutuhan. Urutan bisa diatur dengan tombol ▲▼.
+                        Tambah blok sesuai kebutuhan. Urutan bisa diatur dengan tombol ▲▼.
                     </p>
                 </div>
-                <div className="flex items-center gap-2 shrink-0">
-                    <button
-                        type="button"
-                        onClick={() => addBlock('text')}
-                        className="text-sm font-semibold text-primary hover:underline whitespace-nowrap"
-                    >
-                        + Teks
-                    </button>
-                    <button
-                        type="button"
-                        onClick={() => addBlock('table')}
-                        className="text-sm font-semibold text-primary hover:underline whitespace-nowrap"
-                    >
-                        + Tabel
-                    </button>
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 shrink-0">
+                    {types.map((type) => (
+                        <button
+                            key={type}
+                            type="button"
+                            onClick={() => addBlock(type)}
+                            className="min-h-11 text-sm font-semibold text-primary hover:underline whitespace-nowrap"
+                        >
+                            + {BLOCK_LABELS[type]}
+                        </button>
+                    ))}
                 </div>
             </div>
 

@@ -52,7 +52,7 @@ class PostController extends Controller
             'user_id' => auth()->id(),
             'category_id' => $category->id,
             'title' => $validated['title'],
-            'slug' => Str::slug($validated['title']).'-'.Str::lower(Str::random(5)),
+            'slug' => Str::slug($validated['title']),
             'content' => $validated['content'] ?? '',
             'metadata' => $this->metadata($validated, $category->slug),
             'featured_image' => $request->hasFile('featured_image') ? $this->storeMedia($request) : null,
@@ -138,7 +138,7 @@ class PostController extends Controller
             'meta' => ['nullable', 'array'],
             'meta.*' => ['nullable'],
             'meta.blocks' => ['nullable', 'array'],
-            'meta.blocks.*.type' => ['required_with:meta.blocks', Rule::in(['text', 'table'])],
+            'meta.blocks.*.type' => ['required_with:meta.blocks', Rule::in(['text', 'table', 'callout', 'blockquote'])],
             'meta.blocks.*.content' => ['nullable', 'string'],
             'meta.blocks.*.title' => ['nullable', 'string', 'max:255'],
             'meta.blocks.*.description' => ['nullable', 'string', 'max:500'],
@@ -175,7 +175,7 @@ class PostController extends Controller
                     if (! isset($block['type'])) {
                         return false;
                     }
-                    if ($block['type'] === 'text') {
+                    if (in_array($block['type'], ['text', 'callout', 'blockquote'])) {
                         return ! empty(trim($block['content'] ?? ''));
                     }
                     if ($block['type'] === 'table') {
@@ -198,7 +198,7 @@ class PostController extends Controller
                     if (! isset($block['type'])) {
                         return false;
                     }
-                    if ($block['type'] === 'text') {
+                    if (in_array($block['type'], ['text', 'callout', 'blockquote'])) {
                         return ! empty(trim($block['content'] ?? ''));
                     }
                     if ($block['type'] === 'table') {

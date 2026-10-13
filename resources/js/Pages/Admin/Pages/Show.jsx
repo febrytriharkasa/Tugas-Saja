@@ -22,9 +22,17 @@ export default function PageShow({ page }) {
                             <img src={page.image} alt={page.title} className="mt-6 max-h-96 w-full rounded-lg border border-slate-200 object-cover" />
                         )}
                         <div className="mt-6 whitespace-pre-wrap text-slate-700">{page.content}</div>
-                        {blocks.map((block, index) => (
+                        {blocks.map((block, index) =>
                             block.type === 'text' ? (
                                 <div key={index} className="mt-4 whitespace-pre-wrap text-slate-700">{block.content}</div>
+                            ) : block.type === 'callout' ? (
+                                <aside key={index} className="mt-4 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900 whitespace-pre-line">
+                                    {block.content}
+                                </aside>
+                            ) : block.type === 'blockquote' ? (
+                                <blockquote key={index} className="mt-4 border-l-4 border-primary/40 pl-4 italic text-slate-600 whitespace-pre-line">
+                                    {block.content}
+                                </blockquote>
                             ) : (
                                 <div key={index} className="mt-4 rounded-lg border border-slate-200">
                                     <div className="border-b border-slate-200 bg-slate-50 px-4 py-2 text-sm font-semibold text-slate-700">{block.title || 'Tabel'}</div>
@@ -51,7 +59,7 @@ export default function PageShow({ page }) {
                                     </div>
                                 </div>
                             )
-                        ))}
+                        )}
                     </>
                 )}
                 <Link href={`/admin/pages/${page.id}/edit`} className="mt-6 inline-block text-sm font-semibold text-primary hover:underline">Edit laman</Link>

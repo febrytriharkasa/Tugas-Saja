@@ -15,11 +15,13 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/berita', [HomeController::class, 'news'])->name('public.news');
-Route::get('/berita/{slug}', [HomeController::class, 'showPost'])->name('public.post');
 Route::get('/laman/{slug}', [HomeController::class, 'page'])->name('public.page');
 Route::get('/arsip/{type}', [HomeController::class, 'archive'])->name('public.archive');
 Route::get('/statistik', [HomeController::class, 'statistics'])->name('public.statistics');
 Route::post('/api/chat', [ChatBotController::class, 'send'])->name('api.chat');
+Route::get('/{category}/{slug}', [HomeController::class, 'showPost'])
+    ->where('category', '^(?!admin|api|login|logout|register|password|email|dashboard|profile|sanctum|_debugbar).*$')
+    ->name('public.post');
 
 Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');

@@ -1,6 +1,7 @@
 import { Link, router } from '@inertiajs/react';
 import PublicLayout from '@/Layouts/PublicLayout';
 import { blocksFromMetadata, youtubeThumbnailUrl } from '@/lib/postBlocks';
+import { postUrl } from '@/lib/postUrl';
 
 // Media can be an uploaded image, an uploaded video, or a YouTube link.
 // Turning a YouTube URL into an embed URL keeps the video inside the article instead of sending readers away.
@@ -228,6 +229,26 @@ export default function PostDetail({ post, relatedPosts = [] }) {
                                     />
                                 );
                             }
+                            if (block.type === 'callout') {
+                                return (
+                                    <aside
+                                        key={idx}
+                                        className="mt-6 rounded-xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm text-emerald-900 leading-relaxed whitespace-pre-line"
+                                    >
+                                        {block.content}
+                                    </aside>
+                                );
+                            }
+                            if (block.type === 'blockquote') {
+                                return (
+                                    <blockquote
+                                        key={idx}
+                                        className="mt-6 border-l-4 border-primary/40 pl-4 text-base italic text-slate-600 leading-relaxed whitespace-pre-line"
+                                    >
+                                        {block.content}
+                                    </blockquote>
+                                );
+                            }
                             return null;
                         })}
 
@@ -260,7 +281,7 @@ export default function PostDetail({ post, relatedPosts = [] }) {
                                         return (
                                             <Link
                                                 key={rel.id}
-                                                href={`/berita/${rel.slug}`}
+                                                href={postUrl(rel)}
                                                 className="group rounded-xl border border-slate-200 bg-white hover:border-primary hover:shadow-md transition-all overflow-hidden flex flex-col"
                                             >
                                                 {relThumb ? (
@@ -323,7 +344,7 @@ export default function PostDetail({ post, relatedPosts = [] }) {
                                     {relatedPosts.map((rel) => {
                                         const relThumb = rel.media_type === 'video' ? youtubeThumbnailUrl(rel.video_url) : rel.featured_image;
                                         return (
-                                            <Link key={rel.id} href={`/berita/${rel.slug}`} className="flex gap-3 group">
+                                            <Link key={rel.id} href={postUrl(rel)} className="flex gap-3 group">
                                                 <div className="relative w-24 h-24 rounded-xl overflow-hidden flex-shrink-0 bg-slate-100">
                                                     {relThumb ? (
                                                         <>

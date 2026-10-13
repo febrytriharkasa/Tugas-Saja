@@ -83,3 +83,17 @@ export function createTableBlock() {
         rows: [['', '']],
     };
 }
+
+export function createCalloutBlock() {
+    return {
+        type: 'callout',
+        content: '',
+    };
+}
+
+export function createBlockquoteBlock() {
+    return {
+        type: 'blockquote',
+        content: '',
+    };
+}

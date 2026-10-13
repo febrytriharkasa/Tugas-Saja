@@ -34,7 +34,7 @@ class HomeController extends Controller
     {
         $categories = Category::shownOnHome()->get();
 
-        $postsByCategory = Post::with('category')
+        $postsByCategory = Post::with(['category', 'user'])
             ->where('status', 'published')
             ->whereIn('category_id', $categories->pluck('id'))
             ->latest('published_at')
@@ -108,17 +108,28 @@ class HomeController extends Controller
         ]);
     }
 
-    public function showPost($slug)
+    public function showPost($category, $slug)
     {
-        $post = Post::with(['category', 'user'])->where('slug', $slug)->where('status', 'published')->firstOrFail();
-        $relatedPosts = Post::where('category_id', $post->category_id)->where('id', '!=', $post->id)->where('status', 'published')->latest('published_at')->take(3)->get();
+        $post = Post::with(['category', 'user'])
+            ->where('slug', $slug)
+            ->where('status', 'published')
+            ->whereHas('category', fn ($c) => $c->where('slug', $category))
+            ->firstOrFail();
+
+        $relatedPosts = Post::with(['category', 'user'])
+            ->where('category_id', $post->category_id)
+            ->where('id', '!=', $post->id)
+            ->where('status', 'published')
+            ->latest('published_at')
+            ->take(3)
+            ->get();
 
         return Inertia::render('Public/PostDetail', compact('post', 'relatedPosts'));
     }
 
     private function categoryPosts(string $slug, ?int $limit = null, bool $paginate = false)
     {
-        $query = Post::with('category')
+        $query = Post::with(['category', 'user'])
             ->where('status', 'published')
             ->whereHas('category', fn ($q) => $q->where('slug', $slug))
             ->latest('published_at');
