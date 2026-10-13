@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import PublicLayout from '@/Layouts/PublicLayout';
 import Card from '@/Components/Card';
@@ -14,18 +14,70 @@ function ArrowLink({ href, children }) {
 
 function SectionHeading({ eyebrow, title, href, linkLabel = 'Lihat semua', dark = false }) {
     return (
-        <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-            <div>
+        <div className="mb-8 flex items-end justify-between gap-4">
+            <div className="flex-1">
                 <h2 className={`mt-2 text-2xl font-extrabold tracking-tight sm:text-3xl ${dark ? 'text-white' : 'text-slate-900'}`}>{title}</h2>
                 {eyebrow && <p className={`mt-2 text-xs font-bold uppercase tracking-[0.14em] ${dark ? 'text-emerald-200' : 'text-secondary'}`}>{eyebrow}</p>}
             </div>
-            {href && <ArrowLink href={href}>{linkLabel}</ArrowLink>}
+            {href && (
+                <>
+                    <Link href={href} className="sm:hidden inline-flex items-center justify-center w-10 h-10 shrink-0 rounded-lg border border-slate-300 bg-white text-lg font-bold text-slate-600 hover:border-primary hover:text-primary transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">
+                        →
+                    </Link>
+                    <span className="hidden sm:inline-flex">
+                        <ArrowLink href={href}>{linkLabel}</ArrowLink>
+                    </span>
+                </>
+            )}
         </div>
     );
 }
 
 function EmptyState({ children }) {
     return <div className="rounded-xl border border-dashed border-slate-300 bg-white px-6 py-10 text-center text-sm text-slate-600">{children}</div>;
+}
+
+export function HorizontalRail({ label, children }) {
+    const railRef = useRef(null);
+
+    const scrollRail = (direction) => {
+        const rail = railRef.current;
+        if (rail) {
+            rail.scrollBy({ left: direction * rail.clientWidth, behavior: 'smooth' });
+        }
+    };
+
+    return (
+        <div>
+            <div
+                ref={railRef}
+                role="region"
+                aria-label={label}
+                tabIndex={0}
+                className="flex snap-x snap-mandatory gap-6 overflow-x-auto overflow-y-hidden pb-2 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+            >
+                {children}
+            </div>
+            <div className="mt-4 flex justify-end gap-2">
+                <button
+                    type="button"
+                    onClick={() => scrollRail(-1)}
+                    aria-label={`Geser ${label} ke kiri`}
+                    className="grid h-11 w-11 place-items-center rounded-lg border border-slate-300 bg-white text-lg font-bold text-slate-700 transition hover:border-primary hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                >
+                    ‹
+                </button>
+                <button
+                    type="button"
+                    onClick={() => scrollRail(1)}
+                    aria-label={`Geser ${label} ke kanan`}
+                    className="grid h-11 w-11 place-items-center rounded-lg border border-slate-300 bg-white text-lg font-bold text-slate-700 transition hover:border-primary hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                >
+                    ›
+                </button>
+            </div>
+        </div>
+    );
 }
 
 function formatPostDate(post) {
@@ -45,7 +97,7 @@ function PostCard({ post, delay = 0 }) {
         >
             <Card hover className="flex flex-col overflow-hidden h-full">
                 <Link href={postUrl(post)} className="block">
-                    <div className="relative aspect-[16/10] overflow-hidden bg-slate-100 shrink-0">
+                    <div className="relative aspect-[16/9] sm:aspect-[16/10] overflow-hidden bg-slate-100 shrink-0">
                         {thumbnail ? (
                             <div className="relative h-full w-full">
                                 <img src={thumbnail} alt={post.title} className="h-full w-full object-cover" />
@@ -62,22 +114,22 @@ function PostCard({ post, delay = 0 }) {
                         )}
                     </div>
                 </Link>
-                <div className="flex flex-1 flex-col p-5 justify-between">
+                <div className="flex flex-1 flex-col p-3.5 justify-between sm:p-5">
                     <div>
-                        <div className="flex items-center gap-2 text-xs text-slate-600">
+                        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] text-slate-600 sm:text-xs">
                             <span className="font-bold text-primary">{post.category?.name || 'Konten'}</span>
                             <span>{formatPostDate(post)}</span>
                         </div>
-                        <h3 className="mt-3 line-clamp-2 text-lg font-bold text-slate-900">
+                        <h3 className="mt-1.5 line-clamp-2 break-words text-sm font-bold text-slate-900 sm:mt-3 sm:text-lg">
                             <Link href={postUrl(post)} className="hover:text-primary">{post.title}</Link>
                         </h3>
                         {post.user?.name && (
-                            <p className="mt-2 text-xs text-slate-500">
+                            <p className="mt-1 break-words text-[10px] text-slate-500 sm:mt-2 sm:text-xs">
                                 <span className="font-semibold text-slate-700">{post.user.name}</span>
                             </p>
                         )}
                     </div>
-                    <div className="mt-4">
+                    <div className="mt-3 sm:mt-4">
                         <ArrowLink href={postUrl(post)}>Baca selengkapnya</ArrowLink>
                     </div>
                 </div>
@@ -88,15 +140,17 @@ function PostCard({ post, delay = 0 }) {
 
 function PostSection({ id, eyebrow, title, href, posts, tone = 'plain' }) {
     return (
-        <section id={id} className={tone === 'muted' ? 'bg-slate-50 py-16 sm:py-20' : 'bg-white py-16 sm:py-20'}>
+        <section id={id} className={tone === 'muted' ? 'bg-slate-50 py-12 sm:py-20' : 'bg-white py-12 sm:py-20'}>
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <SectionHeading eyebrow={eyebrow} title={title} href={href} />
                 {posts.length ? (
-                    <div className="grid gap-6 md:grid-cols-3">
-                        {posts.slice(0, 3).map((post, idx) => (
-                            <PostCard key={post.id} post={post} delay={idx * 0.1} />
+                    <HorizontalRail label={title}>
+                        {posts.slice(0, 8).map((post, idx) => (
+                            <div key={post.id} className="w-full shrink-0 snap-start sm:w-[calc((100%-1.5rem)/2)] lg:w-[calc((100%-3rem)/3)] xl:w-[calc((100%-4.5rem)/4)]">
+                                <PostCard post={post} delay={idx * 0.1} />
+                            </div>
                         ))}
-                    </div>
+                    </HorizontalRail>
                 ) : <EmptyState>Belum ada konten pada kategori ini.</EmptyState>}
             </div>
         </section>
@@ -108,24 +162,27 @@ function AlumniSection({ id, title, href, posts }) {
         <section id={id} className="bg-primary py-16 text-white sm:py-20">
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <SectionHeading eyebrow="Kisah alumni" title={title} href={href} dark />
-                <div className="grid gap-6 md:grid-cols-2">
+                <div>
                     {posts.length ? (
-                        posts.slice(0, 4).map((testi, idx) => (
+                        <HorizontalRail label={title}>
+                        {posts.slice(0, 8).map((testi, idx) => (
                             <motion.div
                                 key={testi.id}
+                                className="w-full shrink-0 snap-start sm:w-[calc((100%-1.5rem)/2)] lg:w-[calc((100%-3rem)/3)] xl:w-[calc((100%-4.5rem)/4)]"
                                 initial={{ opacity: 0, y: 25 }}
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true }}
                                 transition={{ duration: 0.4, delay: idx * 0.1 }}
                             >
-                                <Card hover className="bg-white p-6 h-full">
-                                    <p className="text-sm italic leading-7 text-slate-600">“{testi.content}”</p>
-                                    <p className="mt-5 font-bold text-slate-900">{testi.title}</p>
-                                    <p className="mt-1 text-xs text-slate-600">Alumni {testi.metadata?.graduation_year || '-'} · {testi.metadata?.current_profession || 'Profesi belum diisi'}</p>
+                                <Card hover className="bg-white p-4 h-full sm:p-6">
+                                    <p className="break-words text-xs italic leading-6 text-slate-600 sm:text-sm sm:leading-7">“{testi.content}”</p>
+                                    <p className="mt-3 break-words text-sm font-bold text-slate-900 sm:mt-5 sm:text-base">{testi.title}</p>
+                                    <p className="mt-1 break-words text-[11px] text-slate-600 sm:text-xs">Alumni {testi.metadata?.graduation_year || '-'} · {testi.metadata?.current_profession || 'Profesi belum diisi'}</p>
                                 </Card>
                             </motion.div>
-                        ))
-                    ) : <div className="md:col-span-2"><EmptyState>Belum ada cerita alumni.</EmptyState></div>}
+                        ))}
+                        </HorizontalRail>
+                    ) : <EmptyState>Belum ada cerita alumni.</EmptyState>}
                 </div>
             </div>
         </section>
@@ -170,7 +227,7 @@ export default function Welcome({ settings = {}, posts = [], homeSections = [], 
 
     return (
         <PublicLayout settings={settings}>
-            <section className="relative isolate overflow-hidden bg-slate-850 text-white min-h-[800px] flex items-center">
+            <section className="relative isolate overflow-hidden bg-slate-850 text-white min-h-[32rem] flex items-center sm:min-h-[40rem] lg:min-h-[50rem]">
                 {/* Background Images with smooth fade */}
                 {slides.map((s, idx) => (
                     s.image ? (
@@ -185,8 +242,8 @@ export default function Welcome({ settings = {}, posts = [], homeSections = [], 
 
                 <div className={`absolute inset-0 -z-10 transition-colors duration-1000 ${activeSlide.image ? 'bg-slate-950/75' : 'bg-primary'}`} />
 
-                <div className="mx-auto grid min-h-[800px] max-w-7xl items-center gap-10 px-4 pt-20 sm:px-6 lg:grid-cols-[minmax(0,1.25fr)_minmax(18rem,0.75fr)] lg:px-8 lg:pb-20 w-full relative z-10">
-                    <div className="max-w-3xl min-h-[360px] flex items-center">
+                <div className="mx-auto grid min-h-[32rem] max-w-7xl items-center gap-10 px-4 pt-20 sm:min-h-[40rem] sm:px-6 lg:grid-cols-[minmax(0,1.25fr)_minmax(18rem,0.75fr)] lg:min-h-[50rem] lg:px-8 lg:pb-20 w-full relative z-10">
+                    <div className="max-w-3xl min-h-[16rem] flex items-center sm:min-h-[20rem] lg:min-h-[22rem]">
                         <AnimatePresence mode="wait">
                             <motion.div
                                 key={currentSlide}
@@ -216,7 +273,7 @@ export default function Welcome({ settings = {}, posts = [], homeSections = [], 
                                         visible: { opacity: 1, x: 0, transition: { duration: 0.55, ease: 'easeOut' } },
                                         exit: { opacity: 0, y: -40, transition: { duration: 0.3, ease: 'easeIn' } },
                                     }}
-                                    className="max-w-3xl text-4xl font-extrabold leading-tight tracking-tight sm:text-5xl lg:text-6xl"
+                                    className="max-w-3xl break-words text-3xl font-extrabold leading-tight tracking-tight sm:text-4xl md:text-5xl lg:text-6xl"
                                 >
                                     {activeSlide.title}
                                 </motion.h1>
@@ -226,7 +283,7 @@ export default function Welcome({ settings = {}, posts = [], homeSections = [], 
                                         visible: { opacity: 1, x: 0, transition: { duration: 0.55, ease: 'easeOut' } },
                                         exit: { opacity: 0, y: 35, transition: { duration: 0.3, ease: 'easeIn' } },
                                     }}
-                                    className="mt-6 max-w-2xl text-base leading-7 text-emerald-50/90 sm:text-lg"
+                                    className="mt-6 max-w-2xl break-words text-base leading-7 text-emerald-50/90 sm:text-lg"
                                 >
                                     {activeSlide.subtitle}
                                 </motion.p>
@@ -262,11 +319,11 @@ export default function Welcome({ settings = {}, posts = [], homeSections = [], 
                 </div>
 
                 {/* Carousel Controls (Arrows and Indicators) */}
-                <div className="absolute bottom-16 right-4 sm:right-8 z-20 flex items-center gap-3 bg-black/30 backdrop-blur-md px-4 py-2 rounded-full border border-white/10">
+                <div className="absolute bottom-16 right-4 sm:right-8 z-20 flex items-center gap-3 bg-black/30 px-4 py-2 rounded-full border border-white/10">
                     <button
                         type="button"
                         onClick={() => setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length)}
-                        className="w-8 h-8 rounded-full flex items-center justify-center text-white/80 hover:text-white hover:bg-white/20 transition text-sm font-bold"
+                        className="w-11 h-11 rounded-full flex items-center justify-center text-white/80 hover:text-white hover:bg-white/20 transition text-sm font-bold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
                         aria-label="Slide sebelumnya"
                     >
                         ‹
@@ -287,7 +344,7 @@ export default function Welcome({ settings = {}, posts = [], homeSections = [], 
                     <button
                         type="button"
                         onClick={() => setCurrentSlide((prev) => (prev + 1) % slides.length)}
-                        className="w-8 h-8 rounded-full flex items-center justify-center text-white/80 hover:text-white hover:bg-white/20 transition text-sm font-bold"
+                        className="w-11 h-11 rounded-full flex items-center justify-center text-white/80 hover:text-white hover:bg-white/20 transition text-sm font-bold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
                         aria-label="Slide berikutnya"
                     >
                         ›
@@ -310,11 +367,11 @@ export default function Welcome({ settings = {}, posts = [], homeSections = [], 
                             transition={{ duration: 0.4, delay: idx * 0.1 }}
                         >
                             <a href={link.url} target="_blank" rel="noopener noreferrer" className="block group h-full">
-                                <Card hover className="p-6 h-full flex flex-col justify-between border-slate-200/80 transition bg-surface-container-low">
+                                <Card hover className="p-4 h-full flex flex-col justify-between border-slate-200/80 transition bg-surface-container-low sm:p-6">
                                     <div>
                                         <span className="text-xs font-bold uppercase tracking-wider text-primary">Layanan Pintas</span>
-                                        <h3 className="mt-2 text-xl font-extrabold text-slate-900 group-hover:text-primary transition">{link.title}</h3>
-                                        <p className="mt-2 text-sm text-slate-600">{link.desc}</p>
+                                        <h3 className="mt-2 break-words text-lg font-extrabold text-slate-900 transition group-hover:text-primary sm:text-xl">{link.title}</h3>
+                                        <p className="mt-2 break-words text-sm text-slate-600">{link.desc}</p>
                                     </div>
                                     <div className="mt-4 flex items-center text-sm font-bold text-primary gap-1 group-hover:gap-2 transition-all">
                                         <span>Akses Layanan</span>
@@ -331,7 +388,7 @@ export default function Welcome({ settings = {}, posts = [], homeSections = [], 
             {/* Berita is permanent: it always leads the home page. */}
             <PostSection
                 id="berita"
-                eyebrow="Update terkini seputar berita sekolah"
+                eyebrow="Update terkini seputar berita"
                 title="Berita Sekolah"
                 href="/berita"
                 posts={posts}
@@ -351,7 +408,7 @@ export default function Welcome({ settings = {}, posts = [], homeSections = [], 
                 ) : (
                     <PostSection
                         key={section.id}
-                        eyebrow={`Update terkini seputar ${section.name} sekolah`}
+                        eyebrow={`Update terkini ${section.name}`}
                         id={section.slug}
                         title={section.name}
                         href={`/arsip/${section.slug}`}
@@ -362,16 +419,17 @@ export default function Welcome({ settings = {}, posts = [], homeSections = [], 
             ))}
 
             {/* Galeri aktivitas and Guru & Tendik are permanent, after the adjustable sections. */}
-            <section id="galeri" className={toneFor(galeriIndex) === 'muted' ? 'bg-slate-50 py-16 sm:py-20' : 'bg-white py-16 sm:py-20'}>
+            <section id="galeri" className={toneFor(galeriIndex) === 'muted' ? 'bg-slate-50 py-12 sm:py-20' : 'bg-white py-12 sm:py-20'}>
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <SectionHeading eyebrow="Lihat kegiatan kami ketika di sekolah" title="Galeri aktivitas" href="/arsip/galeri" />
                     {galleries.length ? (
-                        <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+                        <HorizontalRail label="Galeri aktivitas">
                             {galleries.slice(0, 8).map((item, idx) => {
                                 const thumb = item.media_type === 'video' ? youtubeThumbnailUrl(item.video_url) : item.featured_image;
                                 return (
                                 <motion.div
                                     key={item.id}
+                                    className="w-full shrink-0 snap-start sm:w-[calc((100%-1.5rem)/2)] lg:w-[calc((100%-3rem)/3)] xl:w-[calc((100%-4.5rem)/4)]"
                                     initial={{ opacity: 0, scale: 0.95 }}
                                     whileInView={{ opacity: 1, scale: 1 }}
                                     viewport={{ once: true }}
@@ -381,7 +439,7 @@ export default function Welcome({ settings = {}, posts = [], homeSections = [], 
                                         <button
                                             type="button"
                                             onClick={() => setPreviewItem(item)}
-                                            className="relative aspect-square w-full bg-slate-100 overflow-hidden text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary cursor-zoom-in"
+                                            className="relative aspect-[16/9] sm:aspect-[16/10] w-full bg-slate-100 overflow-hidden text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary cursor-zoom-in"
                                             aria-label={`Lihat gambar penuh: ${item.title}`}
                                         >
                                             {thumb ? (
@@ -407,10 +465,10 @@ export default function Welcome({ settings = {}, posts = [], homeSections = [], 
                                                 <div className="flex h-full w-full items-center justify-center text-xs text-slate-400 font-medium">Gambar tidak tersedia</div>
                                             )}
                                         </button>
-                                        <div className="p-3 bg-white flex-1 flex items-center">
+                                        <div className="flex flex-1 items-center bg-white p-3">
                                             <Link
                                                 href={postUrl(item)}
-                                                className="line-clamp-2 text-xs font-bold text-slate-800 hover:text-primary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded"
+                                                className="line-clamp-2 break-words text-xs font-bold text-slate-800 transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded sm:text-sm"
                                                 title={`Buka detail: ${item.title}`}
                                             >
                                                 {item.title}
@@ -420,34 +478,35 @@ export default function Welcome({ settings = {}, posts = [], homeSections = [], 
                                 </motion.div>
                                 );
                             })}
-                        </div>
+                        </HorizontalRail>
                     ) : <EmptyState>Belum ada dokumentasi galeri.</EmptyState>}
                 </div>
             </section>
 
-            <section id="gtk" className={toneFor(gtkIndex) === 'muted' ? 'bg-slate-50 py-16 sm:py-20' : 'bg-white py-16 sm:py-20'}>
+            <section id="gtk" className={toneFor(gtkIndex) === 'muted' ? 'bg-slate-50 py-12 sm:py-20' : 'bg-white py-12 sm:py-20'}>
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <SectionHeading eyebrow="Tenaga pendidik profesional" title="Guru dan tenaga kependidikan" href="/laman/guru-tendik" />
                     {staff.length ? (
-                        <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+                        <HorizontalRail label="Guru dan tenaga kependidikan">
                             {staff.slice(0, 8).map((person, idx) => (
                                 <motion.div
                                     key={person.id}
+                                    className="w-full shrink-0 snap-start sm:w-[calc((100%-1.5rem)/2)] lg:w-[calc((100%-3rem)/3)] xl:w-[calc((100%-4.5rem)/4)]"
                                     initial={{ opacity: 0, y: 20 }}
                                     whileInView={{ opacity: 1, y: 0 }}
                                     viewport={{ once: true }}
                                     transition={{ duration: 0.35, delay: idx * 0.05 }}
                                 >
-                                    <Card hover className="p-4 text-center h-full">
-                                        <div className="mx-auto mb-3 grid h-20 w-20 place-items-center rounded-full bg-primary/10 text-sm font-bold text-primary">
+                                    <Card hover className="p-3 text-center h-full sm:p-4">
+                                        <div className="mx-auto mb-2 grid h-12 w-12 place-items-center rounded-full bg-primary/10 text-xs font-bold text-primary sm:mb-3 sm:h-20 sm:w-20 sm:text-sm">
                                             {person.name.charAt(0)}
                                         </div>
-                                        <h3 className="text-sm font-bold text-slate-900">{person.name}</h3>
-                                        <p className="mt-1 text-xs leading-5 text-slate-600">{person.role}</p>
+                                        <h3 className="break-words text-xs font-bold text-slate-900 sm:text-sm">{person.name}</h3>
+                                        <p className="mt-0.5 break-words text-[10px] leading-4 text-slate-600 sm:mt-1 sm:text-xs sm:leading-5">{person.role}</p>
                                     </Card>
                                 </motion.div>
                             ))}
-                        </div>
+                        </HorizontalRail>
                     ) : <EmptyState>Belum ada data Guru dan Tendik.</EmptyState>}
                 </div>
             </section>

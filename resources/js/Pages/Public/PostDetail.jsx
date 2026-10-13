@@ -174,22 +174,22 @@ export default function PostDetail({ post, relatedPosts = [] }) {
                                 )}
                             </div>
 
-                            <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900 leading-tight tracking-tight">
+                            <h1 className="break-words text-2xl font-extrabold leading-tight tracking-tight text-slate-900 sm:text-3xl lg:text-4xl">
                                 {post.title}
                             </h1>
 
                             <div className="flex flex-wrap items-center justify-between gap-4 pt-1">
-                                <div className="flex items-center gap-3">
-                                    <div className="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-sm">
+                                <div className="flex min-w-0 items-center gap-3">
+                                    <div className="w-10 h-10 shrink-0 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-sm">
                                         {(post.user?.name || 'H').charAt(0).toUpperCase()}
                                     </div>
-                                    <div className="flex flex-col">
-                                        <span className="text-sm font-bold text-slate-800">{post.user?.name || 'Humas SMA XYZ'}</span>
+                                    <div className="flex min-w-0 flex-col">
+                                        <span className="break-words text-sm font-bold text-slate-800">{post.user?.name || 'Humas SMA XYZ'}</span>
                                         <span className="text-xs text-slate-500">Tim Media &amp; Publikasi</span>
                                     </div>
                                 </div>
 
-                                <div className="flex flex-wrap items-center gap-4 text-xs text-slate-500">
+                                <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] text-slate-500 sm:text-xs">
                                     {publishedDate && (
                                         <span className="flex items-center gap-1">
                                             <svg className="w-3.5 h-3.5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
@@ -302,7 +302,7 @@ export default function PostDetail({ post, relatedPosts = [] }) {
                                                     {rel.category && (
                                                         <span className="text-xs font-bold text-primary">{rel.category.name}</span>
                                                     )}
-                                                    <h4 className="text-sm font-bold text-slate-800 group-hover:text-primary transition-colors line-clamp-2 leading-snug">
+                                                    <h4 className="break-words text-sm font-bold text-slate-800 transition-colors line-clamp-2 leading-snug group-hover:text-primary">
                                                         {rel.title}
                                                     </h4>
                                                 </div>
@@ -362,7 +362,7 @@ export default function PostDetail({ post, relatedPosts = [] }) {
                                                     )}
                                                 </div>
                                                 <div className="flex flex-col justify-between h-24 min-w-0 py-1">
-                                                    <span className="text-sm font-semibold text-slate-800 group-hover:text-primary transition-colors line-clamp-3 leading-snug">
+                                                    <span className="break-words text-sm font-semibold text-slate-800 transition-colors line-clamp-3 leading-snug group-hover:text-primary">
                                                         {rel.title}
                                                     </span>
                                                     {rel.published_at && (

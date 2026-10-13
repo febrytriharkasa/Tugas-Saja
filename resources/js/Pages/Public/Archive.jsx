@@ -3,9 +3,11 @@ import Card from '@/Components/Card';
 import ChatWidget from '@/Components/ChatWidget';
 import MediaPreviewModal from '@/Components/MediaPreviewModal';
 import { Link } from '@inertiajs/react';
-import { useState } from 'react';
+import { motion } from 'framer-motion';
+import { useState, useRef } from 'react';
 import { youtubeThumbnailUrl } from '@/lib/postBlocks';
 import { postUrl } from '@/lib/postUrl';
+import { HorizontalRail } from '@/Pages/Welcome';
 
 function Breadcrumbs({ post, title }) {
     return (
@@ -57,19 +59,19 @@ export default function Archive({ title, type, items }) {
                                         )}
                                     </div>
                                 </Link>
-                                <div className="flex flex-1 flex-col justify-between p-5">
+                                <div className="flex flex-1 flex-col justify-between p-4 sm:p-5">
                                     <div>
-                                        <div className="flex items-center gap-2 text-xs text-slate-600">
+                                        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] text-slate-600 sm:text-xs">
                                             <span className="font-bold text-primary">{post.category?.name || title}</span>
                                             <span>
                                                 {post.published_at ? new Date(post.published_at).toLocaleDateString('id-ID') : '-'}
                                             </span>
                                         </div>
-                                        <h3 className="mt-3 line-clamp-2 text-lg font-bold text-slate-900">
+                                        <h3 className="mt-2 line-clamp-2 break-words text-base font-bold text-slate-900 sm:mt-3 sm:text-lg">
                                             <Link href={postUrl(post)} className="hover:text-primary">{post.title}</Link>
                                         </h3>
                                         {post.user?.name && (
-                                            <p className="mt-2 text-xs text-slate-500">
+                                            <p className="mt-2 break-words text-[11px] text-slate-500 sm:text-xs">
                                                 <span className="font-semibold text-slate-700">{post.user.name}</span>
                                             </p>
                                         )}
@@ -93,7 +95,7 @@ export default function Archive({ title, type, items }) {
                         return (
                             <Card key={agenda.id} hover className="flex flex-col overflow-hidden h-full">
                                 <Link href={postUrl(agenda)} className="block shrink-0">
-                                    <div className="h-48 w-full bg-slate-100 flex items-center justify-center">
+                                    <div className="relative aspect-[16/10] w-full bg-slate-100 flex items-center justify-center">
                                         {agenda.featured_image ? (
                                             <img src={agenda.featured_image} alt={agenda.title} className="w-full h-full object-cover" />
                                         ) : (
@@ -101,15 +103,15 @@ export default function Archive({ title, type, items }) {
                                         )}
                                     </div>
                                 </Link>
-                                <div className="flex flex-1 flex-col justify-between p-5">
+                                <div className="flex flex-1 flex-col justify-between p-4 sm:p-5">
                                     <div>
-                                        <div className="flex items-center gap-2 text-xs text-slate-600">
+                                        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] text-slate-600 sm:text-xs">
                                             <span className="font-bold text-secondary">{agenda.category?.name || 'Agenda'}</span>
                                             <span>
                                                 {dateVal ? new Date(dateVal).toLocaleDateString('id-ID') : '-'}
                                             </span>
                                         </div>
-                                        <h3 className="mt-3 line-clamp-2 text-lg font-bold text-slate-900">
+                                        <h3 className="mt-2 line-clamp-2 break-words text-base font-bold text-slate-900 sm:mt-3 sm:text-lg">
                                             <Link href={postUrl(agenda)} className="hover:text-primary">{agenda.title}</Link>
                                         </h3>
                                     </div>
@@ -130,7 +132,7 @@ export default function Archive({ title, type, items }) {
                     {items.data.map((ach) => (
                         <Card key={ach.id} hover className="overflow-hidden flex flex-col h-full">
                             <Link href={postUrl(ach)} className="block shrink-0">
-                                <div className="h-48 w-full bg-slate-100 flex items-center justify-center">
+                                <div className="relative aspect-[16/10] w-full bg-slate-100 flex items-center justify-center">
                                     {ach.featured_image ? (
                                         <img src={ach.featured_image} alt={ach.title} className="w-full h-full object-cover" />
                                     ) : (
@@ -138,13 +140,13 @@ export default function Archive({ title, type, items }) {
                                     )}
                                 </div>
                             </Link>
-                            <div className="flex flex-1 flex-col justify-between p-5">
+                            <div className="flex flex-1 flex-col justify-between p-4 sm:p-5">
                                 <div>
-                                    <div className="flex items-center gap-2 text-xs text-slate-600">
-                                        <p className="text-xs font-bold uppercase tracking-wide text-tertiary">{ach.category?.name || 'Prestasi'}</p>
+                                    <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] text-slate-600 sm:text-xs">
+                                        <p className="text-[11px] font-bold uppercase tracking-wide text-tertiary sm:text-xs">{ach.category?.name || 'Prestasi'}</p>
                                         <span>{ach.published_at ? new Date(ach.published_at).toLocaleDateString('id-ID') : '-'}</span>
                                     </div>
-                                    <h3 className="mt-2 line-clamp-2 text-lg font-bold text-slate-900">
+                                    <h3 className="mt-2 line-clamp-2 break-words text-base font-bold text-slate-900 sm:text-lg">
                                         <Link href={postUrl(ach)} className="hover:text-primary">{ach.title}</Link>
                                     </h3>
                                 </div>
@@ -168,7 +170,7 @@ export default function Archive({ title, type, items }) {
                                 <button
                                     type="button"
                                     onClick={() => setPreviewItem(item)}
-                                    className="relative aspect-square w-full bg-slate-100 overflow-hidden text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary cursor-zoom-in"
+                                    className="relative aspect-[16/10] w-full bg-slate-100 overflow-hidden text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary cursor-zoom-in"
                                     aria-label={`Lihat gambar penuh: ${item.title}`}
                                 >
                                     {item.media_type === 'video' && item.video_url ? (() => {
@@ -200,10 +202,10 @@ export default function Archive({ title, type, items }) {
                                         <span className="flex h-full w-full items-center justify-center p-2 text-center text-xs text-slate-400 font-medium">Gambar tidak tersedia</span>
                                     )}
                                 </button>
-                                <div className="p-3 bg-white flex-1 flex items-center">
+                                <div className="flex flex-1 items-center bg-white p-3">
                                     <Link
                                         href={postUrl(item)}
-                                        className="line-clamp-2 text-xs font-bold text-slate-800 hover:text-primary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded"
+                                        className="line-clamp-2 break-words text-xs font-bold text-slate-800 transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded sm:text-sm"
                                         title={`Buka detail: ${item.title}`}
                                     >
                                         {item.title}
