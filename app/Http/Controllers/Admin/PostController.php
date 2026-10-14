@@ -90,6 +90,9 @@ class PostController extends Controller
         if ($request->hasFile('featured_image')) {
             $this->deleteStoredMedia($post->featured_image);
             $featuredImage = $this->storeMedia($request);
+        } elseif ($request->boolean('remove_image')) {
+            $this->deleteStoredMedia($post->featured_image);
+            $featuredImage = null;
         } elseif ($mediaType === 'video' || $mediaType !== $post->media_type) {
             $this->deleteStoredMedia($post->featured_image);
             $featuredImage = null;

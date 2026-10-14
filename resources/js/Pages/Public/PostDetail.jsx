@@ -150,7 +150,40 @@ function FlatMetadata({ metadata, schema }) {
     );
 }
 
-export default function PostDetail({ post, relatedPosts = [] }) {
+function PostNavCard({ post }) {
+    const thumb = post.media_type === 'video' ? youtubeThumbnailUrl(post.video_url) : post.featured_image;
+    return (
+        <Link
+            href={postUrl(post)}
+            className="group rounded-lg border border-slate-200 bg-white hover:border-primary hover:shadow-md transition-all overflow-hidden flex flex-col"
+        >
+            {thumb ? (
+                <div className="relative aspect-video overflow-hidden">
+                    <img src={thumb} alt={post.title} className="h-full w-full object-cover" />
+                    {post.media_type === 'video' && (
+                        <span className="absolute inset-0 flex items-center justify-center bg-slate-900/35" aria-hidden="true">
+                            <svg className="h-5 w-5 text-white drop-shadow" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M8 5v14l11-7z" />
+                            </svg>
+                        </span>
+                    )}
+                </div>
+            ) : (
+                <div className="relative aspect-video overflow-hidden bg-slate-100 flex items-center justify-center text-xs text-slate-400">Tidak ada gambar</div>
+            )}
+            <div className="p-3 flex flex-col gap-1 flex-1">
+                {post.category && (
+                    <span className="text-[10px] font-bold text-primary uppercase tracking-wide">{post.category.name}</span>
+                )}
+                <h4 className="break-words text-xs font-bold text-slate-800 transition-colors line-clamp-2 leading-snug group-hover:text-primary">
+                    {post.title}
+                </h4>
+            </div>
+        </Link>
+    );
+}
+
+export default function PostDetail({ post, relatedPosts = [], prevPost = null, nextPost = null }) {
     const publishedDate = post.published_at
         ? new Date(post.published_at).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' })
         : null;
@@ -272,44 +305,22 @@ export default function PostDetail({ post, relatedPosts = [] }) {
                             )}
                         </div>
 
-                        {relatedPosts.length > 0 && (
-                            <div className="mt-10">
-                                <h3 className="text-xl font-bold text-slate-900 mb-4">Artikel Terkait</h3>
-                                <div className="grid sm:grid-cols-3 gap-4">
-                                    {relatedPosts.map((rel) => {
-                                        const relThumb = rel.media_type === 'video' ? youtubeThumbnailUrl(rel.video_url) : rel.featured_image;
-                                        return (
-                                            <Link
-                                                key={rel.id}
-                                                href={postUrl(rel)}
-                                                className="group rounded-xl border border-slate-200 bg-white hover:border-primary hover:shadow-md transition-all overflow-hidden flex flex-col"
-                                            >
-                                                {relThumb ? (
-                                                    <div className="relative aspect-[16/10] overflow-hidden">
-                                                        <img src={relThumb} alt={rel.title} className="h-full w-full object-cover" />
-                                                        {rel.media_type === 'video' && (
-                                                            <span className="absolute inset-0 flex items-center justify-center bg-slate-900/35" aria-hidden="true">
-                                                                <svg className="h-7 w-7 text-white drop-shadow" fill="currentColor" viewBox="0 0 24 24">
-                                                                    <path d="M8 5v14l11-7z" />
-                                                                </svg>
-                                                            </span>
-                                                        )}
-                                                    </div>
-                                                ) : (
-                                                    <div className="relative aspect-[16/10] overflow-hidden bg-slate-100 flex items-center justify-center text-xs text-slate-400">Tidak ada gambar</div>
-                                                )}
-                                                <div className="p-4 flex flex-col gap-1.5 flex-1">
-                                                    {rel.category && (
-                                                        <span className="text-xs font-bold text-primary">{rel.category.name}</span>
-                                                    )}
-                                                    <h4 className="break-words text-sm font-bold text-slate-800 transition-colors line-clamp-2 leading-snug group-hover:text-primary">
-                                                        {rel.title}
-                                                    </h4>
-                                                </div>
-                                            </Link>
-                                        );
-                                    })}
-                                </div>
+                        {(prevPost || nextPost) && (
+                            <div className="mt-10 grid sm:grid-cols-2 gap-4">
+                                {prevPost ? (
+                                    <div className="flex flex-col gap-2">
+                                        <span className="text-xs font-bold uppercase tracking-wide text-slate-400">← Sebelumnya</span>
+                                        <PostNavCard post={prevPost} />
+                                    </div>
+                                ) : (
+                                    <div />
+                                )}
+                                {nextPost && (
+                                    <div className="flex flex-col gap-2">
+                                        <span className="text-xs font-bold uppercase tracking-wide text-slate-400 text-right">Selanjutnya →</span>
+                                        <PostNavCard post={nextPost} />
+                                    </div>
+                                )}
                             </div>
                         )}
                     </article>
@@ -317,27 +328,35 @@ export default function PostDetail({ post, relatedPosts = [] }) {
                     <aside className="lg:col-span-4 flex flex-col gap-6 lg:sticky lg:top-28">
                         <div className="rounded-2xl border border-slate-200 bg-white shadow-sm flex flex-col gap-4 p-5">
                             <span className="font-bold text-slate-800 text-xl">Cari Informasi</span>
-                            <div className="flex gap-2">
+                            <form
+                                onSubmit={(e) => {
+                                    e.preventDefault();
+                                    const input = e.target.elements.search;
+                                    if (input.value.trim()) {
+                                        router.get('/cari', { q: input.value.trim() });
+                                    }
+                                }}
+                                className="flex gap-2"
+                            >
                                 <input
                                     type="text"
+                                    name="search"
                                     placeholder="Ketik kata kunci..."
-                                    onKeyDown={(e) => {
-                                        if (e.key === 'Enter' && e.target.value.trim()) {
-                                            router.get('/berita', { search: e.target.value.trim() });
-                                        }
-                                    }}
                                     className="flex-1 rounded-lg border-slate-300 text-sm focus:border-primary focus:ring-primary"
                                 />
-                                <button className="px-4 py-2 rounded-lg bg-primary text-white text-xs font-bold hover:bg-primary/90 transition-colors">
+                                <button
+                                    type="submit"
+                                    className="px-4 py-2 rounded-lg bg-primary text-white text-xs font-bold hover:bg-primary/90 transition-colors"
+                                >
                                     Cari
                                 </button>
-                            </div>
+                            </form>
                         </div>
 
                         {relatedPosts.length > 0 && (
                             <div className="rounded-2xl border border-slate-200 bg-white shadow-sm flex flex-col gap-4 p-5">
                                 <div className="flex items-center justify-between">
-                                    <span className="font-bold text-slate-800 text-xl">Berita Terkait</span>
+                                    <span className="font-bold text-slate-800 text-xl">{post.category.name} Terkait</span>
                                     <Link href="/berita" className="text-sm font-bold text-primary hover:underline">Lihat Semua</Link>
                                 </div>
                                 <div className="flex flex-col gap-4">

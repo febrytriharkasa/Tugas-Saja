@@ -9,6 +9,47 @@ import { youtubeThumbnailUrl } from '@/lib/postBlocks';
 import { postUrl } from '@/lib/postUrl';
 import { HorizontalRail } from '@/Pages/Welcome';
 
+function Pagination({ links }) {
+    if (!links || links.length <= 3) return null;
+
+    const label = (raw) =>
+        raw
+            .replace('&laquo;', '«')
+            .replace('&raquo;', '»')
+            .replace('Previous', 'Sebelumnya')
+            .replace('Next', 'Berikutnya');
+
+    return (
+        <nav className="mt-10 flex flex-wrap items-center justify-center gap-1.5" aria-label="Navigasi halaman">
+            {links.map((link, index) =>
+                link.url ? (
+                    <Link
+                        key={index}
+                        href={link.url}
+                        preserveScroll
+                        aria-current={link.active ? 'page' : undefined}
+                        className={`inline-flex min-h-10 min-w-10 items-center justify-center rounded-lg border px-3 text-sm font-semibold transition ${
+                            link.active
+                                ? 'border-primary bg-primary text-white'
+                                : 'border-slate-200 bg-white text-slate-700 hover:border-primary hover:text-primary'
+                        }`}
+                    >
+                        <span dangerouslySetInnerHTML={{ __html: label(link.label) }} />
+                    </Link>
+                ) : (
+                    <span
+                        key={index}
+                        aria-disabled="true"
+                        className="inline-flex min-h-10 min-w-10 items-center justify-center rounded-lg border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-300"
+                    >
+                        <span dangerouslySetInnerHTML={{ __html: label(link.label) }} />
+                    </span>
+                ),
+            )}
+        </nav>
+    );
+}
+
 function Breadcrumbs({ post, title }) {
     return (
         <section className="w-full bg-slate-50 py-2 border-b border-slate-200/60">
@@ -31,7 +72,7 @@ export default function Archive({ title, type, items }) {
     const renderItems = () => {
         if (!['agenda', 'prestasi', 'galeri'].includes(type)) {
             return (
-                <div className="grid gap-6 md:grid-cols-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
                     
                     {items.data.map((post) => {
                         const thumbnail = post.media_type === 'video' ? youtubeThumbnailUrl(post.video_url) : post.featured_image;
@@ -89,13 +130,13 @@ export default function Archive({ title, type, items }) {
 
         if (type === 'agenda') {
             return (
-                <div className="grid gap-6 md:grid-cols-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
                     {items.data.map((agenda) => {
                         const dateVal = agenda.metadata?.event_date || agenda.metadata?.tanggal_agenda || agenda.published_at;
                         return (
                             <Card key={agenda.id} hover className="flex flex-col overflow-hidden h-full">
                                 <Link href={postUrl(agenda)} className="block shrink-0">
-                                    <div className="relative aspect-[16/10] w-full bg-slate-100 flex items-center justify-center">
+                                    <div className="relative aspect-[16/9] w-full bg-slate-100 flex items-center justify-center">
                                         {agenda.featured_image ? (
                                             <img src={agenda.featured_image} alt={agenda.title} className="w-full h-full object-cover" />
                                         ) : (
@@ -128,7 +169,7 @@ export default function Archive({ title, type, items }) {
 
         if (type === 'prestasi') {
             return (
-                <div className="grid gap-6 md:grid-cols-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
                     {items.data.map((ach) => (
                         <Card key={ach.id} hover className="overflow-hidden flex flex-col h-full">
                             <Link href={postUrl(ach)} className="block shrink-0">
@@ -162,7 +203,7 @@ export default function Archive({ title, type, items }) {
 
         if (type === 'galeri') {
             return (
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
                     {items.data.map((item) => {
                         const thumb = item.media_type === 'video' && item.video_url ? youtubeThumbnailUrl(item.video_url) : item.featured_image;
                         return (
@@ -235,6 +276,8 @@ export default function Archive({ title, type, items }) {
                     </div>
 
                     {renderItems()}
+
+                    <Pagination links={items.links} />
 
                     {items.data.length === 0 && (
                         <div className="rounded-xl border border-dashed border-slate-300 bg-white px-6 py-10 text-center text-sm text-slate-600">

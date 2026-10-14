@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/berita', [HomeController::class, 'news'])->name('public.news');
+Route::get('/cari', [HomeController::class, 'search'])->name('public.search');
 Route::get('/laman/{slug}', [HomeController::class, 'page'])->name('public.page');
 Route::get('/arsip/{type}', [HomeController::class, 'archive'])->name('public.archive');
 Route::get('/statistik', [HomeController::class, 'statistics'])->name('public.statistics');
@@ -47,6 +48,10 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
     Route::post('/settings/quick-links', [SiteSettingController::class, 'updateQuickLinks'])->name('settings.quick-links.update');
     Route::get('/settings/social-media', [SiteSettingController::class, 'socialMedia'])->name('settings.social-media');
     Route::post('/settings/social-media', [SiteSettingController::class, 'updateSocialMedia'])->name('settings.social-media.update');
+    Route::get('/settings/footer', [SiteSettingController::class, 'footer'])->name('settings.footer');
+    Route::post('/settings/footer', [SiteSettingController::class, 'updateFooter'])->name('settings.footer.update');
+    Route::get('/settings/navigation', [SiteSettingController::class, 'navigation'])->name('settings.navigation');
+    Route::post('/settings/navigation', [SiteSettingController::class, 'updateNavigation'])->name('settings.navigation.update');
 });
 
 Route::get('/dashboard', fn () => redirect()->route('admin.dashboard'))

@@ -8,17 +8,21 @@ export default function AdminLayout({ children, title }) {
 
     const navigation = [
         { name: 'Dashboard', href: '/admin/dashboard', icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6' },
-        { name: 'Konten', href: '/admin/posts', icon: 'M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z' },
-        { name: 'Konten Beranda', href: '/admin/home-content', icon: 'M3 3h18v18H3V3zm4 4h10M7 11h10M7 15h6' },
-        { name: 'Kategori', href: '/admin/categories', icon: 'M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z' },
-        { name: 'Laman', href: '/admin/pages', icon: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z' },
-        { name: 'Guru & Tendik', href: '/admin/staff', icon: 'M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10' },
+        { divider: true, label: 'Kelola Konten' },
+        { name: 'Berita & Artikel', href: '/admin/posts', icon: 'M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z' },
+        { name: 'Halaman Statis', href: '/admin/pages', icon: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z' },
+        { name: 'Data Guru & Tendik', href: '/admin/staff', icon: 'M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10' },
+        { divider: true, label: 'Pengaturan Tampilan' },
+        { name: 'Halaman Beranda', href: '/admin/home-content', icon: 'M3 3h18v18H3V3zm4 4h10M7 11h10M7 15h6' },
+        { name: 'Kategori Konten', href: '/admin/categories', icon: 'M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z' },
     ];
 
     const settingsMenu = [
-        { name: 'Hero Carousel Banner', href: '/admin/settings/hero' },
-        { name: 'Informasi Kontak & Tautan', href: '/admin/settings/contact' },
-        { name: 'Layanan Pintas', href: '/admin/settings/quick-links' },
+        { name: 'Identitas & Logo Situs', href: '/admin/settings/footer' },
+        { name: 'Menu Navigasi (Navbar)', href: '/admin/settings/navigation' },
+        { name: 'Banner Beranda (Hero)', href: '/admin/settings/hero' },
+        { name: 'Kontak & Link PPDB', href: '/admin/settings/contact' },
+        { name: 'Layanan Pintas (3 Card)', href: '/admin/settings/quick-links' },
         { name: 'Media Sosial', href: '/admin/settings/social-media' },
     ];
 
@@ -71,22 +75,28 @@ export default function AdminLayout({ children, title }) {
                         <span className="text-xl font-bold text-primary">SMA XYZ Admin</span>
                     </div>
                     <nav className="p-4 space-y-1">
-                        {navigation.map((item) => (
-                            <Link
-                                key={item.name}
-                                href={item.href}
-                                className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition ${
-                                    isActive(item.href)
-                                        ? 'bg-primary text-white'
-                                        : 'text-slate-700 hover:bg-slate-100'
-                                }`}
-                            >
-                                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" d={item.icon} />
-                                </svg>
-                                {item.name}
-                            </Link>
-                        ))}
+                        {navigation.map((item, index) => 
+                            item.divider ? (
+                                <div key={index} className="pt-4 pb-2">
+                                    <p className="px-3 text-xs font-bold uppercase tracking-wider text-slate-400">{item.label}</p>
+                                </div>
+                            ) : (
+                                <Link
+                                    key={item.name}
+                                    href={item.href}
+                                    className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition ${
+                                        isActive(item.href)
+                                            ? 'bg-primary text-white'
+                                            : 'text-slate-700 hover:bg-slate-100'
+                                    }`}
+                                >
+                                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" d={item.icon} />
+                                    </svg>
+                                    {item.name}
+                                </Link>
+                            )
+                        )}
                         <div>
                             <button
                                 onClick={() => setSettingsOpen(!settingsOpen)}
@@ -112,7 +122,7 @@ export default function AdminLayout({ children, title }) {
                                             href={item.href}
                                             className={`block px-3 py-2 rounded-lg text-sm transition ${
                                                 url === item.href
-                                                    ? 'bg-primary/20 text-primary'
+                                                    ? 'bg-primary/20 text-primary font-medium'
                                                     : 'text-slate-600 hover:bg-slate-100'
                                             }`}
                                         >
@@ -133,23 +143,29 @@ export default function AdminLayout({ children, title }) {
                     </div>
                     <nav className="flex flex-1 flex-col">
                         <ul className="flex flex-col gap-y-1">
-                            {navigation.map((item) => (
-                                <li key={item.name}>
-                                    <Link
-                                        href={item.href}
-                                        className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition ${
-                                            isActive(item.href)
-                                                ? 'bg-primary text-white'
-                                                : 'text-slate-700 hover:bg-slate-100'
-                                        }`}
-                                    >
-                                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
-                                            <path strokeLinecap="round" strokeLinejoin="round" d={item.icon} />
-                                        </svg>
-                                        {item.name}
-                                    </Link>
-                                </li>
-                            ))}
+                            {navigation.map((item, index) => 
+                                item.divider ? (
+                                    <li key={index} className="pt-4 pb-2">
+                                        <p className="px-3 text-xs font-bold uppercase tracking-wider text-slate-400">{item.label}</p>
+                                    </li>
+                                ) : (
+                                    <li key={item.name}>
+                                        <Link
+                                            href={item.href}
+                                            className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition ${
+                                                isActive(item.href)
+                                                    ? 'bg-primary text-white'
+                                                    : 'text-slate-700 hover:bg-slate-100'
+                                            }`}
+                                        >
+                                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
+                                                <path strokeLinecap="round" strokeLinejoin="round" d={item.icon} />
+                                            </svg>
+                                            {item.name}
+                                        </Link>
+                                    </li>
+                                )
+                            )}
                             <li>
                                 <button
                                     onClick={() => setSettingsOpen(!settingsOpen)}
@@ -175,7 +191,7 @@ export default function AdminLayout({ children, title }) {
                                                 href={item.href}
                                                 className={`block px-3 py-2 rounded-lg text-sm transition ${
                                                     url === item.href
-                                                        ? 'bg-primary/20 text-primary'
+                                                        ? 'bg-primary/20 text-primary font-medium'
                                                         : 'text-slate-600 hover:bg-slate-100'
                                                 }`}
                                             >

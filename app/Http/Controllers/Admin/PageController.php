@@ -61,6 +61,9 @@ class PageController extends Controller
         if ($request->hasFile('image')) {
             $this->deleteImage($page->image);
             $data['image'] = $this->storeImage($request);
+        } elseif ($request->boolean('remove_image')) {
+            $this->deleteImage($page->image);
+            $data['image'] = null;
         }
 
         $data['metadata'] = $this->metadata($data);

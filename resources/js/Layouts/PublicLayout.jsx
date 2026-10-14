@@ -17,8 +17,25 @@ export default function PublicLayout({ children, settings = {} }) {
     const { aboutPages = [], customPages = [], archivePages = [], settings: sharedSettings = {} } = props;
     const siteSettings = { ...sharedSettings, ...settings };
 
+    let navItems = [];
+    try {
+        navItems = siteSettings.nav_items ? JSON.parse(siteSettings.nav_items) : [];
+    } catch {
+        navItems = [];
+    }
+
+    const useDefaultNav = navItems.length === 0;
+
     const currentUrl = url.split('?')[0];
     const matches = (href) => currentUrl === href || currentUrl.startsWith(`${href}/`);
+    
+    const isActive = (item) => {
+        if (item.type === 'single') {
+            return matches(item.url);
+        }
+        return (item.children || []).some((child) => matches(child.url));
+    };
+
     const isHome = currentUrl === '/';
     const isNews = matches('/berita');
     const isStats = matches('/statistik');
@@ -86,35 +103,72 @@ export default function PublicLayout({ children, settings = {} }) {
                 <nav className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8" aria-label="Navigasi utama">
                     <div className="flex min-h-16 items-center justify-between gap-4">
                         <Link href="/" className="flex min-w-0 items-center gap-3 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2">
-                            <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-primary text-sm font-extrabold text-white shadow-sm">SA</span>
+                            {siteSettings.site_logo ? (
+                                <img src={siteSettings.site_logo} alt={siteSettings.site_name || 'SMA XYZ'} className="h-10 w-10 shrink-0 rounded-xl object-contain" />
+                            ) : (
+                                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-primary text-sm font-extrabold text-white shadow-sm">{(siteSettings.site_name || 'SMA XYZ').slice(0, 2).toUpperCase()}</span>
+                            )}
                             <span className="min-w-0">
                                 <span className="block truncate text-sm font-extrabold tracking-tight text-primary sm:text-base">{siteSettings.site_name || 'SMA XYZ'}</span>
-                                <span className="hidden text-xs text-slate-600 sm:block">Portal resmi SMA XYZ</span>
+                                <span className="hidden text-xs text-slate-600 sm:block">{siteSettings.site_portal_text || 'Portal resmi SMA XYZ'}</span>
                             </span>
                         </Link>
 
                         <div className="hidden items-center gap-1 lg:flex">
-                            <Link href="/" aria-current={isHome ? 'page' : undefined} className={navClass(isHome)}>Beranda</Link>
-                            <div className="relative">
-                                <button type="button" onClick={() => toggleMenu('about')} aria-expanded={openMenu === 'about'} className={`flex min-h-11 items-center gap-1 ${navClass(isAbout)}`}>
-                                    Tentang Kami <Chevron open={openMenu === 'about'} />
-                                </button>
-                                {openMenu === 'about' && <div className="absolute left-0 top-full mt-2 w-60 rounded-xl border border-slate-200 bg-white p-2 shadow-card">{pageLinks(aboutPages)}</div>}
-                            </div>
-                            <Link href="/berita" aria-current={isNews ? 'page' : undefined} className={navClass(isNews)}>Berita</Link>
-                            <div className="relative">
-                                <button type="button" onClick={() => toggleMenu('pages')} aria-expanded={openMenu === 'pages'} className={`flex min-h-11 items-center gap-1 ${navClass(isCustom)}`}>
-                                    Laman <Chevron open={openMenu === 'pages'} />
-                                </button>
-                                {openMenu === 'pages' && <div className="absolute left-0 top-full mt-2 w-60 rounded-xl border border-slate-200 bg-white p-2 shadow-card">{pageLinks(customPages)}</div>}
-                            </div>
-                            <div className="relative">
-                                <button type="button" onClick={() => toggleMenu('archive')} aria-expanded={openMenu === 'archive'} className={`flex min-h-11 items-center gap-1 ${navClass(isArchive)}`}>
-                                    Arsip <Chevron open={openMenu === 'archive'} />
-                                </button>
-                                {openMenu === 'archive' && <div className="absolute right-0 top-full mt-2 w-56 rounded-xl border border-slate-200 bg-white p-2 shadow-card">{archiveLinks.map(([label, href]) => <Link key={href} href={href} onClick={closeMenus} aria-current={matches(href) ? 'page' : undefined} className={`block rounded-lg px-3 py-2 text-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${matches(href) ? 'bg-emerald-50 font-semibold text-primary' : 'text-slate-700 hover:bg-emerald-50 hover:text-primary'}`}>{label}</Link>)}{archivePages.length > 0 && <div>{pageLinks(archivePages)}</div>}</div>}
-                            </div>
-                            <Link href="/statistik" aria-current={isStats ? 'page' : undefined} className={navClass(isStats)}>Statistik</Link>
+                            {useDefaultNav ? (
+                                <>
+                                    <Link href="/" aria-current={isHome ? 'page' : undefined} className={navClass(isHome)}>Beranda</Link>
+                                    <div className="relative">
+                                        <button type="button" onClick={() => toggleMenu('about')} aria-expanded={openMenu === 'about'} className={`flex min-h-11 items-center gap-1 ${navClass(isAbout)}`}>
+                                            Tentang Kami <Chevron open={openMenu === 'about'} />
+                                        </button>
+                                        {openMenu === 'about' && <div className="absolute left-0 top-full mt-2 w-60 rounded-xl border border-slate-200 bg-white p-2 shadow-card">{pageLinks(aboutPages)}</div>}
+                                    </div>
+                                    <Link href="/berita" aria-current={isNews ? 'page' : undefined} className={navClass(isNews)}>Berita</Link>
+                                    <div className="relative">
+                                        <button type="button" onClick={() => toggleMenu('pages')} aria-expanded={openMenu === 'pages'} className={`flex min-h-11 items-center gap-1 ${navClass(isCustom)}`}>
+                                            Laman <Chevron open={openMenu === 'pages'} />
+                                        </button>
+                                        {openMenu === 'pages' && <div className="absolute left-0 top-full mt-2 w-60 rounded-xl border border-slate-200 bg-white p-2 shadow-card">{pageLinks(customPages)}</div>}
+                                    </div>
+                                    <div className="relative">
+                                        <button type="button" onClick={() => toggleMenu('archive')} aria-expanded={openMenu === 'archive'} className={`flex min-h-11 items-center gap-1 ${navClass(isArchive)}`}>
+                                            Arsip <Chevron open={openMenu === 'archive'} />
+                                        </button>
+                                        {openMenu === 'archive' && <div className="absolute right-0 top-full mt-2 w-56 rounded-xl border border-slate-200 bg-white p-2 shadow-card">{archiveLinks.map(([label, href]) => <Link key={href} href={href} onClick={closeMenus} aria-current={matches(href) ? 'page' : undefined} className={`block rounded-lg px-3 py-2 text-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${matches(href) ? 'bg-emerald-50 font-semibold text-primary' : 'text-slate-700 hover:bg-emerald-50 hover:text-primary'}`}>{label}</Link>)}{archivePages.length > 0 && <div>{pageLinks(archivePages)}</div>}</div>}
+                                    </div>
+                                    <Link href="/statistik" aria-current={isStats ? 'page' : undefined} className={navClass(isStats)}>Statistik</Link>
+                                </>
+                            ) : (
+                                navItems.map((item, idx) => (
+                                    item.type === 'single' ? (
+                                        <Link key={idx} href={item.url} aria-current={isActive(item) ? 'page' : undefined} className={navClass(isActive(item))}>
+                                            {item.label}
+                                        </Link>
+                                    ) : (
+                                        <div key={idx} className="relative">
+                                            <button type="button" onClick={() => toggleMenu(`custom-${idx}`)} aria-expanded={openMenu === `custom-${idx}`} className={`flex min-h-11 items-center gap-1 ${navClass(isActive(item))}`}>
+                                                {item.label} <Chevron open={openMenu === `custom-${idx}`} />
+                                            </button>
+                                            {openMenu === `custom-${idx}` && (
+                                                <div className="absolute left-0 top-full mt-2 w-60 rounded-xl border border-slate-200 bg-white p-2 shadow-card">
+                                                    {(item.children || []).map((child, childIdx) => (
+                                                        <Link
+                                                            key={childIdx}
+                                                            href={child.url}
+                                                            onClick={closeMenus}
+                                                            aria-current={matches(child.url) ? 'page' : undefined}
+                                                            className={`block rounded-lg px-3 py-2 text-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${matches(child.url) ? 'bg-emerald-50 font-semibold text-primary' : 'text-slate-700 hover:bg-emerald-50 hover:text-primary'}`}
+                                                        >
+                                                            {child.label}
+                                                        </Link>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
+                                    )
+                                ))
+                            )}
                         </div>
 
                         <button type="button" onClick={() => setMobileMenuOpen(!mobileMenuOpen)} aria-expanded={mobileMenuOpen} aria-label={mobileMenuOpen ? 'Tutup menu' : 'Buka menu'} className="grid h-11 w-11 place-items-center rounded-lg text-slate-700 transition hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary lg:hidden">
@@ -124,24 +178,57 @@ export default function PublicLayout({ children, settings = {} }) {
 
                     {mobileMenuOpen && (
                         <div className="border-t border-slate-100 py-3 lg:hidden">
-                            <Link href="/" onClick={closeMenus} className={mobileNavClass(isHome)}>Beranda</Link>
-                            {[
-                                ['about', 'Tentang Kami', aboutPages, isAbout],
-                                ['pages', 'Laman', customPages, isCustom],
-                            ].map(([name, label, pages, active]) => (
-                                <div key={name}>
-                                    <button type="button" onClick={() => toggleMenu(name)} aria-expanded={openMenu === name} className={`flex min-h-11 w-full items-center justify-between rounded-lg px-3 py-2.5 text-left text-sm font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${active ? 'bg-emerald-50 text-primary' : 'text-slate-700'}`}>
-                                        {label} <Chevron open={openMenu === name} />
-                                    </button>
-                                    {openMenu === name && <div className="ml-3 border-l border-slate-200 pl-2">{pageLinks(pages)}</div>}
-                                </div>
-                            ))}
-                            <Link href="/berita" onClick={closeMenus} className={mobileNavClass(isNews)}>Berita</Link>
-                            <div>
-                                <button type="button" onClick={() => toggleMenu('archive')} aria-expanded={openMenu === 'archive'} className={`flex min-h-11 w-full items-center justify-between rounded-lg px-3 py-2.5 text-left text-sm font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${isArchive ? 'bg-emerald-50 text-primary' : 'text-slate-700'}`}>Arsip <Chevron open={openMenu === 'archive'} /></button>
-                                {openMenu === 'archive' && <div className="ml-3 border-l border-slate-200 pl-2">{archiveLinks.map(([label, href]) => <Link key={href} href={href} onClick={closeMenus} aria-current={matches(href) ? 'page' : undefined} className={`block min-h-11 rounded-lg px-3 py-2.5 text-sm ${matches(href) ? 'bg-emerald-50 font-semibold text-primary' : 'text-slate-700'}`}>{label}</Link>)}{archivePages.length > 0 && <div className="my-2 border-t border-slate-200 pt-2">{pageLinks(archivePages)}</div>}</div>}
-                            </div>
-                            <Link href="/statistik" onClick={closeMenus} className={mobileNavClass(isStats)}>Statistik</Link>
+                            {useDefaultNav ? (
+                                <>
+                                    <Link href="/" onClick={closeMenus} className={mobileNavClass(isHome)}>Beranda</Link>
+                                    {[
+                                        ['about', 'Tentang Kami', aboutPages, isAbout],
+                                        ['pages', 'Laman', customPages, isCustom],
+                                    ].map(([name, label, pages, active]) => (
+                                        <div key={name}>
+                                            <button type="button" onClick={() => toggleMenu(name)} aria-expanded={openMenu === name} className={`flex min-h-11 w-full items-center justify-between rounded-lg px-3 py-2.5 text-left text-sm font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${active ? 'bg-emerald-50 text-primary' : 'text-slate-700'}`}>
+                                                {label} <Chevron open={openMenu === name} />
+                                            </button>
+                                            {openMenu === name && <div className="ml-3 border-l border-slate-200 pl-2">{pageLinks(pages)}</div>}
+                                        </div>
+                                    ))}
+                                    <Link href="/berita" onClick={closeMenus} className={mobileNavClass(isNews)}>Berita</Link>
+                                    <div>
+                                        <button type="button" onClick={() => toggleMenu('archive')} aria-expanded={openMenu === 'archive'} className={`flex min-h-11 w-full items-center justify-between rounded-lg px-3 py-2.5 text-left text-sm font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${isArchive ? 'bg-emerald-50 text-primary' : 'text-slate-700'}`}>Arsip <Chevron open={openMenu === 'archive'} /></button>
+                                        {openMenu === 'archive' && <div className="ml-3 border-l border-slate-200 pl-2">{archiveLinks.map(([label, href]) => <Link key={href} href={href} onClick={closeMenus} aria-current={matches(href) ? 'page' : undefined} className={`block min-h-11 rounded-lg px-3 py-2.5 text-sm ${matches(href) ? 'bg-emerald-50 font-semibold text-primary' : 'text-slate-700'}`}>{label}</Link>)}{archivePages.length > 0 && <div className="my-2 border-t border-slate-200 pt-2">{pageLinks(archivePages)}</div>}</div>}
+                                    </div>
+                                    <Link href="/statistik" onClick={closeMenus} className={mobileNavClass(isStats)}>Statistik</Link>
+                                </>
+                            ) : (
+                                navItems.map((item, idx) => (
+                                    item.type === 'single' ? (
+                                        <Link key={idx} href={item.url} onClick={closeMenus} className={mobileNavClass(isActive(item))}>
+                                            {item.label}
+                                        </Link>
+                                    ) : (
+                                        <div key={idx}>
+                                            <button type="button" onClick={() => toggleMenu(`custom-${idx}`)} aria-expanded={openMenu === `custom-${idx}`} className={`flex min-h-11 w-full items-center justify-between rounded-lg px-3 py-2.5 text-left text-sm font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${isActive(item) ? 'bg-emerald-50 text-primary' : 'text-slate-700'}`}>
+                                                {item.label} <Chevron open={openMenu === `custom-${idx}`} />
+                                            </button>
+                                            {openMenu === `custom-${idx}` && (
+                                                <div className="ml-3 border-l border-slate-200 pl-2">
+                                                    {(item.children || []).map((child, childIdx) => (
+                                                        <Link
+                                                            key={childIdx}
+                                                            href={child.url}
+                                                            onClick={closeMenus}
+                                                            aria-current={matches(child.url) ? 'page' : undefined}
+                                                            className={`block min-h-11 rounded-lg px-3 py-2.5 text-sm ${matches(child.url) ? 'bg-emerald-50 font-semibold text-primary' : 'text-slate-700'}`}
+                                                        >
+                                                            {child.label}
+                                                        </Link>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
+                                    )
+                                ))
+                            )}
                         </div>
                     )}
                 </nav>
@@ -160,11 +247,13 @@ export default function PublicLayout({ children, settings = {} }) {
             </main>
 
             <footer className="mt-auto bg-slate-850 text-white">
-                <div className="mx-auto grid max-w-7xl gap-10 px-4 py-12 sm:px-6 md:grid-cols-3 lg:px-8">
-                    <div className="md:col-span-2 space-y-6">
+                <div className="mx-auto grid max-w-7xl gap-10 px-4 py-12 sm:px-6 md:grid-cols-4 lg:px-8">
+                    <div className="md:col-span-1 space-y-6">
                         <div>
                             <p className="text-xl font-extrabold">{siteSettings.site_name || 'SMA XYZ'}</p>
-                            <p className="mt-2 max-w-md text-sm leading-6 text-slate-300">{siteSettings.site_tagline || 'Berakhlak Mulia, Berprestasi Tinggi, Berwawasan Global'}</p>
+                            <p className="mt-2 max-w-md text-sm leading-6 text-slate-300">
+                                {siteSettings.footer_about || siteSettings.site_tagline || 'Berakhlak Mulia, Berprestasi Tinggi, Berwawasan Global'}
+                            </p>
                         </div>
 
                         <div>
@@ -175,7 +264,6 @@ export default function PublicLayout({ children, settings = {} }) {
                                 <p>{siteSettings.contact_email || 'info@smaxyz.sch.id'}</p>
                             </div>
                         </div>
-
                         {(siteSettings.social_instagram || siteSettings.social_facebook || siteSettings.social_youtube || siteSettings.social_tiktok || siteSettings.social_whatsapp || siteSettings.social_twitter || siteSettings.social_linkedin) && (
                             <div>
                                 <p className="font-bold text-sm text-slate-200 mb-3">Media Sosial</p>
@@ -220,13 +308,24 @@ export default function PublicLayout({ children, settings = {} }) {
                         )}
                     </div>
 
-                    <div>
-                        <p className="font-bold">Tautan</p>
-                        <div className="mt-3 space-y-2 text-sm text-slate-300">
-                            <a href={siteSettings.ppdb_link || '#'} className="block transition hover:text-white">Pendaftaran PPDB</a>
-                            <Link href="/login" className="block transition hover:text-white">Login Admin</Link>
-                        </div>
-                    </div>
+                    {(() => {
+                        let groups = [];
+                        try {
+                            groups = JSON.parse(siteSettings.footer_groups || '[]');
+                        } catch {
+                            groups = [];
+                        }
+                        return Array.isArray(groups) && groups.length > 0 ? groups.slice(0, 3).filter((g) => g?.title && Array.isArray(g?.links)).map((group, i) => (
+                            <div key={i}>
+                                <p className="font-bold">{group.title}</p>
+                                <div className="mt-3 space-y-2 text-sm text-slate-300">
+                                    {group.links.filter((l) => l?.label && l?.url).map((link, j) => (
+                                        <a key={j} href={link.url} className="block transition hover:text-white">{link.label}</a>
+                                    ))}
+                                </div>
+                            </div>
+                        )) : null;
+                    })()}
                 </div>
                 <div className="border-t border-slate-700 px-4 py-5 text-center text-xs text-slate-400">© {new Date().getFullYear()} {siteSettings.site_name || 'SMA XYZ'}. Hak Cipta Dilindungi.</div>
             </footer>

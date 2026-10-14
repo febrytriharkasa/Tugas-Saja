@@ -24,12 +24,14 @@ export default function HeroSettings({ settings }) {
         hero_slide_1_btn_text: rawSettings.hero_slide_1_btn_text || '',
         hero_slide_1_btn_url: rawSettings.hero_slide_1_btn_url || '',
         hero_slide_1_file: null,
+        remove_hero_slide_1_image: false,
         hero_slide_2_tag: rawSettings.hero_slide_2_tag || '',
         hero_slide_2_title: rawSettings.hero_slide_2_title || '',
         hero_slide_2_subtitle: rawSettings.hero_slide_2_subtitle || '',
         hero_slide_2_btn_text: rawSettings.hero_slide_2_btn_text || '',
         hero_slide_2_btn_url: rawSettings.hero_slide_2_btn_url || '',
         hero_slide_2_file: null,
+        remove_hero_slide_2_image: false,
     });
 
     useEffect(() => () => {
@@ -42,10 +44,19 @@ export default function HeroSettings({ settings }) {
 
     const handleImageChange = (key, file) => {
         setData(key, file || null);
+        if (file) {
+            setData(`remove_${key.replace('_file', '_image')}`, false);
+        }
         setImagePreviews((current) => ({
             ...current,
             [key]: file ? URL.createObjectURL(file) : savedImages[key],
         }));
+    };
+
+    const handleImageRemove = (key) => {
+        setData(key, null);
+        setData(`remove_${key.replace('_file', '_image')}`, true);
+        setImagePreviews((current) => ({ ...current, [key]: null }));
     };
 
     const handleSubmit = (e) => {
@@ -119,11 +130,23 @@ export default function HeroSettings({ settings }) {
                             <div>
                                 <label className="block text-xs font-medium text-slate-600">Ganti Gambar Latar Slide 1 (Opsional)</label>
                                 {imagePreviews.hero_slide_1_file && (
-                                    <img
-                                        src={imagePreviews.hero_slide_1_file}
-                                        alt="Gambar latar slide 1"
-                                        className="mt-2 h-auto max-h-80 w-auto max-w-full rounded-lg border border-slate-200"
-                                    />
+                                    <div className="relative mt-2 inline-block">
+                                        <img
+                                            src={imagePreviews.hero_slide_1_file}
+                                            alt="Gambar latar slide 1"
+                                            className="h-auto max-h-80 w-auto max-w-full rounded-lg border border-slate-200"
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => handleImageRemove('hero_slide_1_file')}
+                                            className="absolute -right-2 -top-2 flex h-7 w-7 items-center justify-center rounded-full bg-red-600 text-white shadow-sm transition hover:bg-red-700"
+                                            aria-label="Hapus gambar slide 1"
+                                        >
+                                            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                                                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                            </svg>
+                                        </button>
+                                    </div>
                                 )}
                                 {imagePreviews.hero_slide_1_file && (
                                     <p className="mb-2 mt-1 text-xs text-slate-500">
@@ -192,11 +215,23 @@ export default function HeroSettings({ settings }) {
                             <div>
                                 <label className="block text-xs font-medium text-slate-600">Ganti Gambar Latar Slide 2 (Opsional)</label>
                                 {imagePreviews.hero_slide_2_file && (
-                                    <img
-                                        src={imagePreviews.hero_slide_2_file}
-                                        alt="Gambar latar slide 2"
-                                        className="mt-2 h-auto max-h-80 w-auto max-w-full rounded-lg border border-slate-200"
-                                    />
+                                    <div className="relative mt-2 inline-block">
+                                        <img
+                                            src={imagePreviews.hero_slide_2_file}
+                                            alt="Gambar latar slide 2"
+                                            className="h-auto max-h-80 w-auto max-w-full rounded-lg border border-slate-200"
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => handleImageRemove('hero_slide_2_file')}
+                                            className="absolute -right-2 -top-2 flex h-7 w-7 items-center justify-center rounded-full bg-red-600 text-white shadow-sm transition hover:bg-red-700"
+                                            aria-label="Hapus gambar slide 2"
+                                        >
+                                            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                                                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                            </svg>
+                                        </button>
+                                    </div>
                                 )}
                                 {imagePreviews.hero_slide_2_file && (
                                     <p className="mb-2 mt-1 text-xs text-slate-500">

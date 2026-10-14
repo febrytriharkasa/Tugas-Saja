@@ -194,7 +194,6 @@ export default function Welcome({ settings = {}, posts = [], homeSections = [], 
         {
             tag: settings.hero_slide_1_tag || 'Portal resmi SMA XYZ',
             title: settings.hero_slide_1_title || settings.hero_title || 'Membentuk Generasi Rabbani & Berprestasi',
-            subtitle: settings.hero_slide_1_subtitle || settings.hero_subtitle || 'Selamat Datang di Portal Resmi SMA XYZ. Pendidikan Islam modern berbasis teknologi & akhlakul karimah di Sidoarjo.',
             btnText: settings.hero_slide_1_btn_text || 'Sambutan Kepala Sekolah',
             btnUrl: settings.hero_slide_1_btn_url || '#sambutan',
             image: settings.hero_slide_1_image || settings.hero_background_image || null,
@@ -202,7 +201,6 @@ export default function Welcome({ settings = {}, posts = [], homeSections = [], 
         {
             tag: settings.hero_slide_2_tag || 'Penerimaan Siswa Baru',
             title: settings.hero_slide_2_title || 'Pendaftaran Peserta Didik Baru',
-            subtitle: settings.hero_slide_2_subtitle || 'Buka peluang masa depan terbaikmu bersama SMA XYZ. Bergabunglah dengan pendidikan Islam modern berwawasan global.',
             btnText: settings.hero_slide_2_btn_text || 'Daftar Sekarang',
             btnUrl: settings.hero_slide_2_btn_url || settings.ppdb_link || 'https://ppdb.smaxyz.sch.id',
             image: settings.hero_slide_2_image || null,
@@ -227,7 +225,9 @@ export default function Welcome({ settings = {}, posts = [], homeSections = [], 
 
     return (
         <PublicLayout settings={settings}>
-            <section className="relative isolate overflow-hidden bg-slate-850 text-white min-h-[32rem] flex items-center sm:min-h-[40rem] lg:min-h-[50rem]">
+            {/* Hero section dibuat lebih compact: aspect-[4/3] di mobile agar lebih pendek, padding dan min-h dikurangi di tablet/desktop */}
+            <section className="relative isolate overflow-hidden bg-slate-900 text-white flex items-center w-full aspect-[4/3] sm:aspect-[16/7] sm:py-10 lg:py-16 sm:min-h-[24rem] lg:min-h-[30rem]">
+                
                 {/* Background Images with smooth fade */}
                 {slides.map((s, idx) => (
                     s.image ? (
@@ -235,15 +235,20 @@ export default function Welcome({ settings = {}, posts = [], homeSections = [], 
                             key={idx}
                             src={s.image}
                             alt={s.title}
-                            className={`absolute inset-0 -z-20 h-full w-full object-cover object-center transition-opacity duration-1000 ${idx === currentSlide ? 'opacity-100' : 'opacity-0'}`}
+                            // object-cover akan mengisi pas kotak aspect-[4/3] tanpa memanjangkan gambar berlebihan
+                            className={`absolute inset-0 -z-20 h-full w-full object-cover object-center transition-opacity duration-1000 ${
+                                idx === currentSlide ? 'opacity-100' : 'opacity-0'
+                            }`}
                         />
                     ) : null
                 ))}
 
-                <div className={`absolute inset-0 -z-10 transition-colors duration-1000 ${activeSlide.image ? 'bg-slate-950/75' : 'bg-primary'}`} />
+                {/* Gelap transparan overlay */}
+                <div className={`absolute inset-0 -z-10 transition-colors duration-1000 ${activeSlide.image ? 'bg-slate-950/70' : 'bg-primary'}`} />
 
-                <div className="mx-auto grid min-h-[32rem] max-w-7xl items-center gap-10 px-4 pt-20 sm:min-h-[40rem] sm:px-6 lg:grid-cols-[minmax(0,1.25fr)_minmax(18rem,0.75fr)] lg:min-h-[50rem] lg:px-8 lg:pb-20 w-full relative z-10">
-                    <div className="max-w-3xl min-h-[16rem] flex items-center sm:min-h-[20rem] lg:min-h-[22rem]">
+                {/* HAPUS padding atas/bawah (pt-16, pb-12) yang besar di mobile agar teks terpusat rapi di kotak yang lebih kecil */}
+                <div className="mx-auto grid w-full max-w-7xl items-center gap-4 px-4 sm:px-6 lg:grid-cols-[minmax(0,1.25fr)_minmax(18rem,0.75fr)] relative z-10">
+                    <div className="max-w-3xl flex items-center">
                         <AnimatePresence mode="wait">
                             <motion.div
                                 key={currentSlide}
@@ -263,7 +268,8 @@ export default function Welcome({ settings = {}, posts = [], homeSections = [], 
                                         visible: { opacity: 1, x: 0, transition: { duration: 0.5, ease: 'easeOut' } },
                                         exit: { opacity: 0, x: 50, transition: { duration: 0.3, ease: 'easeIn' } },
                                     }}
-                                    className="mb-5 text-xs font-bold uppercase tracking-[0.18em] text-emerald-200"
+                                    // Jarak margin diperkecil (mb-3 menjadi mb-1.5 di mobile)
+                                    className="mb-1.5 sm:mb-3 text-[9px] sm:text-xs font-bold uppercase tracking-[0.18em] text-emerald-200"
                                 >
                                     {activeSlide.tag}
                                 </motion.p>
@@ -273,7 +279,8 @@ export default function Welcome({ settings = {}, posts = [], homeSections = [], 
                                         visible: { opacity: 1, x: 0, transition: { duration: 0.55, ease: 'easeOut' } },
                                         exit: { opacity: 0, y: -40, transition: { duration: 0.3, ease: 'easeIn' } },
                                     }}
-                                    className="max-w-3xl break-words text-3xl font-extrabold leading-tight tracking-tight sm:text-4xl md:text-5xl lg:text-6xl"
+                                    // Ukuran font disesuaikan agar tidak memakan terlalu banyak baris
+                                    className="max-w-3xl break-words text-xl font-extrabold leading-tight tracking-tight sm:text-4xl md:text-5xl lg:text-6xl"
                                 >
                                     {activeSlide.title}
                                 </motion.h1>
@@ -283,7 +290,8 @@ export default function Welcome({ settings = {}, posts = [], homeSections = [], 
                                         visible: { opacity: 1, x: 0, transition: { duration: 0.55, ease: 'easeOut' } },
                                         exit: { opacity: 0, y: 35, transition: { duration: 0.3, ease: 'easeIn' } },
                                     }}
-                                    className="mt-6 max-w-2xl break-words text-base leading-7 text-emerald-50/90 sm:text-lg"
+                                    // Margin top diperkecil
+                                    className="mt-2 sm:mt-4 max-w-2xl break-words text-[13px] leading-snug text-emerald-50/90 sm:text-lg sm:leading-6"
                                 >
                                     {activeSlide.subtitle}
                                 </motion.p>
@@ -293,50 +301,39 @@ export default function Welcome({ settings = {}, posts = [], homeSections = [], 
                                         visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: 'easeOut' } },
                                         exit: { opacity: 0, x: 50, transition: { duration: 0.3, ease: 'easeIn' } },
                                     }}
-                                    className="mt-8 flex flex-wrap gap-3 items-center"
+                                    className="mt-4 sm:mt-6 flex flex-wrap gap-3 items-center"
                                 >
-                                    {activeSlide.btnUrl.startsWith('/') || activeSlide.btnUrl.startsWith('#') ? (
-                                        <a
-                                            href={activeSlide.btnUrl}
-                                            className="inline-flex min-h-12 items-center justify-center rounded-lg bg-emerald-200 px-6 py-3 text-sm font-bold text-emerald-950 transition hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-primary shadow-lg"
-                                        >
-                                            {activeSlide.btnText}
-                                        </a>
-                                    ) : (
-                                        <a
-                                            href={activeSlide.btnUrl}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="inline-flex min-h-12 items-center justify-center rounded-lg bg-emerald-200 px-6 py-3 text-sm font-bold text-emerald-950 transition hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-primary shadow-lg"
-                                        >
-                                            {activeSlide.btnText}
-                                        </a>
-                                    )}
+                                    <a
+                                        href={activeSlide.btnUrl}
+                                        target={activeSlide.btnUrl.startsWith('/') ? "_self" : "_blank"}
+                                        rel={activeSlide.btnUrl.startsWith('/') ? "" : "noopener noreferrer"}
+                                        className="inline-flex min-h-9 sm:min-h-12 items-center justify-center rounded-lg bg-emerald-200 px-4 py-2 sm:px-6 sm:py-3 text-[11px] sm:text-sm font-bold text-emerald-950 transition hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-primary shadow-lg"
+                                    >
+                                        {activeSlide.btnText}
+                                    </a>
                                 </motion.div>
                             </motion.div>
                         </AnimatePresence>
                     </div>
                 </div>
 
-                {/* Carousel Controls (Arrows and Indicators) */}
-                <div className="absolute bottom-16 right-4 sm:right-8 z-20 flex items-center gap-3 bg-black/30 px-4 py-2 rounded-full border border-white/10">
+                {/* Carousel Controls - Posisi disesuaikan agar tidak nabrak di HP */}
+                <div className="absolute bottom-3 sm:bottom-16 right-3 sm:right-8 z-20 flex items-center gap-2 sm:gap-3 bg-black/30 px-2 py-1 sm:px-4 sm:py-2 rounded-full border border-white/10">
                     <button
                         type="button"
                         onClick={() => setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length)}
-                        className="w-11 h-11 rounded-full flex items-center justify-center text-white/80 hover:text-white hover:bg-white/20 transition text-sm font-bold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
-                        aria-label="Slide sebelumnya"
+                        className="w-6 h-6 sm:w-11 sm:h-11 rounded-full flex items-center justify-center text-white/80 hover:text-white hover:bg-white/20 transition text-xs font-bold"
                     >
                         ‹
                     </button>
 
-                    <div className="flex gap-1.5 items-center">
+                    <div className="flex gap-1 sm:gap-1.5 items-center">
                         {slides.map((_, idx) => (
                             <button
                                 key={idx}
                                 type="button"
                                 onClick={() => setCurrentSlide(idx)}
-                                className={`h-2.5 rounded-full transition-all ${idx === currentSlide ? 'w-6 bg-emerald-300' : 'w-2.5 bg-white/40 hover:bg-white/70'}`}
-                                aria-label={`Ke slide ${idx + 1}`}
+                                className={`h-1.5 sm:h-2 rounded-full transition-all ${idx === currentSlide ? 'w-4 sm:w-6 bg-emerald-300' : 'w-1.5 sm:w-2 bg-white/40 hover:bg-white/70'}`}
                             />
                         ))}
                     </div>
@@ -344,8 +341,7 @@ export default function Welcome({ settings = {}, posts = [], homeSections = [], 
                     <button
                         type="button"
                         onClick={() => setCurrentSlide((prev) => (prev + 1) % slides.length)}
-                        className="w-11 h-11 rounded-full flex items-center justify-center text-white/80 hover:text-white hover:bg-white/20 transition text-sm font-bold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
-                        aria-label="Slide berikutnya"
+                        className="w-6 h-6 sm:w-11 sm:h-11 rounded-full flex items-center justify-center text-white/80 hover:text-white hover:bg-white/20 transition text-xs font-bold"
                     >
                         ›
                     </button>

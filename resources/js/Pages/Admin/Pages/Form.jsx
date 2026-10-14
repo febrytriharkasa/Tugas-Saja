@@ -17,6 +17,7 @@ export default function PageForm({ page, categories }) {
         category_id: page?.category_id || '',
         content: page?.content || '',
         image: null,
+        remove_image: false,
         is_published: page ? page.is_published : true,
         meta: { blocks: blocksFromMetadata(page?.metadata) },
     });
@@ -32,12 +33,21 @@ export default function PageForm({ page, categories }) {
     const handleImageChange = (e) => {
         const file = e.target.files[0] || null;
         setData('image', file);
+        if (file) {
+            setData('remove_image', false);
+        }
         setImagePreviewError(false);
         if (file) {
             setImagePreview(URL.createObjectURL(file));
         } else {
             setImagePreview(page?.image || null);
         }
+    };
+
+    const handleImageRemove = () => {
+        setData('image', null);
+        setData('remove_image', true);
+        setImagePreview(null);
     };
 
     const blocks = Array.isArray(data.meta.blocks) ? data.meta.blocks : [];
@@ -119,16 +129,23 @@ export default function PageForm({ page, categories }) {
                             <div>
                                 <label className="block text-sm font-medium text-slate-700">Gambar (Opsional)</label>
                                 {imagePreview && !imagePreviewError ? (
-                                    <div className="mt-2 mb-2">
+                                    <div className="relative mt-2 mb-2 inline-block">
                                         <img
                                             src={imagePreview}
                                             alt="Preview"
                                             onError={() => setImagePreviewError(true)}
                                             className="h-auto max-h-96 w-auto max-w-full rounded-lg border border-slate-200"
                                         />
-                                        <p className="text-xs text-slate-500 mt-1">
-                                            {data.image ? 'Preview gambar baru.' : 'Gambar saat ini. Pilih file baru untuk mengganti.'}
-                                        </p>
+                                        <button
+                                            type="button"
+                                            onClick={handleImageRemove}
+                                            className="absolute -right-2 -top-2 flex h-7 w-7 items-center justify-center rounded-full bg-red-600 text-white shadow-sm transition hover:bg-red-700"
+                                            aria-label="Hapus gambar"
+                                        >
+                                            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                                                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                                            </svg>
+                                        </button>
                                     </div>
                                 ) : isEdit && page?.image ? (
                                     <div className="mt-2 mb-2 rounded-lg border border-dashed border-amber-300 bg-amber-50 p-3 text-xs text-amber-700">

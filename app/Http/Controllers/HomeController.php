@@ -7,6 +7,7 @@ use App\Models\Page;
 use App\Models\Post;
 use App\Models\SiteSetting;
 use App\Models\Staff;
+use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Inertia\Inertia;
 
@@ -95,6 +96,23 @@ class HomeController extends Controller
         ]);
     }
 
+    public function search(Request $request)
+    {
+        $keyword = trim((string) $request->query('q', ''));
+
+        $items = Post::with(['category', 'user'])
+            ->where('status', 'published')
+            ->when($keyword !== '', fn ($query) => $query->where('title', 'like', '%'.$keyword.'%'))
+            ->latest('published_at')
+            ->paginate(8)
+            ->withQueryString();
+
+        return Inertia::render('Public/Search', [
+            'keyword' => $keyword,
+            'items' => $items,
+        ]);
+    }
+
     public function statistics()
     {
         return Inertia::render('Public/Statistics', [
@@ -124,7 +142,35 @@ class HomeController extends Controller
             ->take(3)
             ->get();
 
-        return Inertia::render('Public/PostDetail', compact('post', 'relatedPosts'));
+        $prevPost = Post::with(['category', 'user'])
+            ->where('category_id', $post->category_id)
+            ->where('status', 'published')
+            ->where(function ($query) use ($post) {
+                $query->where('published_at', '<', $post->published_at)
+                    ->orWhere(function ($q) use ($post) {
+                        $q->where('published_at', $post->published_at)
+                            ->where('id', '<', $post->id);
+                    });
+            })
+            ->orderBy('published_at', 'desc')
+            ->orderBy('id', 'desc')
+            ->first();
+
+        $nextPost = Post::with(['category', 'user'])
+            ->where('category_id', $post->category_id)
+            ->where('status', 'published')
+            ->where(function ($query) use ($post) {
+                $query->where('published_at', '>', $post->published_at)
+                    ->orWhere(function ($q) use ($post) {
+                        $q->where('published_at', $post->published_at)
+                            ->where('id', '>', $post->id);
+                    });
+            })
+            ->orderBy('published_at', 'asc')
+            ->orderBy('id', 'asc')
+            ->first();
+
+        return Inertia::render('Public/PostDetail', compact('post', 'relatedPosts', 'prevPost', 'nextPost'));
     }
 
     private function categoryPosts(string $slug, ?int $limit = null, bool $paginate = false)
@@ -135,7 +181,7 @@ class HomeController extends Controller
             ->latest('published_at');
 
         if ($paginate) {
-            return $query->paginate(12);
+            return $query->paginate(8);
         }
 
         return $limit ? $query->take($limit)->get() : $query->get();
