@@ -12,7 +12,7 @@ class StaffController extends Controller
     public function index()
     {
         return Inertia::render('Admin/Staff/Index', [
-            'staff' => Staff::latest()->get(),
+            'staff' => Staff::latest()->paginate(10)->withQueryString(),
         ]);
     }
 

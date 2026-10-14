@@ -24,8 +24,8 @@ class SiteSettingController extends Controller
     public function updateHero(Request $request)
     {
         $fileKeys = ['hero_slide_1_file', 'hero_slide_2_file'];
-        $removeKeys = ['hero_slide_1_image', 'hero_slide_2_image'];
-        $data = $request->except(array_merge(['_token'], $fileKeys));
+        $removeKeys = ['remove_hero_slide_1_image', 'remove_hero_slide_2_image'];
+        $data = $request->except(array_merge(['_token'], $fileKeys, $removeKeys));
 
         foreach ([1, 2] as $i) {
             $inputName = "hero_slide_{$i}_file";
@@ -35,12 +35,23 @@ class SiteSettingController extends Controller
                 $request->validate([
                     $inputName => 'image|mimes:jpeg,png,jpg,webp|max:2048',
                 ]);
+                $existing = SiteSetting::where('key', $imageKey)->first();
+                if ($existing) {
+                    $this->deleteSettingFile($existing->value);
+                }
                 $path = $request->file($inputName)->store('settings', 'public');
                 $data[$imageKey] = Storage::url($path);
             } elseif ($request->boolean("remove_hero_slide_{$i}_image")) {
+                $imageKey = "hero_slide_{$i}_image";
                 $fallbackKey = "hero_background_image";
-                $storedUrl = $data[$imageKey] ?? $data[$fallbackKey] ?? null;
-                $this->deleteSettingFile($storedUrl);
+                $existingImage = SiteSetting::where('key', $imageKey)->first();
+                $existingFallback = SiteSetting::where('key', $fallbackKey)->first();
+                if ($existingImage) {
+                    $this->deleteSettingFile($existingImage->value);
+                }
+                if ($existingFallback) {
+                    $this->deleteSettingFile($existingFallback->value);
+                }
                 $data[$imageKey] = '';
                 $data[$fallbackKey] = '';
             }
@@ -185,11 +196,21 @@ class SiteSettingController extends Controller
         ]);
 
         if ($request->hasFile('site_logo_file')) {
+            $existingLogo = SiteSetting::where('key', 'site_logo')->first();
+            if ($existingLogo) {
+                $this->deleteSettingFile($existingLogo->value);
+            }
             $path = $request->file('site_logo_file')->store('settings', 'public');
             SiteSetting::updateOrCreate(
                 ['key' => 'site_logo'],
                 ['value' => Storage::url($path), 'updated_at' => now()]
             );
+        } elseif ($request->boolean('remove_site_logo')) {
+            $existingLogo = SiteSetting::where('key', 'site_logo')->first();
+            if ($existingLogo) {
+                $this->deleteSettingFile($existingLogo->value);
+                $existingLogo->delete();
+            }
         }
 
         foreach (['site_name', 'site_portal_text', 'footer_about'] as $key) {

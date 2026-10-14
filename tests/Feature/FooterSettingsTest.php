@@ -7,6 +7,8 @@ use App\Models\Page;
 use App\Models\SiteSetting;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
@@ -130,5 +132,56 @@ class FooterSettingsTest extends TestCase
         ]);
 
         $response->assertSessionHasErrors('footer_groups.0.links.0.label');
+    }
+
+    public function test_saving_without_logo_upload_keeps_existing_logo(): void
+    {
+        Storage::fake('public');
+        Storage::disk('public')->put('settings/logo.png', 'fake');
+        SiteSetting::create(['key' => 'site_logo', 'value' => '/storage/settings/logo.png']);
+        $admin = User::factory()->create();
+
+        $this->actingAs($admin)->post('/admin/settings/footer', [
+            'site_name' => 'Sekolah',
+            'footer_groups' => [['title' => 'Grup', 'links' => [['label' => 'Beranda', 'url' => '/']]]],
+        ])->assertRedirect();
+
+        $this->assertSame('/storage/settings/logo.png', SiteSetting::where('key', 'site_logo')->value('value'));
+        Storage::disk('public')->assertExists('settings/logo.png');
+    }
+
+    public function test_removing_logo_deletes_file_and_setting(): void
+    {
+        Storage::fake('public');
+        Storage::disk('public')->put('settings/logo.png', 'fake');
+        SiteSetting::create(['key' => 'site_logo', 'value' => '/storage/settings/logo.png']);
+        $admin = User::factory()->create();
+
+        $this->actingAs($admin)->post('/admin/settings/footer', [
+            'site_name' => 'Sekolah',
+            'remove_site_logo' => true,
+            'footer_groups' => [['title' => 'Grup', 'links' => [['label' => 'Beranda', 'url' => '/']]]],
+        ])->assertRedirect();
+
+        $this->assertNull(SiteSetting::where('key', 'site_logo')->first());
+        Storage::disk('public')->assertMissing('settings/logo.png');
+    }
+
+    public function test_uploading_new_logo_replaces_old_file(): void
+    {
+        Storage::fake('public');
+        Storage::disk('public')->put('settings/old-logo.png', 'fake');
+        SiteSetting::create(['key' => 'site_logo', 'value' => '/storage/settings/old-logo.png']);
+        $admin = User::factory()->create();
+
+        $this->actingAs($admin)->post('/admin/settings/footer', [
+            'site_name' => 'Sekolah',
+            'site_logo_file' => UploadedFile::fake()->image('new-logo.png'),
+            'footer_groups' => [['title' => 'Grup', 'links' => [['label' => 'Beranda', 'url' => '/']]]],
+        ])->assertRedirect();
+
+        Storage::disk('public')->assertMissing('settings/old-logo.png');
+        $this->assertStringContainsString('/storage/settings/', SiteSetting::where('key', 'site_logo')->value('value'));
+        $this->assertCount(1, Storage::disk('public')->files('settings'));
     }
 }

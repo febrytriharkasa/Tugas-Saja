@@ -117,7 +117,7 @@ export default function SocialMediaSettings({ settings }) {
                 </Card>
 
                 <div className="flex gap-3">
-                    <Button type="submit" disabled={processing}>
+                    <Button type="submit" disabled={processing} icon="save">
                         {processing ? 'Menyimpan...' : 'Simpan Pengaturan'}
                     </Button>
                 </div>

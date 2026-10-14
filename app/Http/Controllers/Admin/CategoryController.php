@@ -13,10 +13,11 @@ class CategoryController extends Controller
     public function index()
     {
         return Inertia::render('Admin/Categories/Index', [
-            'categories' => Category::withCount('posts')->latest()->get()->map(fn (Category $category) => [
-                ...$category->toArray(),
-                'is_fixed_on_home' => $category->isFixedOnHome(),
-            ]),
+            'categories' => Category::withCount('posts')->latest()->paginate(10)->withQueryString()
+                ->through(fn (Category $category) => [
+                    ...$category->toArray(),
+                    'is_fixed_on_home' => $category->isFixedOnHome(),
+                ]),
         ]);
     }
 

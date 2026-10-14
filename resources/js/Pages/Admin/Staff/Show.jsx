@@ -8,8 +8,8 @@ export default function StaffShow({ staffMember }) {
     return (
         <AdminLayout title="Detail Guru/Tendik">
             <div className="mb-6 flex flex-wrap gap-3">
-                <Button variant="outline" href="/admin/staff">Kembali</Button>
-                <Button href={`/admin/staff/${staffMember.id}/edit`}>Edit Data</Button>
+                <Button variant="outline" href="/admin/staff" icon="arrow-left">Kembali</Button>
+                <Button href={`/admin/staff/${staffMember.id}/edit`} icon="pencil">Edit Data</Button>
             </div>
             <Card className="max-w-2xl p-6">
                 <h1 className="text-2xl font-bold text-slate-800">{staffMember.name}</h1>

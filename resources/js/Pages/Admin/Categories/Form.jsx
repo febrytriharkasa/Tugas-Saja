@@ -54,8 +54,8 @@ export default function CategoryForm({ category }) {
                     </div>
 
                     <div className="flex justify-end gap-3">
-                        <Button variant="outline" href="/admin/categories">Batal</Button>
-                        <Button type="submit" disabled={processing}>{processing ? 'Menyimpan...' : 'Simpan'}</Button>
+                        <Button variant="outline" href="/admin/categories" icon="arrow-left">Batal</Button>
+                        <Button type="submit" disabled={processing} icon="save">{processing ? 'Menyimpan...' : 'Simpan'}</Button>
                     </div>
                 </form>
             </Card>

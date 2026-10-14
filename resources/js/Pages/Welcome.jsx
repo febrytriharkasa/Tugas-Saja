@@ -9,7 +9,7 @@ import { youtubeThumbnailUrl } from '@/lib/postBlocks';
 import { postUrl } from '@/lib/postUrl';
 
 function ArrowLink({ href, children }) {
-    return <Link href={href} className="inline-flex min-h-11 items-center gap-2 rounded-lg text-sm font-bold text-primary transition hover:gap-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">{children}<span aria-hidden="true">→</span></Link>;
+    return <Link href={href} className="inline-flex min-h-9 items-center gap-1.5 rounded-lg text-xs font-bold text-primary transition hover:gap-2.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary sm:min-h-11 sm:gap-2 sm:text-sm sm:hover:gap-3">{children}<span aria-hidden="true">→</span></Link>;
 }
 
 function SectionHeading({ eyebrow, title, href, linkLabel = 'Lihat semua', dark = false }) {
@@ -90,6 +90,7 @@ function PostCard({ post, delay = 0 }) {
 
     return (
         <motion.div
+            className="h-full"
             initial={{ opacity: 0, y: 25 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -114,13 +115,13 @@ function PostCard({ post, delay = 0 }) {
                         )}
                     </div>
                 </Link>
-                <div className="flex flex-1 flex-col p-3.5 justify-between sm:p-5">
+                <div className="flex flex-1 flex-col justify-between p-3.5 sm:p-5">
                     <div>
-                        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] text-slate-600 sm:text-xs">
+                        <div className="flex min-h-8 flex-wrap items-center gap-x-2 gap-y-1 text-[11px] text-slate-600 sm:text-xs">
                             <span className="font-bold text-primary">{post.category?.name || 'Konten'}</span>
                             <span>{formatPostDate(post)}</span>
                         </div>
-                        <h3 className="mt-1.5 line-clamp-2 break-words text-sm font-bold text-slate-900 sm:mt-3 sm:text-lg">
+                        <h3 className="mt-1.5 min-h-10 line-clamp-2 break-words text-sm font-bold text-slate-900 sm:mt-3 sm:min-h-14 sm:text-lg">
                             <Link href={postUrl(post)} className="hover:text-primary">{post.title}</Link>
                         </h3>
                         {post.user?.name && (
@@ -146,7 +147,7 @@ function PostSection({ id, eyebrow, title, href, posts, tone = 'plain' }) {
                 {posts.length ? (
                     <HorizontalRail label={title}>
                         {posts.slice(0, 8).map((post, idx) => (
-                            <div key={post.id} className="w-full shrink-0 snap-start sm:w-[calc((100%-1.5rem)/2)] lg:w-[calc((100%-3rem)/3)] xl:w-[calc((100%-4.5rem)/4)]">
+                            <div key={post.id} className="w-[calc((100%-1.5rem)/2)] shrink-0 snap-start sm:w-[calc((100%-1.5rem)/2)] lg:w-[calc((100%-3rem)/3)] xl:w-[calc((100%-4.5rem)/4)]">
                                 <PostCard post={post} delay={idx * 0.1} />
                             </div>
                         ))}
@@ -168,7 +169,7 @@ function AlumniSection({ id, title, href, posts }) {
                         {posts.slice(0, 8).map((testi, idx) => (
                             <motion.div
                                 key={testi.id}
-                                className="w-full shrink-0 snap-start sm:w-[calc((100%-1.5rem)/2)] lg:w-[calc((100%-3rem)/3)] xl:w-[calc((100%-4.5rem)/4)]"
+                                className="w-[calc((100%-1.5rem)/2)] shrink-0 snap-start sm:w-[calc((100%-1.5rem)/2)] lg:w-[calc((100%-3rem)/3)] xl:w-[calc((100%-4.5rem)/4)]"
                                 initial={{ opacity: 0, y: 25 }}
                                 whileInView={{ opacity: 1, y: 0 }}
                                 viewport={{ once: true }}
@@ -425,7 +426,7 @@ export default function Welcome({ settings = {}, posts = [], homeSections = [], 
                                 return (
                                 <motion.div
                                     key={item.id}
-                                    className="w-full shrink-0 snap-start sm:w-[calc((100%-1.5rem)/2)] lg:w-[calc((100%-3rem)/3)] xl:w-[calc((100%-4.5rem)/4)]"
+                                    className="w-[calc((100%-1.5rem)/2)] shrink-0 snap-start sm:w-[calc((100%-1.5rem)/2)] lg:w-[calc((100%-3rem)/3)] xl:w-[calc((100%-4.5rem)/4)]"
                                     initial={{ opacity: 0, scale: 0.95 }}
                                     whileInView={{ opacity: 1, scale: 1 }}
                                     viewport={{ once: true }}
@@ -487,7 +488,7 @@ export default function Welcome({ settings = {}, posts = [], homeSections = [], 
                             {staff.slice(0, 8).map((person, idx) => (
                                 <motion.div
                                     key={person.id}
-                                    className="w-full shrink-0 snap-start sm:w-[calc((100%-1.5rem)/2)] lg:w-[calc((100%-3rem)/3)] xl:w-[calc((100%-4.5rem)/4)]"
+                                    className="w-[calc((100%-1.5rem)/2)] shrink-0 snap-start sm:w-[calc((100%-1.5rem)/2)] lg:w-[calc((100%-3rem)/3)] xl:w-[calc((100%-4.5rem)/4)]"
                                     initial={{ opacity: 0, y: 20 }}
                                     whileInView={{ opacity: 1, y: 0 }}
                                     viewport={{ once: true }}

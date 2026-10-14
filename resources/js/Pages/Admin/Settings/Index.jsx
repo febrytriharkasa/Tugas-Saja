@@ -450,7 +450,7 @@ export default function SettingsIndex({ settings }) {
                 </Card>
 
                 <div className="flex justify-end">
-                    <Button type="submit" disabled={processing}>
+                    <Button type="submit" disabled={processing} icon="save">
                         {processing ? 'Menyimpan...' : 'Simpan Semua Pengaturan'}
                     </Button>
                 </div>

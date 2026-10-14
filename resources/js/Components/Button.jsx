@@ -1,15 +1,17 @@
 import { Link } from '@inertiajs/react';
+import Icon from '@/Components/Icon';
 
 export default function Button({ 
     variant = 'primary', 
     size = 'md', 
     href, 
     type = 'button',
+    icon,
     children, 
     className = '',
     ...props 
 }) {
-    const baseClasses = 'inline-flex min-h-11 items-center justify-center font-semibold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2';
+    const baseClasses = 'inline-flex min-h-11 items-center justify-center gap-2 font-semibold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2';
     
     const variants = {
         primary: 'bg-primary hover:bg-primary-light text-white focus:ring-primary',
@@ -27,17 +29,24 @@ export default function Button({
     
     const classes = `${baseClasses} ${variants[variant]} ${sizes[size]} ${className}`;
     
+    const content = (
+        <>
+            {icon && <Icon name={icon} />}
+            {children}
+        </>
+    );
+
     if (href) {
         return (
             <Link href={href} className={classes} {...props}>
-                {children}
+                {content}
             </Link>
         );
     }
     
     return (
         <button type={type} className={classes} {...props}>
-            {children}
+            {content}
         </button>
     );
 }

@@ -2,6 +2,7 @@ import AdminLayout from '@/Layouts/AdminLayout';
 import Card from '@/Components/Card';
 import Button from '@/Components/Button';
 import BlocksEditor from '@/Components/BlocksEditor';
+import Icon from '@/Components/Icon';
 import { blocksFromMetadata } from '@/lib/postBlocks';
 import { useForm } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
@@ -119,8 +120,11 @@ export default function PostForm({ post, categories, initialCategoryId }) {
 
     return (
         <AdminLayout title={isEdit ? 'Edit Konten' : 'Tambah Konten'}>
-            <Card className="p-6 max-w-2xl">
-                <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit}>
+                <div className="grid items-start gap-6 lg:grid-cols-3">
+                    <div className="lg:col-span-2">
+                        <Card className="p-6">
+                            <div className="space-y-4">
                     <div>
                         <label className="block text-sm font-medium text-slate-700">Judul</label>
                         <input
@@ -221,9 +225,7 @@ export default function PostForm({ post, categories, initialCategoryId }) {
                                         className="absolute -right-2 -top-2 flex h-7 w-7 items-center justify-center rounded-full bg-red-600 text-white shadow-sm transition hover:bg-red-700"
                                         aria-label="Hapus gambar"
                                     >
-                                        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                                            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                                        </svg>
+                                        <Icon name="x" className="h-4 w-4" />
                                     </button>
                                 </div>
                             ) : isEdit && post?.featured_image ? (
@@ -254,27 +256,38 @@ export default function PostForm({ post, categories, initialCategoryId }) {
                     </div>
 
                     <BlocksEditor blocks={blocks} onChange={setBlocks} errors={errors} />
-
-                    <div>
-                        <label className="block text-sm font-medium text-slate-700">Status</label>
-                        <select
-                            value={data.status}
-                            onChange={(e) => setData('status', e.target.value)}
-                            className="mt-1 block w-full rounded-lg border-slate-300 text-sm focus:border-primary focus:ring-primary"
-                        >
-                            <option value="draft">Draft</option>
-                            <option value="published">Terbit (Published)</option>
-                        </select>
+                            </div>
+                        </Card>
                     </div>
 
-                    <div className="flex justify-end gap-3 pt-4">
-                        <Button variant="outline" href="/admin/posts">Batal</Button>
-                        <Button type="submit" disabled={processing}>
-                            {processing ? 'Menyimpan...' : 'Simpan'}
-                        </Button>
+                    <div className="space-y-6 lg:sticky lg:top-20">
+                        <Card className="p-6">
+                            <h2 className="text-base font-bold text-slate-800">Status Konten</h2>
+                            <p className="mt-1 text-xs text-slate-500">Konten draf tidak tampil di halaman publik.</p>
+                            <div className="mt-4">
+                                <label htmlFor="post-status" className="block text-sm font-medium text-slate-700">Status</label>
+                                <select
+                                    id="post-status"
+                                    value={data.status}
+                                    onChange={(e) => setData('status', e.target.value)}
+                                    className="mt-1 block w-full rounded-lg border-slate-300 text-sm focus:border-primary focus:ring-primary"
+                                >
+                                    <option value="draft">Draf</option>
+                                    <option value="published">Terbit</option>
+                                </select>
+                                {errors.status && <p className="mt-1 text-xs text-red-500">{errors.status}</p>}
+                            </div>
+                        </Card>
+
+                        <div className="flex flex-col gap-3">
+                            <Button type="submit" disabled={processing} icon="save">
+                                {processing ? 'Menyimpan...' : 'Simpan'}
+                            </Button>
+                            <Button variant="outline" href="/admin/posts" icon="arrow-left">Batal</Button>
+                        </div>
                     </div>
-                </form>
-            </Card>
+                </div>
+            </form>
         </AdminLayout>
     );
 }

@@ -1,8 +1,10 @@
 import AdminLayout from '@/Layouts/AdminLayout';
 import Card from '@/Components/Card';
 import Button from '@/Components/Button';
+import ActionIcon from '@/Components/ActionIcon';
+import Pagination from '@/Components/Pagination';
 import ConfirmDeleteModal from '@/Components/ConfirmDeleteModal';
-import { Link, router } from '@inertiajs/react';
+import { router } from '@inertiajs/react';
 import { useState } from 'react';
 
 export default function PostIndex({ posts, categories, filters }) {
@@ -21,23 +23,30 @@ export default function PostIndex({ posts, categories, filters }) {
 
     return (
         <AdminLayout title="Kelola Konten (Berita, Pengumuman, Agenda, Prestasi)">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-                <div className="flex flex-wrap gap-3 w-full sm:w-auto">
-                    <input
-                        type="text"
-                        placeholder="Cari judul..."
-                        defaultValue={filters?.search || ''}
-                        onKeyDown={(e) => {
-                            if (e.key === 'Enter') {
-                                router.get('/admin/posts', { ...filters, search: e.target.value }, { preserveState: true });
-                            }
-                        }}
-                        className="rounded-lg border-slate-300 text-sm focus:border-primary focus:ring-primary"
-                    />
+            <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex flex-wrap gap-3">
+                    <div className="relative">
+                        <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                            <svg className="h-4 w-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                        </div>
+                        <input
+                            type="text"
+                            placeholder="Cari judul konten..."
+                            defaultValue={filters?.search || ''}
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                    router.get('/admin/posts', { ...filters, search: e.target.value }, { preserveState: true });
+                                }
+                            }}
+                            className="w-full rounded-lg border-slate-300 py-2 pl-10 pr-4 text-sm placeholder:text-slate-400 focus:border-primary focus:ring-primary sm:w-64"
+                        />
+                    </div>
                     <select
                         defaultValue={filters?.category_id || ''}
                         onChange={(e) => router.get('/admin/posts', { ...filters, category_id: e.target.value || undefined }, { preserveState: true })}
-                        className="rounded-lg border-slate-300 text-sm focus:border-primary focus:ring-primary"
+                        className="rounded-lg border-slate-300 py-2 pl-3 pr-10 text-sm focus:border-primary focus:ring-primary"
                     >
                         <option value="">Semua Kategori</option>
                         {categories.map((c) => (
@@ -45,75 +54,103 @@ export default function PostIndex({ posts, categories, filters }) {
                         ))}
                     </select>
                 </div>
-                <Button href="/admin/posts/create">Tambah Konten</Button>
+                <Button href="/admin/posts/create" icon="plus">
+                    Tambah Konten
+                </Button>
             </div>
 
             <Card className="overflow-hidden">
-                <table className="w-full text-left border-collapse">
-                    <thead className="bg-slate-50 border-b border-slate-200 text-sm font-semibold text-slate-600">
-                        <tr>
-                            <th className="p-4">Judul</th>
-                            <th className="p-4">Kategori</th>
-                            <th className="p-4">Metadata</th>
-                            <th className="p-4">Status</th>
-                            <th className="p-4">Tanggal</th>
-                            <th className="p-4 text-right">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100 text-sm">
-                        {posts.data.map((post) => (
-                            <tr key={post.id} className="hover:bg-slate-50">
-                                <td className="p-4 font-medium text-slate-800">{post.title}</td>
-                                <td className="p-4 text-slate-500">
-                                    <span className="px-2 py-0.5 rounded text-xs bg-slate-100 text-slate-700">
-                                        {post.category?.name || '-'}
-                                    </span>
-                                </td>
-                                <td className="p-4 text-xs text-slate-500 max-w-xs truncate">
-                                    {post.metadata && Object.keys(post.metadata).filter((k) => k !== 'achievement_table').length > 0 ? (
-                                        <div className="space-y-0.5">
-                                            {Object.entries(post.metadata).filter(([k]) => k !== 'achievement_table').map(([k, v]) => (
-                                                <div key={k}>
-                                                    <span className="font-semibold text-slate-600">{k}:</span> {Array.isArray(v) ? `${v.length} baris` : String(v)}
-                                                </div>
-                                            ))}
-                                        </div>
-                                    ) : post.metadata?.achievement_table?.length ? (
-                                        <span>{post.metadata.achievement_table.length} baris tabel</span>
-                                    ) : (
-                                        '-'
-                                    )}
-                                </td>
-                                <td className="p-4">
-                                    <span className={`px-2 py-0.5 text-xs rounded-full ${
-                                        post.status === 'published' ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-800'
-                                    }`}>
-                                        {post.status}
-                                    </span>
-                                </td>
-                                <td className="p-4 text-slate-500">
-                                    {post.published_at ? new Date(post.published_at).toLocaleDateString('id-ID') : '-'}
-                                </td>
-                                <td className="p-4 text-right space-x-2">
-                                    <Link href={`/admin/posts/${post.id}`} className="text-slate-600 hover:underline">
-                                        Lihat
-                                    </Link>
-                                    <Link href={`/admin/posts/${post.id}/edit`} className="text-primary hover:underline">
-                                        Edit
-                                    </Link>
-                                    <button onClick={() => setDeleteTarget(post)} className="text-red-600 hover:underline">
-                                        Hapus
-                                    </button>
-                                </td>
-                            </tr>
-                        ))}
-                        {posts.data.length === 0 && (
+                <div className="overflow-x-auto">
+                    <table className="w-full min-w-[800px] border-collapse text-left">
+                        <thead className="border-b border-slate-200 bg-slate-50 text-xs font-semibold uppercase tracking-wide text-slate-500">
                             <tr>
-                                <td colSpan="6" className="p-4 text-center text-slate-400">Belum ada konten.</td>
+                                <th className="px-4 py-3">Judul</th>
+                                <th className="px-4 py-3">Kategori</th>
+                                <th className="px-4 py-3">Metadata</th>
+                                <th className="px-4 py-3">Status</th>
+                                <th className="px-4 py-3">Tanggal</th>
+                                <th className="px-4 py-3 text-right">Aksi</th>
                             </tr>
-                        )}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100 text-sm">
+                            {posts.data.map((post) => (
+                                <tr key={post.id} className="transition hover:bg-slate-50">
+                                    <td className="px-4 py-3">
+                                        <div className="flex items-center gap-3">
+                                            {post.featured_image ? (
+                                                <img 
+                                                    src={post.featured_image} 
+                                                    alt="" 
+                                                    className="h-10 w-10 shrink-0 rounded-md border border-slate-200 object-cover" 
+                                                />
+                                            ) : (
+                                                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-slate-100 text-slate-400">
+                                                    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+                                                    </svg>
+                                                </div>
+                                            )}
+                                            <span className="font-medium text-slate-800">{post.title}</span>
+                                        </div>
+                                    </td>
+                                    <td className="px-4 py-3">
+                                        <span className="inline-flex rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-700">
+                                            {post.category?.name || '-'}
+                                        </span>
+                                    </td>
+                                    <td className="px-4 py-3 text-xs text-slate-500">
+                                        {post.metadata && Object.keys(post.metadata).filter((k) => k !== 'achievement_table' && k !== 'blocks').length > 0 ? (
+                                            <div className="max-w-xs space-y-0.5">
+                                                {Object.entries(post.metadata).filter(([k]) => k !== 'achievement_table' && k !== 'blocks').map(([k, v]) => (
+                                                    <div key={k} className="truncate">
+                                                        <span className="font-semibold text-slate-600">{k}:</span> {Array.isArray(v) ? `${v.length} baris` : String(v)}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        ) : post.metadata?.achievement_table?.length ? (
+                                            <span>{post.metadata.achievement_table.length} baris tabel</span>
+                                        ) : (
+                                            <span className="text-slate-400">—</span>
+                                        )}
+                                    </td>
+                                    <td className="px-4 py-3">
+                                        <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                                            post.status === 'published' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
+                                        }`}>
+                                            {post.status === 'published' ? 'Terbit' : 'Draf'}
+                                        </span>
+                                    </td>
+                                    <td className="px-4 py-3 text-slate-500">
+                                        {post.published_at ? new Date(post.published_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) : '—'}
+                                    </td>
+                                    <td className="px-4 py-3">
+                                        <div className="flex items-center justify-end gap-1">
+                                            <ActionIcon icon="eye" label="Lihat detail" href={`/admin/posts/${post.id}`} color="slate" />
+                                            <ActionIcon icon="pencil" label="Edit konten" href={`/admin/posts/${post.id}/edit`} color="primary" />
+                                            <ActionIcon icon="trash" label="Hapus konten" onClick={() => setDeleteTarget(post)} color="red" />
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))}
+                            {posts.data.length === 0 && (
+                                <tr>
+                                    <td colSpan="6" className="px-4 py-12 text-center">
+                                        <div className="flex flex-col items-center gap-2">
+                                            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-slate-100 text-slate-400">
+                                                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
+                                                </svg>
+                                            </div>
+                                            <p className="text-sm font-medium text-slate-500">Belum ada konten</p>
+                                            <p className="text-xs text-slate-400">Mulai tambah konten baru untuk sekolah</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+                <Pagination links={posts.links} />
             </Card>
 
             <ConfirmDeleteModal

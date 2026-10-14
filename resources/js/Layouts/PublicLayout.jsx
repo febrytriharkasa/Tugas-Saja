@@ -1,6 +1,7 @@
 import { Link, usePage } from '@inertiajs/react';
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import ThemeToggle from '@/Components/ThemeToggle';
 
 function Chevron({ open = false }) {
     return (
@@ -171,9 +172,12 @@ export default function PublicLayout({ children, settings = {} }) {
                             )}
                         </div>
 
-                        <button type="button" onClick={() => setMobileMenuOpen(!mobileMenuOpen)} aria-expanded={mobileMenuOpen} aria-label={mobileMenuOpen ? 'Tutup menu' : 'Buka menu'} className="grid h-11 w-11 place-items-center rounded-lg text-slate-700 transition hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary lg:hidden">
-                            <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><path strokeLinecap="round" d={mobileMenuOpen ? 'M6 6l12 12M18 6 6 18' : 'M4 6h16M4 12h16M4 18h16'} /></svg>
-                        </button>
+                        <div className="flex items-center gap-1">
+                            <ThemeToggle />
+                            <button type="button" onClick={() => setMobileMenuOpen(!mobileMenuOpen)} aria-expanded={mobileMenuOpen} aria-label={mobileMenuOpen ? 'Tutup menu' : 'Buka menu'} className="grid h-11 w-11 place-items-center rounded-lg text-slate-700 transition hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary lg:hidden">
+                                <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><path strokeLinecap="round" d={mobileMenuOpen ? 'M6 6l12 12M18 6 6 18' : 'M4 6h16M4 12h16M4 18h16'} /></svg>
+                            </button>
+                        </div>
                     </div>
 
                     {mobileMenuOpen && (

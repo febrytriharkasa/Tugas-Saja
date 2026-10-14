@@ -27,7 +27,9 @@ Route::get('/{category}/{slug}', [HomeController::class, 'showPost'])
 Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::resource('posts', PostController::class);
+    Route::patch('/posts/{post}/status', [PostController::class, 'updateStatus'])->name('posts.status');
     Route::resource('pages', PageController::class);
+    Route::patch('/pages/{page}/status', [PageController::class, 'updateStatus'])->name('pages.status');
     Route::resource('categories', CategoryController::class);
     Route::get('/home-content', [HomeContentController::class, 'index'])->name('home-content.index');
     Route::put('/home-content', [HomeContentController::class, 'update'])->name('home-content.update');

@@ -80,6 +80,20 @@ class PostController extends Controller
         ]);
     }
 
+    public function updateStatus(Request $request, Post $post)
+    {
+        $validated = $request->validate([
+            'status' => ['required', Rule::in(['draft', 'published'])],
+        ]);
+
+        $post->update([
+            'status' => $validated['status'],
+            'published_at' => $validated['status'] === 'published' ? ($post->published_at ?? now()) : null,
+        ]);
+
+        return back()->with('success', 'Status konten diperbarui.');
+    }
+
     public function update(Request $request, Post $post)
     {
         $validated = $this->validatePost($request);

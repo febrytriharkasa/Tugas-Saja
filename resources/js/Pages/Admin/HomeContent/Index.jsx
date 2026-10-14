@@ -42,7 +42,7 @@ export default function HomeContentIndex({ categories = [] }) {
                             Pilih kategori yang tampil di halaman depan. Pengaturan nama dan metadata kategori tetap tersedia di menu Kategori.
                         </p>
                     </div>
-                    <Button href="/" variant="outline" target="_blank" rel="noreferrer">Lihat beranda</Button>
+                    <Button href="/" variant="outline" target="_blank" rel="noreferrer" icon="external-link">Lihat beranda</Button>
                 </div>
 
                 {flash.success && (
@@ -121,7 +121,7 @@ export default function HomeContentIndex({ categories = [] }) {
 
                         {adjustableCategories.length > 0 && (
                             <div className="flex justify-end border-t border-slate-200 px-5 py-4 sm:px-6">
-                                <Button type="submit" disabled={processing}>
+                                <Button type="submit" disabled={processing} icon="save">
                                     {processing ? 'Menyimpan...' : 'Simpan tampilan beranda'}
                                 </Button>
                             </div>

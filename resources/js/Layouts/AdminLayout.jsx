@@ -1,10 +1,40 @@
 import { Link, usePage } from '@inertiajs/react';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import Icon from '@/Components/Icon';
+import ThemeToggle from '@/Components/ThemeToggle';
 
 export default function AdminLayout({ children, title }) {
-    const { url } = usePage();
+    const page = usePage();
+    const { auth, settings } = page.props;
+    const url = page.url || '';
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [settingsOpen, setSettingsOpen] = useState(false);
+    const [userMenuOpen, setUserMenuOpen] = useState(false);
+    const userMenuRef = useRef(null);
+
+    const siteName = settings?.site_name || 'SMALISKA';
+    const siteLogo = settings?.site_logo;
+    const user = auth?.user;
+    const userName = user?.name || 'Admin';
+    const userEmail = user?.email || '';
+
+    useEffect(() => {
+        if (!userMenuOpen) return;
+
+        const closeOutside = (event) => {
+            if (!userMenuRef.current?.contains(event.target)) setUserMenuOpen(false);
+        };
+        const closeEscape = (event) => {
+            if (event.key === 'Escape') setUserMenuOpen(false);
+        };
+
+        document.addEventListener('pointerdown', closeOutside);
+        document.addEventListener('keydown', closeEscape);
+        return () => {
+            document.removeEventListener('pointerdown', closeOutside);
+            document.removeEventListener('keydown', closeEscape);
+        };
+    }, [userMenuOpen]);
 
     const navigation = [
         { name: 'Dashboard', href: '/admin/dashboard', icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6' },
@@ -45,21 +75,76 @@ export default function AdminLayout({ children, title }) {
 
                     <div className="flex-1 text-lg font-semibold text-slate-800">{title}</div>
 
-                    <div className="flex items-center gap-x-4 lg:gap-x-6">
+                    <div className="flex items-center gap-x-3 sm:gap-x-4">
+                        <ThemeToggle />
                         <Link
-                            href={route('profile.edit')}
-                            className="text-sm text-slate-600 hover:text-primary"
+                            href="/"
+                            className="rounded-lg bg-slate-200 px-3.5 py-2 text-xs font-semibold text-primary shadow-sm transition hover:bg-white/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary sm:text-sm"
                         >
-                            Profil
+                            Lihat Situs
                         </Link>
-                        <Link
-                            href={route('logout')}
-                            method="post"
-                            as="button"
-                            className="text-sm text-red-600 hover:text-red-700"
-                        >
-                            Keluar
-                        </Link>
+
+                        <div ref={userMenuRef} className="relative">
+                            <button
+                                type="button"
+                                onClick={() => setUserMenuOpen((v) => !v)}
+                                aria-label="Menu akun pengguna"
+                                aria-haspopup="menu"
+                                aria-expanded={userMenuOpen}
+                                className="flex min-h-11 items-center gap-2 rounded-lg px-2 py-1.5 text-sm font-medium text-slate-700 transition hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                            >
+                                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
+                                    {userName.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase()}
+                                </div>
+                                <span className="hidden max-w-[120px] truncate sm:inline md:max-w-[180px]">{userName}</span>
+                                <svg
+                                    className={`h-4 w-4 text-slate-400 transition-transform ${userMenuOpen ? 'rotate-180' : ''}`}
+                                    fill="none"
+                                    viewBox="0 0 24 24"
+                                    strokeWidth="2"
+                                    stroke="currentColor"
+                                >
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                                </svg>
+                            </button>
+
+                            {userMenuOpen && (
+                                <div
+                                    role="menu"
+                                    aria-label="Menu pengguna"
+                                    className="absolute right-0 top-full z-[60] mt-2 w-56 divide-y divide-slate-100 overflow-hidden rounded-lg border border-slate-200 bg-white shadow-lg"
+                                >
+                                    <div className="px-4 py-3">
+                                        <p className="truncate text-sm font-semibold text-slate-800">{userName}</p>
+                                        {userEmail && <p className="truncate text-xs text-slate-500">{userEmail}</p>}
+                                    </div>
+                                    <div className="p-1">
+                                        <Link
+                                            href={route('profile.edit')}
+                                            onClick={() => setUserMenuOpen(false)}
+                                            role="menuitem"
+                                            className="flex min-h-11 w-full items-center gap-2.5 rounded-md px-3 text-sm text-slate-700 transition hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                                        >
+                                            <Icon name="user" className="h-4 w-4 shrink-0 text-slate-400" />
+                                            <span>Profil Akun</span>
+                                        </Link>
+                                    </div>
+                                    <div className="p-1">
+                                        <Link
+                                            href={route('logout')}
+                                            method="post"
+                                            as="button"
+                                            onClick={() => setUserMenuOpen(false)}
+                                            role="menuitem"
+                                            className="flex min-h-11 w-full items-center gap-2.5 rounded-md px-3 text-sm font-medium text-red-600 transition hover:bg-red-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500"
+                                        >
+                                            <Icon name="logout" className="h-4 w-4 shrink-0" />
+                                            <span>Keluar</span>
+                                        </Link>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
                     </div>
                 </div>
 
@@ -71,8 +156,11 @@ export default function AdminLayout({ children, title }) {
             <div className={`fixed inset-0 z-50 lg:hidden ${sidebarOpen ? 'block' : 'hidden'}`}>
                 <div className="fixed inset-0 bg-slate-900/80" onClick={() => setSidebarOpen(false)} />
                 <div className="fixed inset-y-0 left-0 w-64 bg-white">
-                    <div className="flex h-16 items-center px-6 border-b border-slate-200">
-                        <span className="text-xl font-bold text-primary">SMA XYZ Admin</span>
+                    <div className="flex h-16 items-center gap-3 px-6 border-b border-slate-200">
+                        {siteLogo && (
+                            <img src={siteLogo} alt={siteName} className="h-8 w-auto" />
+                        )}
+                        <span className="text-xl font-bold text-primary">{siteName}</span>
                     </div>
                     <nav className="p-4 space-y-1">
                         {navigation.map((item, index) => 
@@ -138,8 +226,11 @@ export default function AdminLayout({ children, title }) {
 
             <div className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-64 lg:flex-col">
                 <div className="flex grow flex-col gap-y-5 overflow-y-auto border-r border-slate-200 bg-white px-6 pb-4">
-                    <div className="flex h-16 shrink-0 items-center">
-                        <span className="text-xl font-bold text-primary">SMA XYZ Admin</span>
+                    <div className="flex h-16 shrink-0 items-center gap-3">
+                        {siteLogo && (
+                            <img src={siteLogo} alt={siteName} className="h-8 w-auto" />
+                        )}
+                        <span className="text-xl font-bold text-primary">{siteName}</span>
                     </div>
                     <nav className="flex flex-1 flex-col">
                         <ul className="flex flex-col gap-y-1">

@@ -61,8 +61,8 @@ export default function StaffForm({ staffMember }) {
                     </div>
 
                     <div className="flex justify-end gap-3">
-                        <Button variant="outline" href="/admin/staff">Batal</Button>
-                        <Button type="submit" disabled={processing}>{processing ? 'Menyimpan...' : 'Simpan'}</Button>
+                        <Button variant="outline" href="/admin/staff" icon="arrow-left">Batal</Button>
+                        <Button type="submit" disabled={processing} icon="save">{processing ? 'Menyimpan...' : 'Simpan'}</Button>
                     </div>
                 </form>
             </Card>

@@ -16,7 +16,7 @@ class PageController extends Controller
     public function index()
     {
         return Inertia::render('Admin/Pages/Index', [
-            'pages' => Page::latest()->get(),
+            'pages' => Page::latest()->paginate(10)->withQueryString(),
         ]);
     }
 
@@ -52,6 +52,17 @@ class PageController extends Controller
             'page' => $page,
             'categories' => Category::orderBy('name')->get(['id', 'name', 'slug']),
         ]);
+    }
+
+    public function updateStatus(Request $request, Page $page)
+    {
+        $validated = $request->validate([
+            'is_published' => ['required', 'boolean'],
+        ]);
+
+        $page->update(['is_published' => $validated['is_published']]);
+
+        return back()->with('success', 'Status laman diperbarui.');
     }
 
     public function update(Request $request, Page $page)
