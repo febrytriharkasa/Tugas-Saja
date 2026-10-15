@@ -11,6 +11,7 @@ use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
+use Mews\Purifier\Facades\Purifier;
 
 class PostController extends Controller
 {
@@ -179,6 +180,7 @@ class PostController extends Controller
             'meta.blocks' => ['nullable', 'array'],
             'meta.blocks.*.type' => ['required_with:meta.blocks', Rule::in(['text', 'table', 'callout', 'blockquote'])],
             'meta.blocks.*.content' => ['nullable', 'string'],
+            'meta.blocks.*.source' => ['nullable', 'string', 'max:255'],
             'meta.blocks.*.title' => ['nullable', 'string', 'max:255'],
             'meta.blocks.*.description' => ['nullable', 'string', 'max:500'],
             'meta.blocks.*.columns' => ['nullable', 'array'],
@@ -199,6 +201,8 @@ class PostController extends Controller
             ]);
         }
 
+        $validated['content'] = Purifier::clean($validated['content'] ?? '', 'content');
+
         return $validated;
     }
 
@@ -210,48 +214,64 @@ class PostController extends Controller
             return null;
         }
 
-        $filtered = array_filter($meta, function ($value, $key) {
+        $filtered = [];
+
+        foreach ($meta as $key => $value) {
             if ($key === 'blocks' && is_array($value)) {
-                $blocks = array_values(array_filter($value, function ($block) {
-                    if (! isset($block['type'])) {
-                        return false;
-                    }
-                    if (in_array($block['type'], ['text', 'callout', 'blockquote'])) {
-                        return ! empty(trim($block['content'] ?? ''));
-                    }
-                    if ($block['type'] === 'table') {
-                        return ! empty($block['rows']);
-                    }
+                $blocks = $this->cleanBlocks($value);
 
-                    return false;
-                }));
+                if (empty($blocks)) {
+                    continue;
+                }
 
-                return ! empty($blocks);
+                $filtered['blocks'] = $blocks;
+
+                continue;
             }
 
-            return $value !== null && $value !== '';
-        }, ARRAY_FILTER_USE_BOTH);
-
-        if (isset($filtered['blocks'])) {
-            $filtered['blocks'] = array_values(array_filter(
-                $filtered['blocks'],
-                function ($block) {
-                    if (! isset($block['type'])) {
-                        return false;
-                    }
-                    if (in_array($block['type'], ['text', 'callout', 'blockquote'])) {
-                        return ! empty(trim($block['content'] ?? ''));
-                    }
-                    if ($block['type'] === 'table') {
-                        return ! empty($block['rows']);
-                    }
-
-                    return false;
-                },
-            ));
+            if ($value !== null && $value !== '') {
+                $filtered[$key] = $value;
+            }
         }
 
         return ! empty($filtered) ? $filtered : null;
+    }
+
+    /**
+     * Rich-text block bodies arrive as HTML, so they are purified here and blocks
+     * that end up empty after cleaning are dropped instead of saved blank.
+     */
+    private function cleanBlocks(array $blocks): array
+    {
+        $blocks = array_map(function ($block) {
+            if (! is_array($block)) {
+                return null;
+            }
+
+            if (isset($block['content']) && is_string($block['content'])) {
+                $block['content'] = Purifier::clean($block['content'], 'content');
+            }
+
+            if (isset($block['source']) && is_string($block['source'])) {
+                $block['source'] = strip_tags($block['source']);
+            }
+
+            return $block;
+        }, $blocks);
+
+        return array_values(array_filter($blocks, function ($block) {
+            if (! isset($block['type'])) {
+                return false;
+            }
+            if (in_array($block['type'], ['text', 'callout', 'blockquote'], true)) {
+                return trim($block['content'] ?? '') !== '';
+            }
+            if ($block['type'] === 'table') {
+                return ! empty($block['rows']);
+            }
+
+            return false;
+        }));
     }
 
     private function storeMedia(Request $request): string

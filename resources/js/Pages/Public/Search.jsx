@@ -1,5 +1,6 @@
 import PublicLayout from '@/Layouts/PublicLayout';
 import Card from '@/Components/Card';
+import Breadcrumbs from '@/Components/Breadcrumbs';
 import ChatWidget from '@/Components/ChatWidget';
 import { Link, router } from '@inertiajs/react';
 import { useState } from 'react';
@@ -47,27 +48,6 @@ function Pagination({ links }) {
     );
 }
 
-function Breadcrumbs({ keyword }) {
-    return (
-        <section className="w-full bg-slate-50 py-2 border-b border-slate-200/60">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <nav className="flex items-center flex-wrap gap-1.5 text-xs text-slate-500 font-medium">
-                    <Link href="/" className="hover:text-primary transition-colors">
-                        Beranda
-                    </Link>
-                    <span className="text-slate-300">/</span>
-                    <span className="text-primary font-semibold">Pencarian</span>
-                    {keyword && (
-                        <>
-                            <span className="text-slate-300">/</span>
-                            <span className="text-slate-600 line-clamp-1 max-w-xs">&ldquo;{keyword}&rdquo;</span>
-                        </>
-                    )}
-                </nav>
-            </div>
-        </section>
-    );
-}
 
 export default function Search({ keyword = '', items }) {
     const [searchVal, setSearchVal] = useState(keyword);
@@ -80,7 +60,13 @@ export default function Search({ keyword = '', items }) {
 
     return (
         <PublicLayout>
-            <Breadcrumbs keyword={keyword} />
+            <Breadcrumbs
+                items={[
+                    { label: 'Beranda', href: '/' },
+                    { label: 'Pencarian' },
+                    ...(keyword ? [{ label: `“${keyword}”`, muted: true }] : []),
+                ]}
+            />
             <section className="bg-slate-50 py-12">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                     <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">

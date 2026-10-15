@@ -2,6 +2,7 @@ import AdminLayout from '@/Layouts/AdminLayout';
 import Card from '@/Components/Card';
 import Button from '@/Components/Button';
 import BlocksEditor from '@/Components/BlocksEditor';
+import RichTextEditor from '@/Components/RichTextEditor';
 import Icon from '@/Components/Icon';
 import { blocksFromMetadata } from '@/lib/postBlocks';
 import { useForm } from '@inertiajs/react';
@@ -115,16 +116,13 @@ export default function PageForm({ page }) {
                         {errors.image && <p className="text-red-500 text-xs mt-1">{errors.image}</p>}
                     </div>
 
-                    <div>
-                        <label className="block text-sm font-medium text-slate-700">Konten</label>
-                        <textarea
-                            rows={10}
-                            value={data.content}
-                            onChange={(e) => setData('content', e.target.value)}
-                            className="mt-1 block w-full rounded-lg border-slate-300 text-sm focus:border-primary focus:ring-primary"
-                        />
-                        {errors.content && <p className="text-red-500 text-xs mt-1">{errors.content}</p>}
-                    </div>
+                    <RichTextEditor
+                        label="Konten"
+                        value={data.content}
+                        onChange={(html) => setData('content', html)}
+                        error={errors.content}
+                        placeholder="Tulis isi laman di sini. Gunakan toolbar untuk menebalkan, memiringkan, membuat daftar, atau mengubah ukuran huruf."
+                    />
 
                     <BlocksEditor
                         blocks={blocks}

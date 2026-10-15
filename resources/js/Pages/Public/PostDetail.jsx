@@ -1,6 +1,9 @@
 import { Link, router } from '@inertiajs/react';
 import PublicLayout from '@/Layouts/PublicLayout';
+import Breadcrumbs from '@/Components/Breadcrumbs';
+import RichContent from '@/Components/RichContent';
 import { blocksFromMetadata, youtubeThumbnailUrl } from '@/lib/postBlocks';
+import { plainText } from '@/lib/content';
 import { postUrl } from '@/lib/postUrl';
 
 // Media can be an uploaded image, an uploaded video, or a YouTube link.
@@ -51,28 +54,6 @@ function PostMedia({ post }) {
     }
 
     return null;
-}
-
-function Breadcrumbs({ post }) {
-    return (
-        <section className="w-full bg-slate-50 py-2 border-b border-slate-200/60">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <nav className="flex items-center flex-wrap gap-1.5 text-xs text-slate-500 font-medium">
-                    <Link href="/" className="hover:text-primary transition-colors flex items-center gap-1">
-                        Beranda
-                    </Link>
-                    {post.category && (
-                        <Link href={`/${post.category.slug}`} className="hover:text-primary transition-colors flex items-center gap-1">
-                            <span className="text-slate-300">/</span>
-                            <span className="hover:text-primary transition-colors">{post.category.name}</span>
-                        </Link>
-                    )}
-                    <span className="text-slate-300">/</span>
-                    <span className="text-primary font-semibold line-clamp-1 max-w-xs md:max-w-md">{post.title}</span>
-                </nav>
-            </div>
-        </section>
-    );
 }
 
 function MetaChip({ label, value, accentClass = 'bg-emerald-50 text-emerald-700' }) {
@@ -216,13 +197,19 @@ export default function PostDetail({ post, relatedPosts = [], prevPost = null, n
         ? new Date(post.published_at).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' })
         : null;
 
-    const readingMinutes = Math.max(1, Math.round((post.content || '').split(/\s+/).length / 200));
+    const readingMinutes = Math.max(1, Math.round(plainText(post.content).split(/\s+/).filter(Boolean).length / 200));
 
     const blocks = blocksFromMetadata(post.metadata);
 
     return (
         <PublicLayout>
-            <Breadcrumbs post={post} />
+            <Breadcrumbs
+                items={[
+                    { label: 'Beranda', href: '/' },
+                    ...(post.category ? [{ label: post.category.name, href: `/${post.category.slug}` }] : []),
+                    { label: post.title },
+                ]}
+            />
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
@@ -267,16 +254,19 @@ export default function PostDetail({ post, relatedPosts = [], prevPost = null, n
 
                         <PostMedia post={post} />
 
-                        <div className="prose prose-slate max-w-none text-slate-700 leading-relaxed whitespace-pre-line text-base">
-                            {post.content}
-                        </div>
+                        <RichContent
+                            html={post.content}
+                            className="text-slate-700 leading-relaxed text-base"
+                        />
 
                         {blocks.map((block, idx) => {
                             if (block.type === 'text') {
                                 return (
-                                    <div key={idx} className="mt-6 prose prose-slate max-w-none text-slate-700 leading-relaxed whitespace-pre-line text-base">
-                                        {block.content}
-                                    </div>
+                                    <RichContent
+                                        key={idx}
+                                        html={block.content}
+                                        className="mt-6 text-slate-700 leading-relaxed text-base"
+                                    />
                                 );
                             }
                             if (block.type === 'table') {
@@ -294,9 +284,9 @@ export default function PostDetail({ post, relatedPosts = [], prevPost = null, n
                                 return (
                                     <aside
                                         key={idx}
-                                        className="mt-6 rounded-xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm text-emerald-900 leading-relaxed whitespace-pre-line"
+                                        className="mt-6 rounded-xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-emerald-900"
                                     >
-                                        {block.content}
+                                        <RichContent html={block.content} className="text-sm leading-relaxed" />
                                     </aside>
                                 );
                             }
@@ -304,9 +294,12 @@ export default function PostDetail({ post, relatedPosts = [], prevPost = null, n
                                 return (
                                     <blockquote
                                         key={idx}
-                                        className="mt-6 border-l-4 border-primary/40 pl-4 text-base italic text-slate-600 leading-relaxed whitespace-pre-line"
+                                        className="mt-6 border-l-4 border-primary/40 pl-4 text-base italic text-slate-600 leading-relaxed"
                                     >
-                                        {block.content}
+                                        <RichContent html={block.content} />
+                                        {block.source && (
+                                            <cite className="mt-2 block text-sm not-italic text-slate-500">— {block.source}</cite>
+                                        )}
                                     </blockquote>
                                 );
                             }

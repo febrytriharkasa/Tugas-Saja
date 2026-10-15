@@ -233,3 +233,288 @@
 .dark .hover\:bg-red-50:hover {
     background-color: rgba(153, 27, 27, 0.3);
 }
+
+/*
+ * Rich text output (public article, page, and admin previews).
+ * Tailwind preflight strips list markers, so lists are restored here instead
+ * of pulling the typography plugin: the DESIGN.md scale stays in one place.
+ */
+.rich-text > * + * {
+    margin-top: 0.75rem;
+}
+
+.rich-text strong,
+.rich-text b {
+    font-weight: 700;
+    color: inherit;
+}
+
+.rich-text em,
+.rich-text i {
+    font-style: italic;
+}
+
+.rich-text u {
+    text-decoration: underline;
+}
+
+.rich-text s {
+    text-decoration: line-through;
+}
+
+.rich-text ul,
+.rich-text ol {
+    /* Marker inherits item size; relative indent keeps 24/32px markers inside content. */
+    padding-inline-start: 2.5em;
+    overflow-wrap: anywhere;
+}
+
+.rich-text ul {
+    list-style: disc;
+}
+
+.rich-text ol {
+    list-style: decimal;
+}
+
+.rich-text li + li {
+    margin-top: 0.25rem;
+}
+
+.rich-text li::marker {
+    color: #64748b;
+}
+
+.rich-text li > p {
+    margin: 0;
+}
+
+.rich-text h2 {
+    font-size: 1.5rem;
+    line-height: 2rem;
+    font-weight: 700;
+}
+
+.rich-text h3 {
+    font-size: 1.25rem;
+    line-height: 1.75rem;
+    font-weight: 700;
+}
+
+.rich-text h4 {
+    font-size: 1.125rem;
+    line-height: 1.75rem;
+    font-weight: 700;
+}
+
+.rich-text a {
+    color: #065f46;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
+.rich-text blockquote {
+    border-left: 4px solid rgba(6, 95, 70, 0.4);
+    padding-left: 1rem;
+    font-style: italic;
+    color: #475569;
+}
+
+.dark .rich-text a {
+    color: #34d399;
+}
+
+.dark .rich-text li::marker {
+    color: #94a3b8;
+}
+
+.dark .rich-text blockquote {
+    color: #cbd5e1;
+}
+
+/*
+ * Quill editor chrome. The wrapper already draws the border, so the editor
+ * drops Quill's own and just keeps a divider under the toolbar.
+ */
+.rich-text-editor .ql-toolbar.ql-snow {
+    border: 0;
+    border-bottom: 1px solid #e2e8f0;
+    padding: 0.5rem;
+}
+
+.rich-text-editor .ql-container.ql-snow {
+    border: 0;
+    font-family: inherit;
+    font-size: 0.875rem;
+}
+
+.rich-text-editor .ql-editor {
+    min-height: 12rem;
+    line-height: 1.625;
+    color: #334155;
+}
+
+.rich-text-editor--compact .ql-editor {
+    min-height: 10rem;
+}
+
+/* Headings preview at their published sizes; Quill's own em scale drifts from it. */
+.rich-text-editor .ql-snow .ql-editor h2 {
+    font-size: 1.5rem;
+    line-height: 2rem;
+    font-weight: 700;
+}
+
+.rich-text-editor .ql-snow .ql-editor h3 {
+    font-size: 1.25rem;
+    line-height: 1.75rem;
+    font-weight: 700;
+}
+
+.rich-text-editor .ql-snow .ql-editor h4 {
+    font-size: 1.125rem;
+    line-height: 1.75rem;
+    font-weight: 700;
+}
+
+/* Editor variants mirror the public output, so the author sees the block's real look. */
+.rich-text-editor--callout {
+    border-color: #6ee7b7;
+    background-color: #ecfdf5;
+}
+
+.rich-text-editor--quote .ql-editor {
+    border-left: 4px solid rgba(6, 95, 70, 0.4);
+    font-style: italic;
+}
+
+.dark .rich-text-editor--callout {
+    border-color: rgba(16, 185, 129, 0.4);
+    background-color: rgba(6, 95, 70, 0.25);
+}
+
+.rich-text-editor .ql-editor.ql-blank::before {
+    color: #94a3b8;
+    font-style: normal;
+}
+
+.rich-text-editor .ql-snow .ql-stroke {
+    stroke: #475569;
+}
+
+.rich-text-editor .ql-snow .ql-fill {
+    fill: #475569;
+}
+
+.rich-text-editor .ql-snow .ql-picker {
+    color: #475569;
+}
+
+.rich-text-editor .ql-snow .ql-picker-options {
+    background-color: #ffffff;
+    border-color: #e2e8f0;
+}
+
+/*
+ * Picker labels: Quill only ships English text and none for the custom px sizes,
+ * so the format and size dropdowns spell out their entries here.
+ */
+.rich-text-editor .ql-snow .ql-picker.ql-header {
+    width: 9rem;
+}
+
+.rich-text-editor .ql-snow .ql-picker.ql-header .ql-picker-label[data-value='2']::before,
+.rich-text-editor .ql-snow .ql-picker.ql-header .ql-picker-item[data-value='2']::before {
+    content: 'Subjudul Besar';
+}
+
+.rich-text-editor .ql-snow .ql-picker.ql-header .ql-picker-label[data-value='3']::before,
+.rich-text-editor .ql-snow .ql-picker.ql-header .ql-picker-item[data-value='3']::before {
+    content: 'Subjudul';
+}
+
+.rich-text-editor .ql-snow .ql-picker.ql-header .ql-picker-label[data-value='4']::before,
+.rich-text-editor .ql-snow .ql-picker.ql-header .ql-picker-item[data-value='4']::before {
+    content: 'Sub-subjudul';
+}
+
+.rich-text-editor .ql-snow .ql-picker.ql-size .ql-picker-label[data-value='12px']::before,
+.rich-text-editor .ql-snow .ql-picker.ql-size .ql-picker-item[data-value='12px']::before {
+    content: '12px';
+}
+
+.rich-text-editor .ql-snow .ql-picker.ql-size .ql-picker-label[data-value='14px']::before,
+.rich-text-editor .ql-snow .ql-picker.ql-size .ql-picker-item[data-value='14px']::before {
+    content: '14px';
+}
+
+.rich-text-editor .ql-snow .ql-picker.ql-size .ql-picker-label[data-value='16px']::before,
+.rich-text-editor .ql-snow .ql-picker.ql-size .ql-picker-item[data-value='16px']::before {
+    content: '16px';
+}
+
+.rich-text-editor .ql-snow .ql-picker.ql-size .ql-picker-label[data-value='18px']::before,
+.rich-text-editor .ql-snow .ql-picker.ql-size .ql-picker-item[data-value='18px']::before {
+    content: '18px';
+}
+
+.rich-text-editor .ql-snow .ql-picker.ql-size .ql-picker-label[data-value='24px']::before,
+.rich-text-editor .ql-snow .ql-picker.ql-size .ql-picker-item[data-value='24px']::before {
+    content: '24px';
+}
+
+.rich-text-editor .ql-snow .ql-picker.ql-size .ql-picker-label[data-value='32px']::before,
+.rich-text-editor .ql-snow .ql-picker.ql-size .ql-picker-item[data-value='32px']::before {
+    content: '32px';
+}
+
+/* Keyboard focus on the pickers; Quill only styles focus for its buttons. */
+.rich-text-editor .ql-snow .ql-picker-label:focus-visible,
+.rich-text-editor .ql-snow .ql-picker-item:focus-visible {
+    outline: 2px solid #065f46;
+    outline-offset: 2px;
+}
+
+.dark .rich-text-editor {
+    background-color: #1e293b;
+    border-color: #334155;
+}
+
+.dark .rich-text-editor .ql-toolbar.ql-snow {
+    border-bottom-color: #334155;
+}
+
+.dark .rich-text-editor .ql-editor {
+    color: #e2e8f0;
+}
+
+.dark .rich-text-editor .ql-editor.ql-blank::before {
+    color: #64748b;
+}
+
+.dark .rich-text-editor .ql-snow .ql-stroke {
+    stroke: #cbd5e1;
+}
+
+.dark .rich-text-editor .ql-snow .ql-fill {
+    fill: #cbd5e1;
+}
+
+.dark .rich-text-editor .ql-snow .ql-picker {
+    color: #cbd5e1;
+}
+
+.dark .rich-text-editor .ql-snow .ql-picker-options {
+    background-color: #1e293b;
+    border-color: #334155;
+}
+
+.dark .rich-text-editor .ql-snow .ql-picker-label:focus-visible,
+.dark .rich-text-editor .ql-snow .ql-picker-item:focus-visible {
+    outline-color: #34d399;
+}
+
+.dark .rich-text-editor .ql-snow .ql-picker-options .ql-picker-item:hover,
+.dark .rich-text-editor .ql-snow .ql-picker-options .ql-picker-item.ql-selected {
+    color: #34d399;
+}

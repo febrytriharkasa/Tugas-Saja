@@ -226,7 +226,7 @@ export default function PublicLayout({ children, settings = {} }) {
                                     {[
                                         ['about', 'Tentang Kami', aboutPages, isAbout],
                                         ['pages', 'Laman', customPages, isCustom],
-                                    ].filter(([,, pages]) => pages.length > 0).map(([name, label, pages, active]) => (
+                                    ].map(([name, label, pages, active]) => (
                                         <div key={name}>
                                             <button type="button" onClick={() => toggleMenu(name)} aria-expanded={openMenu === name} className={`flex min-h-11 w-full items-center justify-between rounded-lg px-3 py-2.5 text-left text-sm font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${active ? 'bg-emerald-50 text-primary' : 'text-slate-700'}`}>
                                                 {label} <Chevron open={openMenu === name} />

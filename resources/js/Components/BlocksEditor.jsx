@@ -1,10 +1,18 @@
 import { createBlockquoteBlock, createCalloutBlock, createTableBlock } from '@/lib/postBlocks';
+import RichTextEditor from '@/Components/RichTextEditor';
 
 const BLOCK_LABELS = {
     text: 'Teks',
     table: 'Tabel',
     callout: 'Callout',
     blockquote: 'Blockquote',
+};
+
+const BLOCK_HINTS = {
+    text: 'Paragraf tambahan di dalam artikel.',
+    table: 'Data terstruktur dengan kolom dan baris.',
+    callout: 'Kotak informasi untuk menonjolkan catatan penting (pengumuman, peringatan, info singkat).',
+    blockquote: 'Kutipan dari narasumber atau sumber tertulis, lengkap dengan sumbernya.',
 };
 
 const BLOCK_FACTORIES = {
@@ -18,12 +26,11 @@ function TextBlock({ block, onChange }) {
     return (
         <div>
             <label className="block text-xs font-semibold text-slate-600">Teks</label>
-            <textarea
-                rows={4}
+            <RichTextEditor
+                compact
                 value={block.content || ''}
-                onChange={(e) => onChange({ ...block, content: e.target.value })}
+                onChange={(html) => onChange({ ...block, content: html })}
                 placeholder="Tulis deskripsi atau keterangan di sini..."
-                className="mt-1 block w-full rounded-lg border-slate-300 text-sm focus:border-primary focus:ring-primary"
             />
         </div>
     );
@@ -32,13 +39,16 @@ function TextBlock({ block, onChange }) {
 function CalloutBlock({ block, onChange }) {
     return (
         <div>
-            <label className="block text-xs font-semibold text-slate-600">Callout (Callout Box)</label>
-            <textarea
-                rows={4}
+            <label className="block text-xs font-semibold text-slate-600">Callout — Kotak Informasi</label>
+            <p className="mt-0.5 text-xs text-slate-500">
+                Untuk menonjolkan catatan penting: pengumuman, peringatan, atau info singkat yang wajib dibaca.
+            </p>
+            <RichTextEditor
+                compact
+                variant="callout"
                 value={block.content || ''}
-                onChange={(e) => onChange({ ...block, content: e.target.value })}
-                placeholder="Tulis isi callout di sini..."
-                className="mt-1 block w-full rounded-lg border-slate-300 text-sm focus:border-primary focus:ring-primary"
+                onChange={(html) => onChange({ ...block, content: html })}
+                placeholder="Contoh: Pendaftaran PPDB gelombang 2 dibuka 1–30 Juni 2026."
             />
         </div>
     );
@@ -47,12 +57,23 @@ function CalloutBlock({ block, onChange }) {
 function BlockquoteBlock({ block, onChange }) {
     return (
         <div>
-            <label className="block text-xs font-semibold text-slate-600">Blockquote (Kutipan)</label>
-            <textarea
-                rows={4}
+            <label className="block text-xs font-semibold text-slate-600">Blockquote — Kutipan</label>
+            <p className="mt-0.5 text-xs text-slate-500">
+                Untuk mengutip ucapan narasumber atau sumber tertulis. Sertakan sumbernya agar kutipan kredibel.
+            </p>
+            <RichTextEditor
+                compact
+                variant="quote"
                 value={block.content || ''}
-                onChange={(e) => onChange({ ...block, content: e.target.value })}
-                placeholder="Tulis isi kutipan di sini..."
+                onChange={(html) => onChange({ ...block, content: html })}
+                placeholder="Contoh: Belajar hari ini, memimpin masa depan."
+            />
+            <label className="mt-3 block text-xs font-semibold text-slate-600">Sumber kutipan (opsional)</label>
+            <input
+                type="text"
+                value={block.source || ''}
+                onChange={(e) => onChange({ ...block, source: e.target.value })}
+                placeholder="Contoh: Kepala Sekolah, sambutan PPDB 2026"
                 className="mt-1 block w-full rounded-lg border-slate-300 text-sm focus:border-primary focus:ring-primary"
             />
         </div>
@@ -184,7 +205,7 @@ function Block({ block, index, total, onChange, onRemove, onMoveUp, onMoveDown }
     return (
         <div className="rounded-lg border border-slate-200 bg-white p-3 space-y-3">
             <div className="flex items-center justify-between gap-2">
-                <span className="text-xs font-semibold uppercase text-slate-500">
+                <span className="text-xs font-semibold uppercase text-slate-500" title={BLOCK_HINTS[block.type]}>
                     {BLOCK_LABELS[block.type] || 'Blok'} {index + 1}
                 </span>
                 <div className="flex items-center gap-1">
@@ -272,6 +293,7 @@ export default function BlocksEditor({
                             key={type}
                             type="button"
                             onClick={() => addBlock(type)}
+                            title={BLOCK_HINTS[type]}
                             className="min-h-11 text-sm font-semibold text-primary hover:underline whitespace-nowrap"
                         >
                             + {BLOCK_LABELS[type]}

@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
+use Mews\Purifier\Facades\Purifier;
 
 class PageController extends Controller
 {
@@ -99,7 +100,7 @@ class PageController extends Controller
 
     private function validatePage(Request $request): array
     {
-        return $request->validate([
+        $validated = $request->validate([
             'title' => ['required', 'string', 'max:255'],
             'content' => ['required', 'string'],
             'is_published' => ['required', 'boolean'],
@@ -120,18 +121,34 @@ class PageController extends Controller
             'image.image' => 'Berkas gambar tidak valid.',
             'content.required_if' => 'Konten wajib diisi untuk laman teks statis.',
         ]);
+
+        $validated['content'] = Purifier::clean($validated['content'], 'content');
+
+        return $validated;
     }
 
     private function metadata(array $validated): ?array
     {
         $blocks = $validated['meta']['blocks'] ?? [];
 
+        $blocks = array_map(function ($block) {
+            if (! is_array($block)) {
+                return null;
+            }
+
+            if (isset($block['content']) && is_string($block['content'])) {
+                $block['content'] = Purifier::clean($block['content'], 'content');
+            }
+
+            return $block;
+        }, $blocks);
+
         $blocks = array_values(array_filter($blocks, function ($block) {
             if (! isset($block['type'])) {
                 return false;
             }
             if ($block['type'] === 'text') {
-                return ! empty(trim($block['content'] ?? ''));
+                return trim($block['content'] ?? '') !== '';
             }
             if ($block['type'] === 'table') {
                 return ! empty($block['rows']);

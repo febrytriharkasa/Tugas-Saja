@@ -25,6 +25,7 @@
         "@laravel/multiplex": "^0.4.1"
     },
     "dependencies": {
-        "framer-motion": "^14.0.0"
+        "framer-motion": "^14.0.0",
+        "quill": "^2.0.3"
     }
 }

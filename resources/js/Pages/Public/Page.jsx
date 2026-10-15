@@ -1,6 +1,7 @@
-import { Link } from '@inertiajs/react';
 import PublicLayout from '@/Layouts/PublicLayout';
+import Breadcrumbs from '@/Components/Breadcrumbs';
 import ChatWidget from '@/Components/ChatWidget';
+import RichContent from '@/Components/RichContent';
 import { blocksFromMetadata } from '@/lib/postBlocks';
 
 function DataTable({ title, description, columns, rows }) {
@@ -44,28 +45,12 @@ function DataTable({ title, description, columns, rows }) {
     );
 }
 
-function Breadcrumbs({ page }) {
-    return (
-        <section className="w-full bg-slate-50 py-2 border-b border-slate-200/60">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <nav className="flex items-center flex-wrap gap-1.5 text-xs text-slate-500 font-medium">
-                    <Link href="/" className="hover:text-primary transition-colors flex items-center gap-1">
-                        Beranda
-                    </Link>
-                    <span className="text-slate-300">/</span>
-                    <span className="text-primary font-semibold line-clamp-1 max-w-xs md:max-w-md">{page.title}</span>
-                </nav>
-            </div>
-        </section>
-    );
-}
-
 export default function Page({ page }) {
     const blocks = blocksFromMetadata(page.metadata);
 
     return (
         <PublicLayout>
-            <Breadcrumbs page={page} />
+            <Breadcrumbs items={[{ label: 'Beranda', href: '/' }, { label: page.title }]} />
             <div className="block w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
                 <div className="mb-4">
                     <p className="mt-2 text-xs font-bold uppercase tracking-[0.14em] text-secondary">Tentang Kami</p>
@@ -84,16 +69,19 @@ export default function Page({ page }) {
                         />
                     )}
 
-                    <div className="prose max-w-none text-slate-700 leading-relaxed space-y-4 whitespace-pre-line">
-                        {page.content}
-                    </div>
+                    <RichContent
+                        html={page.content}
+                        className="text-slate-700 leading-relaxed space-y-4"
+                    />
 
                     {blocks.map((block, index) => {
                         if (block.type === 'text') {
                             return (
-                                <div key={index} className="prose max-w-none text-slate-700 leading-relaxed whitespace-pre-line">
-                                    {block.content}
-                                </div>
+                                <RichContent
+                                    key={index}
+                                    html={block.content}
+                                    className="text-slate-700 leading-relaxed"
+                                />
                             );
                         }
                         if (block.type === 'table') {
@@ -111,9 +99,9 @@ export default function Page({ page }) {
                             return (
                                 <aside
                                     key={index}
-                                    className="rounded-xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-sm text-emerald-900 leading-relaxed whitespace-pre-line"
+                                    className="rounded-xl border border-emerald-200 bg-emerald-50 px-5 py-4 text-emerald-900"
                                 >
-                                    {block.content}
+                                    <RichContent html={block.content} className="text-sm leading-relaxed" />
                                 </aside>
                             );
                         }
@@ -121,9 +109,12 @@ export default function Page({ page }) {
                             return (
                                 <blockquote
                                     key={index}
-                                    className="border-l-4 border-primary/40 pl-4 text-base italic text-slate-600 leading-relaxed whitespace-pre-line"
+                                    className="border-l-4 border-primary/40 pl-4 text-base italic text-slate-600 leading-relaxed"
                                 >
-                                    {block.content}
+                                    <RichContent html={block.content} />
+                                    {block.source && (
+                                        <cite className="mt-2 block text-sm not-italic text-slate-500">— {block.source}</cite>
+                                    )}
                                 </blockquote>
                             );
                         }

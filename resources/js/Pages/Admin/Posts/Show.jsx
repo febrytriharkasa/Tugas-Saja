@@ -1,6 +1,7 @@
 import AdminLayout from '@/Layouts/AdminLayout';
 import Card from '@/Components/Card';
 import Button from '@/Components/Button';
+import RichContent from '@/Components/RichContent';
 import { blocksFromMetadata } from '@/lib/postBlocks';
 import { router } from '@inertiajs/react';
 import { useState } from 'react';
@@ -77,18 +78,21 @@ export default function PostShow({ post }) {
                             </dl>
                         )}
 
-                        <div className="mt-6 whitespace-pre-wrap text-slate-700">{post.content}</div>
+                        <RichContent html={post.content} className="mt-6 text-slate-700" />
 
                         {blocks.map((block, index) =>
                             block.type === 'text' ? (
-                                <div key={index} className="mt-4 whitespace-pre-wrap text-slate-700">{block.content}</div>
+                                <RichContent key={index} html={block.content} className="mt-4 text-slate-700" />
                             ) : block.type === 'callout' ? (
-                                <aside key={index} className="mt-4 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900 whitespace-pre-line">
-                                    {block.content}
+                                <aside key={index} className="mt-4 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-emerald-900">
+                                    <RichContent html={block.content} className="text-sm" />
                                 </aside>
                             ) : block.type === 'blockquote' ? (
-                                <blockquote key={index} className="mt-4 border-l-4 border-primary/40 pl-4 italic text-slate-600 whitespace-pre-line">
-                                    {block.content}
+                                <blockquote key={index} className="mt-4 border-l-4 border-primary/40 pl-4 italic text-slate-600">
+                                    <RichContent html={block.content} />
+                                    {block.source && (
+                                        <cite className="mt-2 block text-sm not-italic text-slate-500">— {block.source}</cite>
+                                    )}
                                 </blockquote>
                             ) : (
                                 <div key={index} className="mt-4 rounded-lg border border-slate-200">

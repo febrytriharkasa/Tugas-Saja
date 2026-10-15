@@ -1,9 +1,12 @@
 import PublicLayout from '@/Layouts/PublicLayout';
 import Card from '@/Components/Card';
 import Badge from '@/Components/Badge';
+import Breadcrumbs from '@/Components/Breadcrumbs';
 import ChatWidget from '@/Components/ChatWidget';
+import { usePage } from '@inertiajs/react';
 
 export default function Statistics({ statSettings, counts }) {
+    const { settings = {} } = usePage().props;
     const stats = [
         { label: 'Total Siswa', value: statSettings.total_students || '-', icon: 'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z' },
         { label: 'Guru', value: counts.teachers || statSettings.total_teachers || '-', icon: 'M12 14l9-5-9-5-9 5 9 5z M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z' },
@@ -17,13 +20,14 @@ export default function Statistics({ statSettings, counts }) {
 
     return (
         <PublicLayout>
+            <Breadcrumbs items={[{ label: 'Beranda', href: '/' }, { label: 'Statistik' }]} />
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-                <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900 mb-4">Statistik Sekolah</h1>
+                <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900">Statistik Sekolah</h1>
                 <p className="mt-2 text-xs font-bold uppercase tracking-[0.14em] text-secondary">
-                    Data statistik dan informasi kuantitatif SMA XYZ.
+                    Data statistik dan informasi kuantitatif {settings.site_name || 'SMA XYZ'}.
                 </p>
 
-                <div className="grid md:grid-cols-4 gap-6">
+                <div className="grid md:grid-cols-4 gap-6 mt-6">
                     {stats.map((stat, idx) => (
                         <Card key={idx} className="p-6 text-center">
                             <div className="w-12 h-12 mx-auto bg-primary/10 text-primary rounded-lg flex items-center justify-center mb-3">

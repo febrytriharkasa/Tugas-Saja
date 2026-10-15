@@ -95,5 +95,6 @@ export function createBlockquoteBlock() {
     return {
         type: 'blockquote',
         content: '',
+        source: '',
     };
 }

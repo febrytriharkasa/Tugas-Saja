@@ -1,10 +1,12 @@
 import PublicLayout from '@/Layouts/PublicLayout';
 import Card from '@/Components/Card';
+import Breadcrumbs from '@/Components/Breadcrumbs';
 import ChatWidget from '@/Components/ChatWidget';
 import MediaPreviewModal from '@/Components/MediaPreviewModal';
 import { Link } from '@inertiajs/react';
 import { motion } from 'framer-motion';
 import { useState, useRef } from 'react';
+import { plainText } from '@/lib/content';
 import { youtubeThumbnailUrl } from '@/lib/postBlocks';
 import { postUrl } from '@/lib/postUrl';
 import { HorizontalRail } from '@/Pages/Welcome';
@@ -50,21 +52,6 @@ function Pagination({ links }) {
     );
 }
 
-function Breadcrumbs({ post, title }) {
-    return (
-        <section className="w-full bg-slate-50 py-2 border-b border-slate-200/60">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <nav className="flex items-center flex-wrap gap-1.5 text-xs text-slate-500 font-medium">
-                    <Link href="/" className="hover:text-primary transition-colors">
-                        Beranda
-                    </Link>
-                    <span className="text-slate-300">/</span>
-                    <span className="text-primary font-semibold">{post?.category?.name || title}</span>
-                </nav>
-            </div>
-        </section>
-    );
-}
 export default function Archive({ title, type, items }) {
     const [previewItem, setPreviewItem] = useState(null);
     const post = items.data?.[0] ?? null;
@@ -84,7 +71,7 @@ export default function Archive({ title, type, items }) {
                                 </Link>
                                 {post.content && (
                                     <p className="mt-2 text-sm text-slate-600 leading-relaxed line-clamp-3">
-                                        {post.content}
+                                        {plainText(post.content)}
                                     </p>
                                 )}
                                 {attachment && (
@@ -303,7 +290,7 @@ export default function Archive({ title, type, items }) {
 
     return (
         <PublicLayout>
-            <Breadcrumbs post={post} title={title} />
+            <Breadcrumbs items={[{ label: 'Beranda', href: '/' }, { label: post?.category?.name || title }]} />
             <section className="bg-slate-50 py-12">
                 
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
