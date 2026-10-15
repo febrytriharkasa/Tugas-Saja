@@ -48,6 +48,20 @@ class DashboardController extends Controller
             'latestPosts' => $latestPosts,
             'latestPages' => $latestPages,
             'siteInfo' => $siteInfo,
+            'chatEnabled' => SiteSetting::getVal('chat_enabled', '1') !== '0',
         ]);
+    }
+
+    public function toggleChat()
+    {
+        $current = SiteSetting::getVal('chat_enabled', '1');
+        $new = $current === '0' ? '1' : '0';
+
+        SiteSetting::updateOrCreate(
+            ['key' => 'chat_enabled'],
+            ['value' => $new, 'type' => 'boolean', 'group_name' => 'features', 'updated_at' => now()]
+        );
+
+        return back()->with('success', $new === '1' ? 'Fitur AI Chatbot berhasil diaktifkan.' : 'Fitur AI Chatbot berhasil dinonaktifkan.');
     }
 }

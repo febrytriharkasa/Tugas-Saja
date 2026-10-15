@@ -29,6 +29,7 @@ Route::get('/{category}/{slug}', [HomeController::class, 'showPost'])
 
 Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::post('/dashboard/toggle-chat', [DashboardController::class, 'toggleChat'])->name('dashboard.toggle-chat');
     Route::resource('posts', PostController::class);
     Route::patch('/posts/{post}/status', [PostController::class, 'updateStatus'])->name('posts.status');
     Route::resource('pages', PageController::class);

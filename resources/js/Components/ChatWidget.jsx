@@ -1,7 +1,14 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { usePage } from '@inertiajs/react';
 
 export default function ChatWidget() {
+    const { settings = {} } = usePage().props;
+
+    if (settings.chat_enabled === '0') {
+        return null;
+    }
+
     const [open, setOpen] = useState(false);
     const [messages, setMessages] = useState([
         { role: 'assistant', text: 'Assalamu’alaikum! Ada yang bisa kami bantu seputar pendaftaran PPDB atau informasi sekolah?' }

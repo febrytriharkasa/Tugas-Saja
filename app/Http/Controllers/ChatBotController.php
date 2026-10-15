@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ChatMessage;
 use App\Models\ChatSession;
+use App\Models\SiteSetting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
@@ -11,6 +12,10 @@ class ChatBotController extends Controller
 {
     public function send(Request $request)
     {
+        if (SiteSetting::getVal('chat_enabled', '1') === '0') {
+            return response()->json(['error' => 'Fitur chat sedang dinonaktifkan.'], 403);
+        }
+
         $validated = $request->validate([
             'session_token' => 'nullable|string',
             'message' => 'required|string|max:1000',

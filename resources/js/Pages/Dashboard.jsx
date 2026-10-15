@@ -1,6 +1,6 @@
 import AdminLayout from '@/Layouts/AdminLayout';
 import Card from '@/Components/Card';
-import { Link, usePage } from '@inertiajs/react';
+import { Link, usePage, router } from '@inertiajs/react';
 import ActionIcon from '@/Components/ActionIcon';
 
 function StatCard({ label, value, sub, icon, tone, href }) {
@@ -49,7 +49,7 @@ function QuickAction({ label, href, icon }) {
     );
 }
 
-export default function Dashboard({ metrics, latestPosts, latestPages, siteInfo }) {
+export default function Dashboard({ metrics, latestPosts, latestPages, siteInfo, chatEnabled }) {
     const { auth } = usePage().props;
     const userName = auth?.user?.name || 'Admin';
 
@@ -287,9 +287,21 @@ export default function Dashboard({ metrics, latestPosts, latestPages, siteInfo 
                     </Card>
 
                     <Card className="p-6">
-                        <h2 className="mb-2 text-base font-bold text-slate-800">Asisten AI</h2>
-                        <p className="text-3xl font-extrabold text-slate-800">{metrics.total_chat_sessions}</p>
+                        <div className="flex items-start justify-between">
+                            <h2 className="text-base font-bold text-slate-800">Asisten AI</h2>
+                            <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${chatEnabled ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-600'}`}>
+                                {chatEnabled ? 'Aktif' : 'Nonaktif'}
+                            </span>
+                        </div>
+                        <p className="mt-2 text-3xl font-extrabold text-slate-800">{metrics.total_chat_sessions}</p>
                         <p className="text-sm text-slate-500">Sesi percakapan pengunjung</p>
+                        <button
+                            type="button"
+                            onClick={() => router.post('/admin/dashboard/toggle-chat', {}, { preserveScroll: true })}
+                            className={`mt-4 w-full rounded-lg px-4 py-2 text-sm font-semibold transition ${chatEnabled ? 'bg-red-600 text-white hover:bg-red-700' : 'bg-emerald-600 text-white hover:bg-emerald-700'}`}
+                        >
+                            {chatEnabled ? 'Matikan Chat' : 'Aktifkan Chat'}
+                        </button>
                     </Card>
                 </div>
             </div>
