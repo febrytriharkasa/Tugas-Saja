@@ -5,8 +5,8 @@ import LinkUrlPicker, { plainLabel } from '@/Components/LinkUrlPicker';
 import Icon from '@/Components/Icon';
 import { useForm } from '@inertiajs/react';
 
-export default function NavigationSettings({ settings, linkOptions = [] }) {
-    const rawSettings = Object.values(settings).flat().reduce((acc, curr) => {
+export default function NavigationSettings({ groupedSettings, linkOptions = [] }) {
+    const rawSettings = Object.values(groupedSettings).flat().reduce((acc, curr) => {
         acc[curr.key] = curr.value;
         return acc;
     }, {});

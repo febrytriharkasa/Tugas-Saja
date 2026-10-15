@@ -6,8 +6,8 @@ import Icon from '@/Components/Icon';
 import { useForm } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
 
-export default function FooterSettings({ settings, linkOptions = [] }) {
-    const rawSettings = Object.values(settings).flat().reduce((acc, curr) => {
+export default function FooterSettings({ groupedSettings, linkOptions = [] }) {
+    const rawSettings = Object.values(groupedSettings).flat().reduce((acc, curr) => {
         acc[curr.key] = curr.value;
         return acc;
     }, {});

@@ -6,8 +6,8 @@ import { useForm } from '@inertiajs/react';
 
 const MAX_LINKS = 4;
 
-export default function TopbarSettings({ settings, linkOptions }) {
-    const rawSettings = Object.values(settings).flat().reduce((acc, curr) => {
+export default function TopbarSettings({ groupedSettings, linkOptions }) {
+    const rawSettings = Object.values(groupedSettings).flat().reduce((acc, curr) => {
         acc[curr.key] = curr.value;
         return acc;
     }, {});

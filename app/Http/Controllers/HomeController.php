@@ -94,7 +94,7 @@ class HomeController extends Controller
     public function statistics()
     {
         return Inertia::render('Public/Statistics', [
-            'settings' => SiteSetting::where('group_name', 'statistics')->pluck('value', 'key'),
+            'statSettings' => SiteSetting::where('group_name', 'statistics')->pluck('value', 'key'),
             'counts' => [
                 'posts' => Post::where('status', 'published')->count(),
                 'galleries' => Post::whereHas('category', fn ($query) => $query->where('slug', 'galeri'))->count(),

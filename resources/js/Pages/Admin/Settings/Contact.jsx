@@ -3,8 +3,8 @@ import Card from '@/Components/Card';
 import Button from '@/Components/Button';
 import { useForm } from '@inertiajs/react';
 
-export default function ContactSettings({ settings }) {
-    const rawSettings = Object.values(settings).flat().reduce((acc, curr) => {
+export default function ContactSettings({ groupedSettings }) {
+    const rawSettings = Object.values(groupedSettings).flat().reduce((acc, curr) => {
         acc[curr.key] = curr.value;
         return acc;
     }, {});

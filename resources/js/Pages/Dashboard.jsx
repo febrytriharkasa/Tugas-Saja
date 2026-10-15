@@ -198,36 +198,53 @@ export default function Dashboard({ metrics, latestPosts, latestPages, siteInfo,
                                 Lihat Semua
                             </Link>
                         </div>
-                        <ul className="divide-y divide-slate-100">
-                            {latestPages.map((page) => (
-                                <li key={page.id} className="flex items-center justify-between py-3">
-                                    <div className="flex items-center gap-3">
-                                        <div className="flex h-9 w-9 items-center justify-center rounded-md bg-secondary/10 text-secondary">
-                                            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
-                                                <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
-                                            </svg>
-                                        </div>
-                                        <div>
-                                            <p className="text-sm font-medium text-slate-800">{page.title}</p>
-                                            <p className="text-xs text-slate-400">/{page.slug}</p>
-                                        </div>
-                                    </div>
-                                    <div className="flex items-center gap-3">
-                                        <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-                                            page.is_published ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-600'
-                                        }`}>
-                                            {page.is_published ? 'Tayang' : 'Draf'}
-                                        </span>
-                                        <Link href={`/admin/pages/${page.id}/edit`} className="text-xs font-semibold text-primary hover:underline">
-                                            Edit
-                                        </Link>
-                                    </div>
-                                </li>
-                            ))}
-                            {latestPages.length === 0 && (
-                                <li className="py-8 text-center text-sm text-slate-400">Belum ada laman.</li>
-                            )}
-                        </ul>
+                        <div className="overflow-x-auto">
+                            <table className="w-full table-fixed border-collapse text-left">
+                                <thead>
+                                    <tr className="border-b border-slate-200 text-xs font-semibold uppercase tracking-wide text-slate-500">
+                                        <th className="py-3 w-[350px]">Judul</th>
+                                        <th className="py-3">Status</th>
+                                        <th className="py-3 text-right">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-slate-100 text-sm">
+                                    {latestPages.map((page) => (
+                                        <tr key={page.id} className="transition hover:bg-slate-50">
+                                            <td className="py-3 pr-3">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="flex h-9 w-9 items-center justify-center rounded-md bg-secondary/10 text-secondary">
+                                                        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+                                                        </svg>
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-sm font-medium text-slate-800">{page.title}</p>
+                                                        <p className="text-xs text-slate-400">/{page.slug}</p>
+                                                    </div>
+                                                </div>
+                                            </td>
+                    
+                                            <td className="py-3">
+                                                <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${
+                                                    page.is_published ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-600'
+                                                }`}>
+                                                    {page.is_published ? 'Tayang' : 'Draf'}
+                                                </span>
+                                            </td>
+
+                                            <td className="py-3 text-right">
+                                                <ActionIcon icon="pencil" label="Edit laman" href={`/admin/pages/${page.id}/edit`} color="primary" />
+                                            </td>
+                                        </tr>
+                                    ))}
+                                    {latestPages.length === 0 && (
+                                        <tr>
+                                            <td colSpan="5" className="py-8 text-center text-sm text-slate-400">Belum ada Laman.</td>
+                                        </tr>
+                                    )}
+                                </tbody>
+                            </table>
+                        </div>
                     </Card>
                 </div>
 

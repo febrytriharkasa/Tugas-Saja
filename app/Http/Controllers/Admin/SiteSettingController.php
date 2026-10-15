@@ -17,7 +17,7 @@ class SiteSettingController extends Controller
         $settings = SiteSetting::all()->groupBy('group_name');
 
         return Inertia::render('Admin/Settings/Hero', [
-            'settings' => $settings,
+            'groupedSettings' => $settings,
             'linkOptions' => $this->footerLinkOptions(),
         ]);
     }
@@ -86,7 +86,7 @@ class SiteSettingController extends Controller
         $settings = SiteSetting::all()->groupBy('group_name');
 
         return Inertia::render('Admin/Settings/Contact', [
-            'settings' => $settings,
+            'groupedSettings' => $settings,
         ]);
     }
 
@@ -109,7 +109,7 @@ class SiteSettingController extends Controller
         $settings = SiteSetting::all()->groupBy('group_name');
 
         return Inertia::render('Admin/Settings/QuickLinks', [
-            'settings' => $settings,
+            'groupedSettings' => $settings,
         ]);
     }
 
@@ -132,7 +132,7 @@ class SiteSettingController extends Controller
         $settings = SiteSetting::all()->groupBy('group_name');
 
         return Inertia::render('Admin/Settings/SocialMedia', [
-            'settings' => $settings,
+            'groupedSettings' => $settings,
         ]);
     }
 
@@ -155,7 +155,7 @@ class SiteSettingController extends Controller
         $settings = SiteSetting::all()->groupBy('group_name');
 
         return Inertia::render('Admin/Settings/Footer', [
-            'settings' => $settings,
+            'groupedSettings' => $settings,
             'linkOptions' => $this->footerLinkOptions(),
         ]);
     }
@@ -239,7 +239,7 @@ class SiteSettingController extends Controller
         $settings = SiteSetting::all()->groupBy('group_name');
 
         return Inertia::render('Admin/Settings/Navigation', [
-            'settings' => $settings,
+            'groupedSettings' => $settings,
             'linkOptions' => $this->footerLinkOptions(),
         ]);
     }
@@ -269,7 +269,7 @@ class SiteSettingController extends Controller
         $settings = SiteSetting::all()->groupBy('group_name');
 
         return Inertia::render('Admin/Settings/Topbar', [
-            'settings' => $settings,
+            'groupedSettings' => $settings,
             'linkOptions' => $this->footerLinkOptions(),
         ]);
     }

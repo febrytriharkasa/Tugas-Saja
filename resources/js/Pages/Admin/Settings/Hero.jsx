@@ -6,8 +6,8 @@ import LinkUrlPicker from '@/Components/LinkUrlPicker';
 import { useForm } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
 
-export default function HeroSettings({ settings, linkOptions = [] }) {
-    const rawSettings = Object.values(settings).flat().reduce((acc, curr) => {
+export default function HeroSettings({ groupedSettings, linkOptions = [] }) {
+    const rawSettings = Object.values(groupedSettings).flat().reduce((acc, curr) => {
         acc[curr.key] = curr.value;
         return acc;
     }, {});
