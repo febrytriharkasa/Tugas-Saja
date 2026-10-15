@@ -70,6 +70,45 @@ export default function Archive({ title, type, items }) {
     const post = items.data?.[0] ?? null;
 
     const renderItems = () => {
+        if (type === 'download') {
+            return (
+                <div className="space-y-4">
+                    {items.data.map((post) => {
+                        const attachment = post.metadata?.attachments?.[0];
+                        return (
+                            <Card key={post.id} className="p-5 sm:p-6">
+                                <Link href={postUrl(post)} className="block group">
+                                    <h3 className="text-lg font-bold text-slate-900 group-hover:text-primary transition-colors">
+                                        {post.title}
+                                    </h3>
+                                </Link>
+                                {post.content && (
+                                    <p className="mt-2 text-sm text-slate-600 leading-relaxed line-clamp-3">
+                                        {post.content}
+                                    </p>
+                                )}
+                                {attachment && (
+                                    <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+                                        <span className="text-xs text-slate-500">{post.published_at ? new Date(post.published_at).toLocaleDateString('id-ID') : ''}</span>
+                                        <a
+                                            href={attachment.url}
+                                            download={attachment.name}
+                                            className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white transition hover:bg-primary-light focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+                                        >
+                                            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                                                <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                            </svg>
+                                            Download {attachment.size}
+                                        </a>
+                                    </div>
+                                )}
+                            </Card>
+                        );
+                    })}
+                </div>
+            );
+        }
+        
         if (!['agenda', 'prestasi', 'galeri'].includes(type)) {
             return (
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
@@ -271,7 +310,7 @@ export default function Archive({ title, type, items }) {
                     <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
                         <div>
                             <h1 className="mt-2 text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl">{title}</h1>
-                            <p className="mt-2 text-xs font-bold uppercase tracking-[0.14em] text-secondary">Arsip informasi sekolah</p>
+                            <p className="mt-2 text-xs font-bold uppercase tracking-[0.14em] text-secondary">Informasi {title} sekolah</p>
                         </div>
                     </div>
 

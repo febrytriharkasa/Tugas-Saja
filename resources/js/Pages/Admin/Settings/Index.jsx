@@ -126,7 +126,7 @@ export default function SettingsIndex({ settings }) {
                                     type="file"
                                     accept="image/*"
                                     onChange={(e) => handleImageChange('hero_slide_1_file', e.target.files[0])}
-                                    className="mt-1 block w-full text-sm text-slate-500 file:mr-4 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20"
+                                    className="mt-1 block w-full text-sm text-slate-500 dark:text-slate-300 file:mr-4 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20"
                                 />
                             </div>
                         </div>
@@ -199,7 +199,7 @@ export default function SettingsIndex({ settings }) {
                                     type="file"
                                     accept="image/*"
                                     onChange={(e) => handleImageChange('hero_slide_2_file', e.target.files[0])}
-                                    className="mt-1 block w-full text-sm text-slate-500 file:mr-4 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20"
+                                    className="mt-1 block w-full text-sm text-slate-500 dark:text-slate-300 file:mr-4 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20"
                                 />
                             </div>
                         </div>

@@ -6,7 +6,7 @@ import { Link, useForm, usePage } from '@inertiajs/react';
 const fixedSections = [
     { name: 'Hero carousel', description: 'Banner utama beranda', href: '/admin/settings/hero', action: 'Atur hero' },
     { name: 'Layanan pintas', description: 'Tautan layanan sekolah', href: '/admin/settings/quick-links', action: 'Atur layanan' },
-    { name: 'Berita', description: 'Berita sekolah terbaru', href: '/admin/posts', action: 'Kelola konten' },
+    { name: 'Konten', description: 'Konten sekolah terbaru', href: '/admin/posts', action: 'Kelola konten' },
     { name: 'Galeri aktivitas', description: 'Dokumentasi kegiatan sekolah', href: '/admin/galleries', action: 'Kelola galeri' },
     { name: 'Guru dan tenaga kependidikan', description: 'Profil guru dan tenaga kependidikan', href: '/admin/staff', action: 'Kelola data' },
 ];

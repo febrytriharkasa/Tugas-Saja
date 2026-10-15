@@ -39,20 +39,15 @@ class HandleInertiaRequests extends Middleware
             'flash' => [
                 'success' => $request->session()->get('success'),
                 'error' => $request->session()->get('error'),
+                'page_created' => $request->session()->get('page_created'),
+                'page_title' => $request->session()->get('page_title'),
             ],
             'settings' => fn () => SiteSetting::all()->pluck('value', 'key'),
-            'aboutPages' => fn () => Page::where('group', 'tentang')
-                ->where('is_published', true)
-                ->orderByRaw("CASE slug WHEN 'sejarah' THEN 1 WHEN 'visi-misi-tujuan' THEN 2 WHEN 'sambutan' THEN 3 WHEN 'kerjasama' THEN 4 WHEN 'fasilitas' THEN 5 WHEN 'guru-tendik' THEN 6 WHEN 'gtk' THEN 7 WHEN 'struktur-organisasi' THEN 8 ELSE 9 END")
-                ->get(['title', 'slug']),
-            'customPages' => fn () => Page::where('group', 'laman')
-                ->where('is_published', true)
+            'aboutPages' => fn () => [],
+            'customPages' => fn () => Page::where('is_published', true)
                 ->orderBy('title')
                 ->get(['title', 'slug']),
-            'archivePages' => fn () => Page::where('group', 'arsip')
-                ->where('is_published', true)
-                ->orderBy('title')
-                ->get(['title', 'slug']),
+            'archivePages' => fn () => [],
         ];
     }
 }

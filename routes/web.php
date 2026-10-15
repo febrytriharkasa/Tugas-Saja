@@ -16,12 +16,15 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/berita', [HomeController::class, 'news'])->name('public.news');
 Route::get('/cari', [HomeController::class, 'search'])->name('public.search');
-Route::get('/laman/{slug}', [HomeController::class, 'page'])->name('public.page');
-Route::get('/arsip/{type}', [HomeController::class, 'archive'])->name('public.archive');
 Route::get('/statistik', [HomeController::class, 'statistics'])->name('public.statistics');
 Route::post('/api/chat', [ChatBotController::class, 'send'])->name('api.chat');
+
+Route::get('/{slug}', [HomeController::class, 'pageBySlug'])
+    ->where('slug', '^(?!admin|api|login|logout|register|password|email|dashboard|profile|sanctum|_debugbar|berita|cari|statistik|verify-email|confirm-password|forgot-password|reset-password)[a-zA-Z0-9_-]+$')
+    ->name('public.page');
+
 Route::get('/{category}/{slug}', [HomeController::class, 'showPost'])
-    ->where('category', '^(?!admin|api|login|logout|register|password|email|dashboard|profile|sanctum|_debugbar).*$')
+    ->where('category', '^(?!admin|api|login|logout|register|password|email|dashboard|profile|sanctum|_debugbar|reset-password|verify-email).*$')
     ->name('public.post');
 
 Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(function () {
@@ -54,6 +57,8 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
     Route::post('/settings/footer', [SiteSettingController::class, 'updateFooter'])->name('settings.footer.update');
     Route::get('/settings/navigation', [SiteSettingController::class, 'navigation'])->name('settings.navigation');
     Route::post('/settings/navigation', [SiteSettingController::class, 'updateNavigation'])->name('settings.navigation.update');
+    Route::get('/settings/topbar', [SiteSettingController::class, 'topbar'])->name('settings.topbar');
+    Route::post('/settings/topbar', [SiteSettingController::class, 'updateTopbar'])->name('settings.topbar.update');
 });
 
 Route::get('/dashboard', fn () => redirect()->route('admin.dashboard'))

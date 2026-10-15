@@ -48,13 +48,19 @@ class PostController extends Controller
         $category = Category::findOrFail($validated['category_id']);
         $mediaType = $validated['media_type'] ?? 'image';
 
+        $metadata = $this->metadata($validated, $category->slug) ?? [];
+
+        if ($request->hasFile('attachment_file')) {
+            $metadata = $this->handleAttachmentUpload($request, $metadata);
+        }
+
         Post::create([
             'user_id' => auth()->id(),
             'category_id' => $category->id,
             'title' => $validated['title'],
             'slug' => Str::slug($validated['title']),
             'content' => $validated['content'] ?? '',
-            'metadata' => $this->metadata($validated, $category->slug),
+            'metadata' => $metadata,
             'featured_image' => $request->hasFile('featured_image') ? $this->storeMedia($request) : null,
             'media_type' => $mediaType,
             'video_url' => $mediaType === 'video' ? ($validated['video_url'] ?? null) : null,
@@ -112,11 +118,26 @@ class PostController extends Controller
             $featuredImage = null;
         }
 
+        $metadata = $this->metadata($validated, $category->slug) ?? [];
+
+        // Preserve existing attachments if not removing or uploading new
+        $existingAttachments = $post->metadata['attachments'] ?? null;
+
+        if ($request->hasFile('attachment_file')) {
+            $this->deleteAttachmentFiles($existingAttachments);
+            $metadata = $this->handleAttachmentUpload($request, $metadata);
+        } elseif ($request->boolean('remove_attachment')) {
+            $this->deleteAttachmentFiles($existingAttachments);
+            unset($metadata['attachments']);
+        } elseif ($existingAttachments) {
+            $metadata['attachments'] = $existingAttachments;
+        }
+
         $post->update([
             'category_id' => $category->id,
             'title' => $validated['title'],
             'content' => $validated['content'] ?? '',
-            'metadata' => $this->metadata($validated, $category->slug),
+            'metadata' => ! empty($metadata) ? $metadata : null,
             'featured_image' => $featuredImage,
             'media_type' => $mediaType,
             'video_url' => $mediaType === 'video' ? ($validated['video_url'] ?? null) : null,
@@ -130,6 +151,7 @@ class PostController extends Controller
     public function destroy(Post $post)
     {
         $this->deleteStoredMedia($post->featured_image);
+        $this->deleteAttachmentFiles($post->metadata['attachments'] ?? null);
         $post->delete();
 
         return redirect()->route('admin.posts.index')->with('success', 'Konten berhasil dihapus.');
@@ -164,6 +186,8 @@ class PostController extends Controller
             'meta.blocks.*.rows' => ['required_if:meta.blocks.*.type,table', 'array'],
             'meta.blocks.*.rows.*' => ['nullable'],
             'meta.blocks.*.rows.*.*' => ['nullable', 'string', 'max:1000'],
+            'attachment_file' => ['nullable', 'file', 'max:20480', 'mimes:pdf,doc,docx,xls,xlsx,ppt,pptx,zip,rar'],
+            'remove_attachment' => ['nullable', 'boolean'],
         ], [
             'video_url.required' => 'Link video YouTube wajib diisi.',
             'featured_image.prohibited' => 'File video tidak dapat diunggah. Masukkan link YouTube.',
@@ -251,5 +275,42 @@ class PostController extends Controller
     private function isYoutubeUrl(string $url): bool
     {
         return (bool) preg_match('/^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/.+$/', $url);
+    }
+
+    private function handleAttachmentUpload(Request $request, array $metadata): array
+    {
+        $file = $request->file('attachment_file');
+        $originalName = $file->getClientOriginalName();
+        $storedPath = $file->store('attachments', 'public');
+        $url = Storage::url($storedPath);
+        $sizeBytes = $file->getSize();
+        $sizeMB = round($sizeBytes / 1048576, 2);
+        $formattedSize = $sizeMB >= 0.1 ? $sizeMB.' MB' : round($sizeBytes / 1024, 2).' KB';
+
+        $metadata['attachments'] = [
+            [
+                'name' => $originalName,
+                'size' => $formattedSize,
+                'url' => $url,
+            ],
+        ];
+
+        return $metadata;
+    }
+
+    private function deleteAttachmentFiles(?array $attachments): void
+    {
+        if (! $attachments) {
+            return;
+        }
+
+        foreach ($attachments as $attachment) {
+            if (isset($attachment['url'])) {
+                $relativePath = str_replace('/storage/', '', $attachment['url']);
+                if (Storage::disk('public')->exists($relativePath)) {
+                    Storage::disk('public')->delete($relativePath);
+                }
+            }
+        }
     }
 }

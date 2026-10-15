@@ -91,25 +91,25 @@ class DatabaseSeeder extends Seeder
 
         // 3. Pages
         $pages = [
-            ['title' => 'Sejarah', 'slug' => 'sejarah', 'group' => 'tentang', 'is_published' => true,
+            ['title' => 'Sejarah', 'slug' => 'sejarah', 'is_published' => true,
                 'content' => "SMA XYZ didirikan pada tahun 1978 di bawah naungan Yayasan Pendidikan SMA XYZ. Berawal dari niat suci para tokoh masyarakat dan ulama setempat untuk menghadirkan lembaga pendidikan tingkat menengah atas yang bernafaskan Islam.\n\nSeiring berjalannya waktu, SMA XYZ tumbuh pesat dari sekolah berbasis komunitas menjadi salah satu SMA swasta rujukan terfavorit di Kabupaten Sidoarjo. Dengan akreditasi A (Unggul), SMA XYZ kini memiliki laboratorium komputer canggih, masjid megah, serta jaringan alumni yang tersebar di perguruan tinggi ternama dan berbagai industri nasional."],
-            ['title' => 'Visi, Misi dan Tujuan', 'slug' => 'visi-misi-tujuan', 'group' => 'tentang', 'is_published' => true,
+            ['title' => 'Visi, Misi dan Tujuan', 'slug' => 'visi-misi-tujuan', 'is_published' => true,
                 'content' => "VISI:\n\"Terwujudnya Generasi Rabbani yang Berakhlak Mulia, Unggul dalam IPTEK, Berwawasan Global, dan Berbudaya Lingkungan.\"\n\nMISI:\n1. Menyelenggarakan pendidikan berbasis karakter Al-Qur'an dan As-Sunnah.\n2. Mengembangkan kurikulum merdeka terintegrasi teknologi informasi dan komunikasi.\n3. Meningkatkan prestasi akademik dan non-akademik siswa di tingkat nasional dan internasional.\n4. Membina kemampuan berbahasa asing (Arab & Inggris) secara aktif.\n5. Mewujudkan lingkungan sekolah yang bersih, hijau, dan kondusif bagi pembelajaran."],
-            ['title' => 'Sambutan', 'slug' => 'sambutan', 'group' => 'tentang', 'is_published' => true,
+            ['title' => 'Sambutan', 'slug' => 'sambutan', 'is_published' => true,
                 'content' => "Assalamu'alaikum Wr. Wb.\n\nSelamat datang di website resmi SMA XYZ. Sebagai institusi pendidikan Islam modern, kami berkomitmen untuk memberikan layanan pendidikan terbaik yang menyeimbangkan antara kecerdasan intelektual (IQ), kecerdasan emosional (EQ), dan kecerdasan spiritual (SQ).\n\nWassalamu'alaikum Wr. Wb.\n\nDr. H. Ahmad Dahlan, M.Pd."],
-            ['title' => 'Kerjasama', 'slug' => 'kerjasama', 'group' => 'tentang', 'is_published' => true,
+            ['title' => 'Kerjasama', 'slug' => 'kerjasama', 'is_published' => true,
                 'content' => "SMA XYZ menjalin kerjasama strategis dengan:\n\n1. Universitas Airlangga (UNAIR) - Pembinaan Olimpiade Sains\n2. Institut Teknologi Sepuluh Nopember (ITS) - Pelatihan Coding & Robotika\n3. Markaz Lughah Al-Arabiyah Cairo - Sertifikasi Bahasa Arab\n4. Ruangguru - Kemitraan Pembelajaran Digital\n5. PT PLN & Bank Syariah Indonesia - Beasiswa Pendidikan"],
-            ['title' => 'Fasilitas', 'slug' => 'fasilitas', 'group' => 'tentang', 'is_published' => true,
+            ['title' => 'Fasilitas', 'slug' => 'fasilitas', 'is_published' => true,
                 'content' => 'SMA XYZ menyediakan ruang kelas nyaman, laboratorium komputer dan IPA, perpustakaan digital, masjid, lapangan olahraga, serta studio multimedia untuk mendukung pembelajaran dan pengembangan bakat siswa.'],
-            ['title' => 'Guru dan Tendik', 'slug' => 'guru-tendik', 'group' => 'tentang', 'is_published' => true,
+            ['title' => 'Guru dan Tendik', 'slug' => 'guru-tendik', 'is_published' => true,
                 'content' => 'Guru dan tenaga kependidikan SMA XYZ terdiri dari pendidik profesional dan staf layanan sekolah yang mendukung proses akademik, administrasi, serta pengembangan karakter siswa.'],
-            ['title' => 'GTK', 'slug' => 'gtk', 'group' => 'tentang', 'is_published' => true,
+            ['title' => 'GTK', 'slug' => 'gtk', 'is_published' => true,
                 'content' => 'SMA XYZ didukung oleh 45 Guru berkualifikasi S1 & S2 lulusan PTN terkemuka (UNAIR, ITS, UNESA, UINSA) serta 18 Tenaga Kependidikan profesional.'],
-            ['title' => 'Struktur Organisasi', 'slug' => 'struktur-organisasi', 'group' => 'tentang', 'is_published' => true,
+            ['title' => 'Struktur Organisasi', 'slug' => 'struktur-organisasi', 'is_published' => true,
                 'content' => "- Ketua Yayasan: H. Muhammad Ridwan, M.M.\n- Kepala Sekolah: Dr. H. Ahmad Dahlan, M.Pd.\n- Waka Kurikulum: Rina Wulandari, M.Si.\n- Waka Kesiswaan: M. Rizky Pratama, S.Pd.\n- Waka Humas: Siti Aminah, S.Pd.\n- Kepala TU: Budi Santoso, S.Kom."],
-            ['title' => 'Petunjuk Pendaftaran PPDB', 'slug' => 'petunjuk-ppdb', 'group' => 'laman', 'is_published' => true,
+            ['title' => 'Petunjuk Pendaftaran PPDB', 'slug' => 'petunjuk-ppdb', 'is_published' => true,
                 'content' => "1. Akses portal https://ppdb.smaxyz.sch.id\n2. Buat akun dengan NIK & Email aktif.\n3. Isi formulir dan unggah berkas (Rapor SMP, Akta Lahir, KK).\n4. Pilih jalur: Prestasi Akademik, Tahfidz, atau Reguler.\n5. Bayar biaya pendaftaran via BSI/Transfer Bank.\n6. Ikuti tes pemetaan potensi & wawancara karakter."],
-            ['title' => 'Program Unggulan Tahfidz', 'slug' => 'program-tahfidz', 'group' => 'laman', 'is_published' => true,
+            ['title' => 'Program Unggulan Tahfidz', 'slug' => 'program-tahfidz', 'is_published' => true,
                 'content' => "Program Tahfidzul Qur'an SMA XYZ:\n- Target hafalan 3-5 Juz selama 3 tahun.\n- Pembimbing Hafiz & Hafizah bersertifikat Sanad.\n- Setoran hafalan harian sebelum jam KBM.\n- Wisuda Tahfidz tahunan dengan ijazah resmi yayasan."],
         ];
         foreach ($pages as $p) {
@@ -122,7 +122,7 @@ class DatabaseSeeder extends Seeder
                 'title' => 'Penerimaan Peserta Didik Baru (PPDB) TA 2026/2027 Resmi Dibuka',
                 'slug' => 'ppdb-2026-2027-dibuka',
                 'category_id' => $catPengumuman->id,
-                'content' => "SMA XYZ resmi membuka PPDB Gelombang I untuk TA 2026/2027.\n\nPotongan biaya khusus dan beasiswa penuh tersedia bagi calon siswa hafal Al-Qur'an minimal 3 Juz atau juara Olimpiade tingkat kabupaten.\n\nPendaftaran 1 Oktober – 31 Desember 2026 via website atau datang langsung ke sekretariat PPDB.",
+                'content' => "SMA XYZ resmi membuka PPDB Gelombang I untuk TA 2026/2027.\n\nPotongan biaya khusus dan beasiswa penuh tersedia bagi calon siswa hafal Al-Qur'an minimal 3 Juz atau juara Olimpiade tingkat kabupaten.\n\nPendaftaran 1 Oktober â€“ 31 Desember 2026 via website atau datang langsung ke sekretariat PPDB.",
                 'status' => 'published', 'published_at' => now(),
             ],
             [
@@ -157,7 +157,7 @@ class DatabaseSeeder extends Seeder
                 'title' => 'Pengumuman Pelaksanaan Ulangan Tengah Semester (UTS) Ganjil',
                 'slug' => 'pengumuman-uts-ganjil-2026',
                 'category_id' => $catPengumuman->id,
-                'content' => 'UTS Ganjil TA 2026/2027 dilaksanakan 15–22 Oktober 2026 berbasis Computer Based Test (CBT). Kartu ujian diambil di wali kelas mulai Senin mendatang.',
+                'content' => 'UTS Ganjil TA 2026/2027 dilaksanakan 15â€“22 Oktober 2026 berbasis Computer Based Test (CBT). Kartu ujian diambil di wali kelas mulai Senin mendatang.',
                 'status' => 'published', 'published_at' => now()->subDays(3),
             ],
         ];

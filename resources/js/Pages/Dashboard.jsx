@@ -1,6 +1,7 @@
 import AdminLayout from '@/Layouts/AdminLayout';
 import Card from '@/Components/Card';
 import { Link, usePage } from '@inertiajs/react';
+import ActionIcon from '@/Components/ActionIcon';
 
 function StatCard({ label, value, sub, icon, tone, href }) {
     const tones = {
@@ -136,14 +137,15 @@ export default function Dashboard({ metrics, latestPosts, latestPages, siteInfo 
                         </div>
 
                         <div className="overflow-x-auto">
-                            <table className="w-full border-collapse text-left">
+                            {/* Tambahkan table-fixed di sini */}
+                            <table className="w-full table-fixed border-collapse text-left">
                                 <thead>
                                     <tr className="border-b border-slate-200 text-xs font-semibold uppercase tracking-wide text-slate-500">
-                                        <th className="pb-3 py-3">Judul</th>
-                                        <th className="hidden pb-3 sm:table-cell">Kategori</th>
-                                        <th className="pb-3">Status</th>
-                                        <th className="hidden pb-3 md:table-cell">Diperbarui</th>
-                                        <th className="pb-3 text-right">Aksi</th>
+                                        <th className="py-3 w-[350px]">Judul</th>
+                                        <th className="py-3 w-[120px]">Kategori</th>
+                                        <th className="py-3">Status</th>
+                                        <th className="py-3">Diperbarui</th>
+                                        <th className="py-3 text-right">Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-slate-100 text-sm">
@@ -175,9 +177,7 @@ export default function Dashboard({ metrics, latestPosts, latestPages, siteInfo 
                                                 {new Date(post.updated_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
                                             </td>
                                             <td className="py-3 text-right">
-                                                <Link href={`/admin/posts/${post.id}/edit`} className="text-xs font-semibold text-primary hover:underline">
-                                                    Edit
-                                                </Link>
+                                                <ActionIcon icon="pencil" label="Edit laman" href={`/admin/posts/${post.id}/edit`}color="primary" />
                                             </td>
                                         </tr>
                                     ))}
@@ -209,7 +209,7 @@ export default function Dashboard({ metrics, latestPosts, latestPages, siteInfo 
                                         </div>
                                         <div>
                                             <p className="text-sm font-medium text-slate-800">{page.title}</p>
-                                            <p className="text-xs text-slate-400">/laman/{page.slug}</p>
+                                            <p className="text-xs text-slate-400">/{page.slug}</p>
                                         </div>
                                     </div>
                                     <div className="flex items-center gap-3">

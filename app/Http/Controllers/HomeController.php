@@ -50,19 +50,21 @@ class HomeController extends Controller
         ]);
     }
 
-    public function page($slug)
+    public function pageBySlug($slug)
     {
-        $page = Page::with('category')->where('slug', $slug)->where('is_published', true)->firstOrFail();
+        $page = Page::where('slug', $slug)->where('is_published', true)->first();
 
-        if ($page->display_type === 'category' && $page->category) {
-            return Inertia::render('Public/Archive', [
-                'title' => $page->title,
-                'type' => $page->category->slug,
-                'items' => $this->categoryPosts($page->category->slug, null, true),
-            ]);
+        if ($page) {
+            return Inertia::render('Public/Page', ['page' => $page]);
         }
 
-        return Inertia::render('Public/Page', ['page' => $page]);
+        $category = Category::where('slug', $slug)->firstOrFail();
+
+        return Inertia::render('Public/Archive', [
+            'title' => $category->name,
+            'type' => $category->slug,
+            'items' => $this->categoryPosts($category->slug, null, true),
+        ]);
     }
 
     public function news()
@@ -70,30 +72,6 @@ class HomeController extends Controller
         $posts = $this->categoryPosts('berita', null, true);
 
         return Inertia::render('Public/Archive', ['title' => 'Berita', 'type' => 'berita', 'items' => $posts]);
-    }
-
-    public function archive($type)
-    {
-        $configs = [
-            'pengumuman' => ['title' => 'Pengumuman', 'items' => $this->categoryPosts('pengumuman', null, true)],
-            'agenda' => ['title' => 'Agenda', 'items' => $this->categoryPosts('agenda', null, true)],
-            'prestasi' => ['title' => 'Prestasi', 'items' => $this->categoryPosts('prestasi', null, true)],
-            'galeri' => ['title' => 'Galeri Aktivitas', 'items' => $this->categoryPosts('galeri', null, true)],
-        ];
-
-        if (! isset($configs[$type])) {
-            $category = Category::where('slug', $type)->firstOrFail();
-            $configs[$type] = [
-                'title' => $category->name,
-                'items' => $this->categoryPosts($category->slug, null, true),
-            ];
-        }
-
-        return Inertia::render('Public/Archive', [
-            'title' => $configs[$type]['title'],
-            'type' => $type,
-            'items' => $configs[$type]['items'],
-        ]);
     }
 
     public function search(Request $request)

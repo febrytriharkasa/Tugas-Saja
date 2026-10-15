@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Category;
 use App\Models\Page;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -24,7 +23,6 @@ class PageController extends Controller
     {
         return Inertia::render('Admin/Pages/Form', [
             'page' => null,
-            'categories' => Category::orderBy('name')->get(['id', 'name', 'slug']),
         ]);
     }
 
@@ -34,15 +32,19 @@ class PageController extends Controller
         $data['slug'] = $this->uniqueSlug($data['title']);
         $data['image'] = $request->hasFile('image') ? $this->storeImage($request) : null;
         $data['metadata'] = $this->metadata($data);
-        Page::create($data);
+        $page = Page::create($data);
 
-        return redirect()->route('admin.pages.index')->with('success', 'Laman berhasil dibuat.');
+        return redirect()->route('admin.pages.index')->with([
+            'success' => 'Laman berhasil dibuat.',
+            'page_created' => true,
+            'page_title' => $page->title,
+        ]);
     }
 
     public function show(Page $page)
     {
         return Inertia::render('Admin/Pages/Show', [
-            'page' => $page->load('category'),
+            'page' => $page,
         ]);
     }
 
@@ -50,7 +52,6 @@ class PageController extends Controller
     {
         return Inertia::render('Admin/Pages/Form', [
             'page' => $page,
-            'categories' => Category::orderBy('name')->get(['id', 'name', 'slug']),
         ]);
     }
 
@@ -81,7 +82,11 @@ class PageController extends Controller
 
         $page->update($data);
 
-        return redirect()->route('admin.pages.index')->with('success', 'Laman berhasil diperbarui.');
+        return redirect()->route('admin.pages.index')->with([
+            'success' => 'Laman berhasil diperbarui.',
+            'page_created' => true,
+            'page_title' => $page->title,
+        ]);
     }
 
     public function destroy(Page $page)
@@ -96,10 +101,7 @@ class PageController extends Controller
     {
         return $request->validate([
             'title' => ['required', 'string', 'max:255'],
-            'group' => ['required', Rule::in(['tentang', 'laman', 'arsip'])],
-            'display_type' => ['required', Rule::in(['text', 'category'])],
-            'category_id' => ['nullable', 'required_if:display_type,category', 'exists:categories,id'],
-            'content' => ['nullable', 'required_if:display_type,text', 'string'],
+            'content' => ['required', 'string'],
             'is_published' => ['required', 'boolean'],
             'image' => ['nullable', 'image', 'max:2048'],
             'meta' => ['nullable', 'array'],

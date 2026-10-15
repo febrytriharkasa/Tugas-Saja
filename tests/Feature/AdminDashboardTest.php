@@ -44,7 +44,7 @@ class AdminDashboardTest extends TestCase
             'status' => 'draft',
         ]);
 
-        Page::create(['title' => 'Visi Misi', 'slug' => 'visi-misi', 'group' => 'laman', 'is_published' => true]);
+        Page::create(['title' => 'Visi Misi', 'slug' => 'visi-misi', 'is_published' => true]);
         Staff::create(['name' => 'Guru Satu', 'role' => 'Guru Matematika', 'type' => 'guru']);
         Staff::create(['name' => 'Tendik Satu', 'role' => 'Staf TU', 'type' => 'tendik']);
         SiteSetting::create(['key' => 'site_name', 'value' => 'SMALISKA']);

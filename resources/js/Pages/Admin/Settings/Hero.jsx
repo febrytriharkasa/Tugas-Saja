@@ -2,10 +2,11 @@ import AdminLayout from '@/Layouts/AdminLayout';
 import Card from '@/Components/Card';
 import Button from '@/Components/Button';
 import Icon from '@/Components/Icon';
+import LinkUrlPicker from '@/Components/LinkUrlPicker';
 import { useForm } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
 
-export default function HeroSettings({ settings }) {
+export default function HeroSettings({ settings, linkOptions = [] }) {
     const rawSettings = Object.values(settings).flat().reduce((acc, curr) => {
         acc[curr.key] = curr.value;
         return acc;
@@ -74,7 +75,7 @@ export default function HeroSettings({ settings }) {
                     </div>
                 )}
 
-                <Card className="p-6">
+                <Card className="p-6" overflow="visible">
                     <h2 className="text-base font-bold text-slate-800 mb-4">Hero Carousel Banner</h2>
                     
                     <div className="space-y-6">
@@ -120,11 +121,10 @@ export default function HeroSettings({ settings }) {
                                 </div>
                                 <div>
                                     <label className="block text-xs font-medium text-slate-600">Link Tombol</label>
-                                    <input
-                                        type="text"
+                                    <LinkUrlPicker
+                                        options={linkOptions}
                                         value={data.hero_slide_1_btn_url}
-                                        onChange={(e) => setData('hero_slide_1_btn_url', e.target.value)}
-                                        className="mt-1 block w-full rounded-lg border-slate-300 text-sm focus:border-primary focus:ring-primary"
+                                        onChange={(url) => setData('hero_slide_1_btn_url', url)}
                                     />
                                 </div>
                             </div>
@@ -156,7 +156,7 @@ export default function HeroSettings({ settings }) {
                                     type="file"
                                     accept="image/*"
                                     onChange={(e) => handleImageChange('hero_slide_1_file', e.target.files[0])}
-                                    className="mt-1 block w-full text-sm text-slate-500 file:mr-4 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20"
+                                    className="mt-1 block w-full rounded-lg border border-slate-300 text-sm file:mr-4 file:border-0 file:bg-slate-100 file:px-4 file:py-2 file:text-slate-700"
                                 />
                             </div>
                         </div>
@@ -203,11 +203,10 @@ export default function HeroSettings({ settings }) {
                                 </div>
                                 <div>
                                     <label className="block text-xs font-medium text-slate-600">Link Tombol</label>
-                                    <input
-                                        type="text"
+                                    <LinkUrlPicker
+                                        options={linkOptions}
                                         value={data.hero_slide_2_btn_url}
-                                        onChange={(e) => setData('hero_slide_2_btn_url', e.target.value)}
-                                        className="mt-1 block w-full rounded-lg border-slate-300 text-sm focus:border-primary focus:ring-primary"
+                                        onChange={(url) => setData('hero_slide_2_btn_url', url)}
                                     />
                                 </div>
                             </div>
@@ -239,7 +238,7 @@ export default function HeroSettings({ settings }) {
                                     type="file"
                                     accept="image/*"
                                     onChange={(e) => handleImageChange('hero_slide_2_file', e.target.files[0])}
-                                    className="mt-1 block w-full text-sm text-slate-500 file:mr-4 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20"
+                                    className="mt-1 block w-full rounded-lg border border-slate-300 text-sm file:mr-4 file:border-0 file:bg-slate-100 file:px-4 file:py-2 file:text-slate-700"
                                 />
                             </div>
                         </div>

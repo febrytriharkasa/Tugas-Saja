@@ -25,6 +25,13 @@ export default function PublicLayout({ children, settings = {} }) {
         navItems = [];
     }
 
+    let topbarLinks = [];
+    try {
+        topbarLinks = siteSettings.topbar_links ? JSON.parse(siteSettings.topbar_links) : [];
+    } catch {
+        topbarLinks = [];
+    }
+
     const useDefaultNav = navItems.length === 0;
 
     const currentUrl = url.split('?')[0];
@@ -40,9 +47,9 @@ export default function PublicLayout({ children, settings = {} }) {
     const isHome = currentUrl === '/';
     const isNews = matches('/berita');
     const isStats = matches('/statistik');
-    const isAbout = aboutPages.some((page) => matches(`/laman/${page.slug}`));
-    const isCustom = customPages.some((page) => matches(`/laman/${page.slug}`));
-    const isArchive = matches('/arsip') || archivePages.some((page) => matches(`/laman/${page.slug}`));
+    const isAbout = aboutPages.some((page) => matches(`/${page.slug}`));
+    const isCustom = customPages.some((page) => matches(`/${page.slug}`));
+    const isArchive = archivePages.some((page) => matches(`/${page.slug}`)) || ['pengumuman', 'agenda', 'prestasi', 'galeri'].some((slug) => matches(`/${slug}`));
 
     const navClass = (active) =>
         `rounded-lg px-3 py-2 text-sm font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
@@ -61,7 +68,7 @@ export default function PublicLayout({ children, settings = {} }) {
         }`;
 
     const pageLinks = (pages) => pages.map((page) => {
-        const href = `/laman/${page.slug}`;
+        const href = `/${page.slug}`;
         const active = matches(href);
 
         return (
@@ -80,10 +87,10 @@ export default function PublicLayout({ children, settings = {} }) {
     });
 
     const archiveLinks = [
-        ['Pengumuman', '/arsip/pengumuman'],
-        ['Agenda', '/arsip/agenda'],
-        ['Prestasi', '/arsip/prestasi'],
-        ['Galeri', '/arsip/galeri'],
+        ['Pengumuman', '/pengumuman'],
+        ['Agenda', '/agenda'],
+        ['Prestasi', '/prestasi'],
+        ['Galeri', '/galeri'],
     ];
 
     return (
@@ -95,9 +102,36 @@ export default function PublicLayout({ children, settings = {} }) {
                             <span className="truncate">{siteSettings.contact_phone || '(031) 8971234'}</span>
                             <span className="hidden truncate sm:inline">{siteSettings.contact_email || 'info@smaxyz.sch.id'}</span>
                         </div>
-                        <a href={siteSettings.ppdb_link || '#'} className="min-h-8 shrink-0 rounded bg-secondary px-3 py-1.5 font-semibold text-white transition hover:bg-secondary-light focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-slate-850">
-                            Daftar PPDB
-                        </a>
+                        <div className="flex items-center gap-2 overflow-x-auto">
+                                {topbarLinks.map((link, idx) => {
+                                    const isExternal = link?.url?.startsWith('http://') || link?.url?.startsWith('https://');
+                                    const linkClass = "min-h-8 shrink-0 rounded bg-secondary px-3 py-1.5 font-semibold text-white transition hover:bg-secondary-light focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-slate-850";
+                                    
+                                    if (isExternal) {
+                                        return (
+                                            <a
+                                                key={idx}
+                                                href={link.url}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className={linkClass}
+                                            >
+                                                {link.label}
+                                            </a>
+                                        );
+                                    }
+
+                                    return (
+                                        <Link
+                                            key={idx}
+                                            href={link.url}
+                                            className={linkClass}
+                                        >
+                                            {link.label}
+                                        </Link>
+                                    );
+                                })}
+                        </div>
                     </div>
                 </div>
 
@@ -119,19 +153,23 @@ export default function PublicLayout({ children, settings = {} }) {
                             {useDefaultNav ? (
                                 <>
                                     <Link href="/" aria-current={isHome ? 'page' : undefined} className={navClass(isHome)}>Beranda</Link>
-                                    <div className="relative">
-                                        <button type="button" onClick={() => toggleMenu('about')} aria-expanded={openMenu === 'about'} className={`flex min-h-11 items-center gap-1 ${navClass(isAbout)}`}>
-                                            Tentang Kami <Chevron open={openMenu === 'about'} />
-                                        </button>
-                                        {openMenu === 'about' && <div className="absolute left-0 top-full mt-2 w-60 rounded-xl border border-slate-200 bg-white p-2 shadow-card">{pageLinks(aboutPages)}</div>}
-                                    </div>
+                                    {aboutPages.length > 0 && (
+                                        <div className="relative">
+                                            <button type="button" onClick={() => toggleMenu('about')} aria-expanded={openMenu === 'about'} className={`flex min-h-11 items-center gap-1 ${navClass(isAbout)}`}>
+                                                Tentang Kami <Chevron open={openMenu === 'about'} />
+                                            </button>
+                                            {openMenu === 'about' && <div className="absolute left-0 top-full mt-2 w-60 rounded-xl border border-slate-200 bg-white p-2 shadow-card">{pageLinks(aboutPages)}</div>}
+                                        </div>
+                                    )}
                                     <Link href="/berita" aria-current={isNews ? 'page' : undefined} className={navClass(isNews)}>Berita</Link>
-                                    <div className="relative">
-                                        <button type="button" onClick={() => toggleMenu('pages')} aria-expanded={openMenu === 'pages'} className={`flex min-h-11 items-center gap-1 ${navClass(isCustom)}`}>
-                                            Laman <Chevron open={openMenu === 'pages'} />
-                                        </button>
-                                        {openMenu === 'pages' && <div className="absolute left-0 top-full mt-2 w-60 rounded-xl border border-slate-200 bg-white p-2 shadow-card">{pageLinks(customPages)}</div>}
-                                    </div>
+                                    {customPages.length > 0 && (
+                                        <div className="relative">
+                                            <button type="button" onClick={() => toggleMenu('pages')} aria-expanded={openMenu === 'pages'} className={`flex min-h-11 items-center gap-1 ${navClass(isCustom)}`}>
+                                                Laman <Chevron open={openMenu === 'pages'} />
+                                            </button>
+                                            {openMenu === 'pages' && <div className="absolute left-0 top-full mt-2 w-60 rounded-xl border border-slate-200 bg-white p-2 shadow-card">{pageLinks(customPages)}</div>}
+                                        </div>
+                                    )}
                                     <div className="relative">
                                         <button type="button" onClick={() => toggleMenu('archive')} aria-expanded={openMenu === 'archive'} className={`flex min-h-11 items-center gap-1 ${navClass(isArchive)}`}>
                                             Arsip <Chevron open={openMenu === 'archive'} />
@@ -188,7 +226,7 @@ export default function PublicLayout({ children, settings = {} }) {
                                     {[
                                         ['about', 'Tentang Kami', aboutPages, isAbout],
                                         ['pages', 'Laman', customPages, isCustom],
-                                    ].map(([name, label, pages, active]) => (
+                                    ].filter(([,, pages]) => pages.length > 0).map(([name, label, pages, active]) => (
                                         <div key={name}>
                                             <button type="button" onClick={() => toggleMenu(name)} aria-expanded={openMenu === name} className={`flex min-h-11 w-full items-center justify-between rounded-lg px-3 py-2.5 text-left text-sm font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${active ? 'bg-emerald-50 text-primary' : 'text-slate-700'}`}>
                                                 {label} <Chevron open={openMenu === name} />

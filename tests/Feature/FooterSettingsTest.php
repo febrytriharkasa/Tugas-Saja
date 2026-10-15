@@ -33,15 +33,15 @@ class FooterSettingsTest extends TestCase
                 [
                     'title' => 'Halaman',
                     'links' => [
-                        ['label' => 'Visi Misi', 'url' => '/laman/visi-misi'],
-                        ['label' => 'Sejarah', 'url' => '/laman/sejarah'],
+                        ['label' => 'Visi Misi', 'url' => '/visi-misi'],
+                        ['label' => 'Sejarah', 'url' => '/sejarah'],
                     ],
                 ],
                 [
                     'title' => 'Arsip',
                     'links' => [
                         ['label' => 'Berita', 'url' => '/berita'],
-                        ['label' => 'Galeri', 'url' => '/arsip/galeri'],
+                        ['label' => 'Galeri', 'url' => '/galeri'],
                     ],
                 ],
             ],
@@ -98,8 +98,8 @@ class FooterSettingsTest extends TestCase
 
     public function test_footer_page_provides_internal_link_options(): void
     {
-        Page::create(['title' => 'Visi & Misi', 'slug' => 'visi-misi', 'group' => 'laman', 'is_published' => true]);
-        Page::create(['title' => 'Draft Rahasia', 'slug' => 'draft', 'group' => 'laman', 'is_published' => false]);
+        Page::create(['title' => 'Visi & Misi', 'slug' => 'visi-misi', 'is_published' => true]);
+        Page::create(['title' => 'Draft Rahasia', 'slug' => 'draft', 'is_published' => false]);
         Category::create(['name' => 'Kesiswaan', 'slug' => 'kesiswaan']);
         $admin = User::factory()->create();
 
@@ -109,10 +109,10 @@ class FooterSettingsTest extends TestCase
                 ->where('linkOptions.0', ['label' => 'Beranda', 'url' => '/'])
                 ->where('linkOptions.1', ['label' => 'Berita', 'url' => '/berita'])
                 ->where('linkOptions', fn ($all) => collect($all)->contains(
-                    fn ($o) => $o['label'] === 'Laman: Visi & Misi' && $o['url'] === '/laman/visi-misi'
+                    fn ($o) => $o['label'] === 'Laman: Visi & Misi' && $o['url'] === '/visi-misi'
                 ) && collect($all)->contains(
-                    fn ($o) => $o['label'] === 'Kategori: Kesiswaan' && $o['url'] === '/arsip/kesiswaan'
-                ) && ! collect($all)->contains(fn ($o) => $o['url'] === '/laman/draft'))
+                    fn ($o) => $o['label'] === 'Kategori: Kesiswaan' && $o['url'] === '/kesiswaan'
+                ) && ! collect($all)->contains(fn ($o) => $o['url'] === '/draft'))
             );
     }
 

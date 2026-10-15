@@ -7,15 +7,12 @@ import { blocksFromMetadata } from '@/lib/postBlocks';
 import { useForm } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
 
-export default function PageForm({ page, categories }) {
+export default function PageForm({ page }) {
     const isEdit = !!page;
     const [imagePreview, setImagePreview] = useState(page?.image || null);
     const [imagePreviewError, setImagePreviewError] = useState(false);
     const { data, setData, post, processing, errors, transform } = useForm({
         title: page?.title || '',
-        group: page?.group || 'tentang',
-        display_type: page?.display_type || 'text',
-        category_id: page?.category_id || '',
         content: page?.content || '',
         image: null,
         remove_image: false,
@@ -85,104 +82,56 @@ export default function PageForm({ page, categories }) {
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-slate-700">Grup Menu</label>
-                        <select
-                            value={data.group}
-                            onChange={(e) => setData('group', e.target.value)}
-                            className="mt-1 block w-full rounded-lg border-slate-300 text-sm focus:border-primary focus:ring-primary"
-                        >
-                            <option value="tentang">Tentang Kami</option>
-                            <option value="laman">Laman Kustom</option>
-                            <option value="arsip">Arsip Kustom</option>
-                        </select>
+                        <label className="block text-sm font-medium text-slate-700">Gambar (Opsional)</label>
+                        {imagePreview && !imagePreviewError ? (
+                            <div className="relative mt-2 mb-2 inline-block">
+                                <img
+                                    src={imagePreview}
+                                    alt="Preview"
+                                    onError={() => setImagePreviewError(true)}
+                                    className="h-auto max-h-96 w-auto max-w-full rounded-lg border border-slate-200"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={handleImageRemove}
+                                    className="absolute -right-2 -top-2 flex h-7 w-7 items-center justify-center rounded-full bg-red-600 text-white shadow-sm transition hover:bg-red-700"
+                                    aria-label="Hapus gambar"
+                                >
+                                    <Icon name="x" className="h-4 w-4" />
+                                </button>
+                            </div>
+                        ) : isEdit && page?.image ? (
+                            <div className="mt-2 mb-2 rounded-lg border border-dashed border-amber-300 bg-amber-50 p-3 text-xs text-amber-700">
+                                Gambar tersimpan ({page.image}) tidak dapat dimuat.
+                                Pastikan symlink <code>public/storage</code> aktif dan file masih ada.
+                            </div>
+                        ) : null}
+                        <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleImageChange}
+                            className="mt-1 block w-full rounded-lg border border-slate-300 text-sm file:mr-4 file:border-0 file:bg-slate-100 file:px-4 file:py-2 file:text-slate-700"
+                        />
+                        {errors.image && <p className="text-red-500 text-xs mt-1">{errors.image}</p>}
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-slate-700">Tipe Tampilan</label>
-                        <select
-                            value={data.display_type}
-                            onChange={(e) => setData('display_type', e.target.value)}
+                        <label className="block text-sm font-medium text-slate-700">Konten</label>
+                        <textarea
+                            rows={10}
+                            value={data.content}
+                            onChange={(e) => setData('content', e.target.value)}
                             className="mt-1 block w-full rounded-lg border-slate-300 text-sm focus:border-primary focus:ring-primary"
-                        >
-                            <option value="text">Teks Statis</option>
-                            <option value="category">Daftar Post Kategori</option>
-                        </select>
+                        />
+                        {errors.content && <p className="text-red-500 text-xs mt-1">{errors.content}</p>}
                     </div>
 
-                    {data.display_type === 'category' && (
-                        <div>
-                            <label className="block text-sm font-medium text-slate-700">Kategori</label>
-                            <select
-                                value={data.category_id || ''}
-                                onChange={(e) => setData('category_id', e.target.value)}
-                                className="mt-1 block w-full rounded-lg border-slate-300 text-sm focus:border-primary focus:ring-primary"
-                            >
-                                <option value="">-- Pilih Kategori --</option>
-                                {categories.map((cat) => (
-                                    <option key={cat.id} value={cat.id}>
-                                        {cat.name}
-                                    </option>
-                                ))}
-                            </select>
-                            {errors.category_id && <p className="text-red-500 text-xs mt-1">{errors.category_id}</p>}
-                        </div>
-                    )}
-
-                    {data.display_type === 'text' && (
-                        <>
-                            <div>
-                                <label className="block text-sm font-medium text-slate-700">Gambar (Opsional)</label>
-                                {imagePreview && !imagePreviewError ? (
-                                    <div className="relative mt-2 mb-2 inline-block">
-                                        <img
-                                            src={imagePreview}
-                                            alt="Preview"
-                                            onError={() => setImagePreviewError(true)}
-                                            className="h-auto max-h-96 w-auto max-w-full rounded-lg border border-slate-200"
-                                        />
-                                        <button
-                                            type="button"
-                                            onClick={handleImageRemove}
-                                            className="absolute -right-2 -top-2 flex h-7 w-7 items-center justify-center rounded-full bg-red-600 text-white shadow-sm transition hover:bg-red-700"
-                                            aria-label="Hapus gambar"
-                                        >
-                                            <Icon name="x" className="h-4 w-4" />
-                                        </button>
-                                    </div>
-                                ) : isEdit && page?.image ? (
-                                    <div className="mt-2 mb-2 rounded-lg border border-dashed border-amber-300 bg-amber-50 p-3 text-xs text-amber-700">
-                                        Gambar tersimpan ({page.image}) tidak dapat dimuat.
-                                        Pastikan symlink <code>public/storage</code> aktif dan file masih ada.
-                                    </div>
-                                ) : null}
-                                <input
-                                    type="file"
-                                    accept="image/*"
-                                    onChange={handleImageChange}
-                                    className="mt-1 block w-full rounded-lg border border-slate-300 text-sm file:mr-4 file:border-0 file:bg-slate-100 file:px-4 file:py-2 file:text-slate-700"
-                                />
-                                {errors.image && <p className="text-red-500 text-xs mt-1">{errors.image}</p>}
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium text-slate-700">Konten</label>
-                                <textarea
-                                    rows={10}
-                                    value={data.content}
-                                    onChange={(e) => setData('content', e.target.value)}
-                                    className="mt-1 block w-full rounded-lg border-slate-300 text-sm focus:border-primary focus:ring-primary"
-                                />
-                                {errors.content && <p className="text-red-500 text-xs mt-1">{errors.content}</p>}
-                            </div>
-
-                            <BlocksEditor
-                                blocks={blocks}
-                                onChange={setBlocks}
-                                errors={errors}
-                                types={['text', 'table']}
-                            />
-                        </>
-                    )}
+                    <BlocksEditor
+                        blocks={blocks}
+                        onChange={setBlocks}
+                        errors={errors}
+                        types={['text', 'table']}
+                    />
 
                             </div>
                         </Card>

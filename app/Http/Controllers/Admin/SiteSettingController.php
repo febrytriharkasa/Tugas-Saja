@@ -18,6 +18,7 @@ class SiteSettingController extends Controller
 
         return Inertia::render('Admin/Settings/Hero', [
             'settings' => $settings,
+            'linkOptions' => $this->footerLinkOptions(),
         ]);
     }
 
@@ -170,12 +171,17 @@ class SiteSettingController extends Controller
             ['label' => 'Statistik', 'url' => '/statistik'],
         ];
 
-        foreach (Page::where('is_published', true)->orderBy('title')->get(['title', 'slug', 'group']) as $page) {
-            $options[] = ['label' => 'Laman: '.$page->title, 'url' => '/laman/'.$page->slug];
+        $ppdbUrl = SiteSetting::where('key', 'ppdb_link')->value('value');
+        if ($ppdbUrl) {
+            $options[] = ['label' => 'Daftar PPDB', 'url' => $ppdbUrl];
+        }
+
+        foreach (Page::where('is_published', true)->orderBy('title')->get(['title', 'slug']) as $page) {
+            $options[] = ['label' => 'Laman: '.$page->title, 'url' => '/'.$page->slug];
         }
 
         foreach (Category::orderBy('name')->get(['name', 'slug']) as $category) {
-            $options[] = ['label' => 'Kategori: '.$category->name, 'url' => '/arsip/'.$category->slug];
+            $options[] = ['label' => 'Kategori: '.$category->name, 'url' => '/'.$category->slug];
         }
 
         return $options;
@@ -253,6 +259,32 @@ class SiteSettingController extends Controller
         SiteSetting::updateOrCreate(
             ['key' => 'nav_items'],
             ['value' => json_encode(array_values($validated['nav_items'] ?? [])), 'updated_at' => now()]
+        );
+
+        return redirect()->back();
+    }
+
+    public function topbar()
+    {
+        $settings = SiteSetting::all()->groupBy('group_name');
+
+        return Inertia::render('Admin/Settings/Topbar', [
+            'settings' => $settings,
+            'linkOptions' => $this->footerLinkOptions(),
+        ]);
+    }
+
+    public function updateTopbar(Request $request)
+    {
+        $validated = $request->validate([
+            'topbar_links' => 'nullable|array',
+            'topbar_links.*.label' => 'required|string|max:100',
+            'topbar_links.*.url' => 'required|string|max:500',
+        ]);
+
+        SiteSetting::updateOrCreate(
+            ['key' => 'topbar_links'],
+            ['value' => json_encode(array_values($validated['topbar_links'] ?? [])), 'updated_at' => now()]
         );
 
         return redirect()->back();

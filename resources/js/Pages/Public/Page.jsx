@@ -17,30 +17,28 @@ function DataTable({ title, description, columns, rows }) {
                 <div className="bg-primary px-5 py-3">
                     <h3 className="text-sm font-bold text-white">{title || 'Daftar Data'}</h3>
                 </div>
-                <div className="overflow-x-auto">
-                    <table className="min-w-full text-sm text-left border-collapse">
-                        <thead>
-                            <tr className="bg-slate-50 border-b border-slate-200 text-xs font-semibold text-slate-600 uppercase tracking-wide">
-                                <th className="px-5 py-3 w-10">#</th>
-                                {columns.map((column, index) => (
-                                    <th key={index} className="whitespace-nowrap px-5 py-3">{column || `Kolom ${index + 1}`}</th>
+                <table className="w-full table-fixed text-[10px] text-left border-collapse sm:text-sm">
+                    <thead>
+                        <tr className="bg-slate-50 border-b border-slate-200 text-[10px] font-semibold text-slate-600 uppercase tracking-wide sm:text-xs">
+                            <th className="w-8 px-2 py-2 sm:px-5 sm:py-3">#</th>
+                            {columns.map((column, index) => (
+                                <th key={index} className="px-2 py-2 sm:px-5 sm:py-3">{column || `Kolom ${index + 1}`}</th>
+                            ))}
+                        </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100">
+                        {rows.map((row, rowIndex) => (
+                            <tr key={rowIndex} className={rowIndex % 2 === 0 ? 'bg-white' : 'bg-slate-50/50'}>
+                                <td className="px-2 py-2 sm:px-5 sm:py-3 text-slate-400 font-medium">{rowIndex + 1}</td>
+                                {columns.map((_, columnIndex) => (
+                                    <td key={columnIndex} className="px-2 py-2 sm:px-5 sm:py-3 text-slate-700">
+                                        {row[columnIndex] || '-'}
+                                    </td>
                                 ))}
                             </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-100">
-                            {rows.map((row, rowIndex) => (
-                                <tr key={rowIndex} className={rowIndex % 2 === 0 ? 'bg-white' : 'bg-slate-50/50'}>
-                                    <td className="px-5 py-3 text-slate-400 font-medium">{rowIndex + 1}</td>
-                                    {columns.map((_, columnIndex) => (
-                                        <td key={columnIndex} className="px-5 py-3 text-slate-700">
-                                            {row[columnIndex] || '-'}
-                                        </td>
-                                    ))}
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
+                        ))}
+                    </tbody>
+                </table>
             </div>
         </div>
     );

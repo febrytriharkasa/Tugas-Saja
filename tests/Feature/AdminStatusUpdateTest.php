@@ -75,8 +75,6 @@ class AdminStatusUpdateTest extends TestCase
         $page = Page::create([
             'title' => 'Laman Uji',
             'slug' => 'laman-uji',
-            'group' => 'laman',
-            'display_type' => 'text',
             'content' => 'Isi',
             'is_published' => false,
         ]);

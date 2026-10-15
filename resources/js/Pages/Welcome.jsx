@@ -399,7 +399,7 @@ export default function Welcome({ settings = {}, posts = [], homeSections = [], 
                         key={section.id}
                         id={section.slug}
                         title={section.name}
-                        href={`/arsip/${section.slug}`}
+                        href={`/${section.slug}`}
                         posts={section.posts}
                     />
                 ) : (
@@ -408,7 +408,7 @@ export default function Welcome({ settings = {}, posts = [], homeSections = [], 
                         eyebrow={`Update terkini ${section.name}`}
                         id={section.slug}
                         title={section.name}
-                        href={`/arsip/${section.slug}`}
+                        href={`/${section.slug}`}
                         posts={section.posts}
                         tone={toneFor(idx + 1)}
                     />
@@ -418,9 +418,9 @@ export default function Welcome({ settings = {}, posts = [], homeSections = [], 
             {/* Galeri aktivitas and Guru & Tendik are permanent, after the adjustable sections. */}
             <section id="galeri" className={toneFor(galeriIndex) === 'muted' ? 'bg-slate-50 py-12 sm:py-20' : 'bg-white py-12 sm:py-20'}>
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                    <SectionHeading eyebrow="Lihat kegiatan kami ketika di sekolah" title="Galeri aktivitas" href="/arsip/galeri" />
+                    <SectionHeading eyebrow="Lihat kegiatan kami ketika di sekolah" title="Galeri Aktivitas" href="/galeri" />
                     {galleries.length ? (
-                        <HorizontalRail label="Galeri aktivitas">
+                        <HorizontalRail label="Galeri Aktivitas">
                             {galleries.slice(0, 8).map((item, idx) => {
                                 const thumb = item.media_type === 'video' ? youtubeThumbnailUrl(item.video_url) : item.featured_image;
                                 return (

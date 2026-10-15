@@ -50,6 +50,7 @@ export default function AdminLayout({ children, title }) {
     const settingsMenu = [
         { name: 'Identitas & Logo Situs', href: '/admin/settings/footer' },
         { name: 'Menu Navigasi (Navbar)', href: '/admin/settings/navigation' },
+        { name: 'Link Topbar', href: '/admin/settings/topbar' },
         { name: 'Banner Beranda (Hero)', href: '/admin/settings/hero' },
         { name: 'Kontak & Link PPDB', href: '/admin/settings/contact' },
         { name: 'Layanan Pintas (3 Card)', href: '/admin/settings/quick-links' },

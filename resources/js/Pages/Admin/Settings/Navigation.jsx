@@ -99,7 +99,7 @@ export default function NavigationSettings({ settings, linkOptions = [] }) {
                     </div>
                 )}
 
-                <Card className="p-6">
+                <Card className="p-6" overflow="visible">
                     <div className="flex items-center justify-between mb-4">
                         <div>
                             <h2 className="text-base font-bold text-slate-800">Item Menu Navigasi</h2>

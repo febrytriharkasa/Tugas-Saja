@@ -49,6 +49,8 @@ export default function PostForm({ post, categories, initialCategoryId }) {
         media_type: post?.media_type || 'image',
         video_url: post?.video_url || '',
         meta: buildInitialMeta(categories, initialCategory, post?.metadata),
+        attachment_file: null,
+        remove_attachment: false,
     });
 
     function youtubeEmbedUrl(url) {
@@ -256,6 +258,47 @@ export default function PostForm({ post, categories, initialCategoryId }) {
                     </div>
 
                     <BlocksEditor blocks={blocks} onChange={setBlocks} errors={errors} />
+
+                    <div className="border-t border-slate-200 pt-6 mt-6">
+                        <h3 className="text-sm font-bold text-slate-700 mb-3">Lampiran Berkas</h3>
+                        <p className="text-xs text-slate-500 mb-3">Upload file dokumen (PDF, Word, Excel, ZIP, dll) — maks 20 MB</p>
+                        
+                        {post?.metadata?.attachments?.[0] && !data.remove_attachment && !data.attachment_file ? (
+                            <div className="mb-3 flex items-center justify-between rounded-lg border border-slate-200 bg-slate-50 p-3">
+                                <div className="flex items-center gap-3">
+                                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                                        <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                        </svg>
+                                    </div>
+                                    <div className="min-w-0">
+                                        <p className="text-sm font-semibold text-slate-800 truncate">{post.metadata.attachments[0].name}</p>
+                                        <p className="text-xs text-slate-500">{post.metadata.attachments[0].size}</p>
+                                    </div>
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={() => setData('remove_attachment', true)}
+                                    className="shrink-0 rounded-lg p-2 text-red-600 transition hover:bg-red-50"
+                                    title="Hapus berkas"
+                                >
+                                    <Icon name="x" className="h-4 w-4" />
+                                </button>
+                            </div>
+                        ) : null}
+
+                        <input
+                            type="file"
+                            accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.zip,.rar"
+                            onChange={(e) => {
+                                const file = e.target.files[0] || null;
+                                setData('attachment_file', file);
+                                if (file) setData('remove_attachment', false);
+                            }}
+                            className="block w-full rounded-lg border border-slate-300 text-sm file:mr-4 file:border-0 file:bg-slate-100 file:px-4 file:py-2 file:text-slate-700"
+                        />
+                        {errors.attachment_file && <p className="text-red-500 text-xs mt-1">{errors.attachment_file}</p>}
+                    </div>
                             </div>
                         </Card>
                     </div>

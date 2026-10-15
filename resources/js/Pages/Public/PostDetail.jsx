@@ -62,7 +62,7 @@ function Breadcrumbs({ post }) {
                         Beranda
                     </Link>
                     {post.category && (
-                        <Link href={`/arsip/${post.category.slug}`} className="hover:text-primary transition-colors flex items-center gap-1">
+                        <Link href={`/${post.category.slug}`} className="hover:text-primary transition-colors flex items-center gap-1">
                             <span className="text-slate-300">/</span>
                             <span className="hover:text-primary transition-colors">{post.category.name}</span>
                         </Link>
@@ -100,22 +100,21 @@ function DataTable({ title, description, columns, rows }) {
                 <div className="bg-primary px-5 py-3">
                     <h3 className="text-sm font-bold text-white">{title || 'Daftar Data'}</h3>
                 </div>
-                <div className="overflow-x-auto">
-                <table className="min-w-full text-sm text-left border-collapse">
+                <table className="w-full table-fixed text-[10px] text-left border-collapse sm:text-sm">
                     <thead>
-                        <tr className="bg-slate-50 border-b border-slate-200 text-xs font-semibold text-slate-600 uppercase tracking-wide">
-                            <th className="px-5 py-3 w-10">#</th>
+                        <tr className="bg-slate-50 border-b border-slate-200 text-[10px] font-semibold text-slate-600 uppercase tracking-wide sm:text-xs">
+                            <th className="w-8 px-2 py-2 sm:px-5 sm:py-3">#</th>
                             {columns.map((column, index) => (
-                                <th key={index} className="whitespace-nowrap px-5 py-3">{column || `Kolom ${index + 1}`}</th>
+                                <th key={index} className="px-2 py-2 sm:px-5 sm:py-3">{column || `Kolom ${index + 1}`}</th>
                             ))}
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100">
                         {rows.map((row, rowIndex) => (
                             <tr key={rowIndex} className={`transition-colors ${rowIndex % 2 === 0 ? 'bg-white' : 'bg-slate-50/50'} hover:bg-emerald-50/40`}>
-                                <td className="px-5 py-3 text-slate-400 font-medium">{rowIndex + 1}</td>
+                                <td className="px-2 py-2 sm:px-5 sm:py-3 text-slate-400 font-medium">{rowIndex + 1}</td>
                                 {columns.map((_, columnIndex) => (
-                                    <td key={columnIndex} className="px-5 py-3 text-slate-700">
+                                    <td key={columnIndex} className="px-2 py-2 sm:px-5 sm:py-3 text-slate-700">
                                         {row[columnIndex] || '-'}
                                     </td>
                                 ))}
@@ -123,7 +122,6 @@ function DataTable({ title, description, columns, rows }) {
                         ))}
                     </tbody>
                 </table>
-                </div>
             </div>
         </div>
     );
@@ -146,6 +144,36 @@ function FlatMetadata({ metadata, schema }) {
             {flat.map(([k, v]) => (
                 <MetaChip key={k} label={labels[k] || k} value={String(v)} accentClass="bg-slate-100 text-slate-600" />
             ))}
+        </div>
+    );
+}
+
+function DownloadAttachment({ attachment }) {
+    return (
+        <div className="mt-8 rounded-2xl border border-slate-200 bg-slate-50 p-5">
+            <h3 className="text-sm font-bold text-slate-800 mb-3">Lampiran Berkas</h3>
+            <div className="flex flex-col gap-3">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                    <div className="min-w-0">
+                        <span className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">Nama Berkas:</span>
+                        <p className="text-sm font-semibold text-slate-800 break-all">{attachment.name}</p>
+                    </div>
+                    <div className="shrink-0">
+                        <span className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">Ukuran:</span>
+                        <p className="text-sm font-medium text-slate-700">{attachment.size}</p>
+                    </div>
+                </div>
+                <a
+                    href={attachment.url}
+                    download={attachment.name}
+                    className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-light focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+                >
+                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                    </svg>
+                    Download
+                </a>
+            </div>
         </div>
     );
 }
@@ -285,6 +313,10 @@ export default function PostDetail({ post, relatedPosts = [], prevPost = null, n
                             return null;
                         })}
 
+                        {post.metadata?.attachments?.[0] && (
+                            <DownloadAttachment attachment={post.metadata.attachments[0]} />
+                        )}
+
                         <FlatMetadata metadata={post.metadata} schema={post.category?.metadata_schema} />
 
                         <div className="mt-8 pt-6 border-t border-slate-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-slate-50 rounded-2xl p-4">
@@ -306,7 +338,7 @@ export default function PostDetail({ post, relatedPosts = [], prevPost = null, n
                         </div>
 
                         {(prevPost || nextPost) && (
-                            <div className="mt-10 grid sm:grid-cols-2 gap-4">
+                            <div className="mt-10 grid grid-cols-2 gap-4">
                                 {prevPost ? (
                                     <div className="flex flex-col gap-2">
                                         <span className="text-xs font-bold uppercase tracking-wide text-slate-400">← Sebelumnya</span>

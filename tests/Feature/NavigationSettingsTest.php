@@ -35,8 +35,8 @@ class NavigationSettingsTest extends TestCase
                     'label' => 'Tentang',
                     'url' => null,
                     'children' => [
-                        ['label' => 'Visi Misi', 'url' => '/laman/visi-misi'],
-                        ['label' => 'Sejarah', 'url' => '/laman/sejarah'],
+                        ['label' => 'Visi Misi', 'url' => '/visi-misi'],
+                        ['label' => 'Sejarah', 'url' => '/sejarah'],
                     ],
                 ],
             ],
@@ -107,7 +107,7 @@ class NavigationSettingsTest extends TestCase
 
     public function test_navigation_page_provides_link_options(): void
     {
-        Page::create(['title' => 'Visi & Misi', 'slug' => 'visi-misi', 'group' => 'laman', 'is_published' => true]);
+        Page::create(['title' => 'Visi & Misi', 'slug' => 'visi-misi', 'is_published' => true]);
         Category::create(['name' => 'Kesiswaan', 'slug' => 'kesiswaan']);
         $admin = User::factory()->create();
 
@@ -117,9 +117,9 @@ class NavigationSettingsTest extends TestCase
                 ->where('linkOptions', fn ($all) => collect($all)->contains(
                     fn ($o) => $o['label'] === 'Beranda' && $o['url'] === '/'
                 ) && collect($all)->contains(
-                    fn ($o) => $o['label'] === 'Laman: Visi & Misi' && $o['url'] === '/laman/visi-misi'
+                    fn ($o) => $o['label'] === 'Laman: Visi & Misi' && $o['url'] === '/visi-misi'
                 ) && collect($all)->contains(
-                    fn ($o) => $o['label'] === 'Kategori: Kesiswaan' && $o['url'] === '/arsip/kesiswaan'
+                    fn ($o) => $o['label'] === 'Kategori: Kesiswaan' && $o['url'] === '/kesiswaan'
                 ))
             );
     }

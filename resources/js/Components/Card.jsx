@@ -1,6 +1,7 @@
-export default function Card({ children, className = '', hover = false }) {
+export default function Card({ children, className = '', hover = false, overflow }) {
     return (
-        <div 
+        <div
+            style={overflow ? { overflow } : undefined}
             className={`
                 bg-white rounded-xl border border-slate-200/80 
                 shadow-card overflow-hidden

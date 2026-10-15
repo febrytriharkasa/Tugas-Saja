@@ -1,7 +1,7 @@
 import AdminLayout from '@/Layouts/AdminLayout';
 import Card from '@/Components/Card';
 import Button from '@/Components/Button';
-import { plainLabel } from '@/Components/LinkUrlPicker';
+import LinkUrlPicker, { plainLabel } from '@/Components/LinkUrlPicker';
 import Icon from '@/Components/Icon';
 import { useForm } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
@@ -12,8 +12,6 @@ export default function FooterSettings({ settings, linkOptions = [] }) {
         return acc;
     }, {});
 
-    const knownUrls = new Set(linkOptions.map((o) => o.url));
-
     let parsedGroups = [];
     try {
         parsedGroups = JSON.parse(rawSettings.footer_groups || '[]');
@@ -23,7 +21,6 @@ export default function FooterSettings({ settings, linkOptions = [] }) {
 
     const savedLogo = rawSettings.site_logo || null;
     const [logoPreview, setLogoPreview] = useState(savedLogo);
-    const [customRows, setCustomRows] = useState({});
 
     const { data, setData, post, processing, recentlySuccessful, errors } = useForm({
         site_name: rawSettings.site_name || '',
@@ -99,18 +96,13 @@ export default function FooterSettings({ settings, linkOptions = [] }) {
         ));
     };
 
-    const submitCustomUrl = (groupIndex, linkIndex, url) => {
-        setCustomRows((rows) => ({ ...rows, [`${groupIndex}-${linkIndex}`]: false }));
-        selectPage(groupIndex, linkIndex, url.trim());
-    };
-
     const handleSubmit = (e) => {
         e.preventDefault();
         post('/admin/settings/footer', { forceFormData: true });
     };
 
     return (
-        <AdminLayout title="Pengaturan Footer">
+        <AdminLayout title="Identitas Situs (Navbar & Footer)">
             <form onSubmit={handleSubmit} className="space-y-6 max-w-4xl">
                 {recentlySuccessful && (
                     <div className="p-4 bg-emerald-50 text-emerald-700 rounded-lg text-sm">
@@ -129,7 +121,7 @@ export default function FooterSettings({ settings, linkOptions = [] }) {
                     </div>
                 )}
 
-                <Card className="p-6">
+                <Card className="p-6" overflow="visible">
                     <h2 className="text-base font-bold text-slate-800 mb-4">Identitas Situs (Navbar & Footer)</h2>
                     <div className="space-y-4">
                         <div>
@@ -155,7 +147,7 @@ export default function FooterSettings({ settings, linkOptions = [] }) {
                                 type="file"
                                 accept="image/*"
                                 onChange={(e) => handleLogoChange(e.target.files[0])}
-                                className="mt-2 block w-full text-sm text-slate-500 file:mr-4 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20"
+                                className="mt-1 block w-full rounded-lg border border-slate-300 text-sm file:mr-4 file:border-0 file:bg-slate-100 file:px-4 file:py-2 file:text-slate-700"
                             />
                             <p className="mt-1 text-xs text-slate-500">
                                 Klik tombol X pada gambar untuk menghapus. Format PNG/JPG/SVG, maksimal 2MB. Tanpa logo, navbar memakai inisial otomatis.
@@ -199,7 +191,7 @@ export default function FooterSettings({ settings, linkOptions = [] }) {
                     </div>
                 </Card>
 
-                <Card className="p-6">
+                <Card className="p-6" overflow="visible">
                     <div className="flex items-center justify-between mb-4">
                         <div>
                             <h2 className="text-base font-bold text-slate-800">Kolom Tautan Footer</h2>
@@ -284,40 +276,11 @@ export default function FooterSettings({ settings, linkOptions = [] }) {
                                                         </div>
                                                         <div>
                                                             <label className="block text-xs font-medium text-slate-600 mb-1">URL Tujuan</label>
-                                                            {customRows[`${groupIndex}-${linkIndex}`] || (link.url && !knownUrls.has(link.url)) ? (
-                                                                <div className="flex gap-2">
-                                                                    <input
-                                                                        type="text"
-                                                                        value={link.url}
-                                                                        onChange={(e) => updateLink(groupIndex, linkIndex, 'url', e.target.value)}
-                                                                        onBlur={(e) => submitCustomUrl(groupIndex, linkIndex, e.target.value)}
-                                                                        onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), submitCustomUrl(groupIndex, linkIndex, e.target.value))}
-                                                                        placeholder="https://contoh.com atau /laman/xyz"
-                                                                        className="block w-full rounded-lg border-slate-300 text-sm focus:border-primary focus:ring-primary"
-                                                                    />
-                                                                    <button
-                                                                        type="button"
-                                                                        onClick={() => submitCustomUrl(groupIndex, linkIndex, link.url)}
-                                                                        className="shrink-0 rounded-lg bg-primary/10 px-3 text-xs font-semibold text-primary transition hover:bg-primary/20"
-                                                                    >
-                                                                        OK
-                                                                    </button>
-                                                                </div>
-                                                            ) : (
-                                                                <select
-                                                                    value={link.url || ''}
-                                                                    onChange={(e) => e.target.value === '__custom__'
-                                                                        ? setCustomRows((rows) => ({ ...rows, [`${groupIndex}-${linkIndex}`]: true }))
-                                                                        : selectPage(groupIndex, linkIndex, e.target.value)}
-                                                                    className="block w-full rounded-lg border-slate-300 text-sm focus:border-primary focus:ring-primary"
-                                                                >
-                                                                    <option value="">Pilih halaman tujuan...</option>
-                                                                    {linkOptions.map((option) => (
-                                                                        <option key={option.url} value={option.url}>{option.label}</option>
-                                                                    ))}
-                                                                    <option value="__custom__">URL lain (isi manual)...</option>
-                                                                </select>
-                                                            )}
+                                                            <LinkUrlPicker
+                                                                options={linkOptions}
+                                                                value={link.url || ''}
+                                                                onChange={(url) => selectPage(groupIndex, linkIndex, url)}
+                                                            />
                                                         </div>
                                                     </div>
                                                     <button

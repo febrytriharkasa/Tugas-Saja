@@ -16,55 +16,16 @@ class AboutCategoryPagesTest extends TestCase
 {
     use RefreshDatabase;
 
-    public function test_category_based_about_slug_renders_archive_with_posts(): void
-    {
-        $user = User::factory()->create();
-        $category = Category::create([
-            'name' => 'Fasilitas',
-            'slug' => 'fasilitas',
-        ]);
-
-        Page::create([
-            'title' => 'Fasilitas',
-            'slug' => 'fasilitas',
-            'group' => 'tentang',
-            'display_type' => 'category',
-            'category_id' => $category->id,
-            'is_published' => true,
-        ]);
-
-        Post::create([
-            'user_id' => $user->id,
-            'category_id' => $category->id,
-            'title' => 'Laboratorium Komputer',
-            'slug' => 'laboratorium-komputer',
-            'content' => 'Fasilitas lab komputer lengkap.',
-            'status' => 'published',
-            'published_at' => now(),
-        ]);
-
-        $response = $this->get('/laman/fasilitas');
-
-        $response->assertOk();
-        $response->assertInertia(fn (Assert $page) => $page
-            ->component('Public/Archive')
-            ->where('title', 'Fasilitas')
-            ->where('type', 'fasilitas')
-            ->has('items.data', 1)
-        );
-    }
-
     public function test_regular_about_slug_renders_static_page(): void
     {
         Page::create([
             'title' => 'Sejarah Sekolah',
             'slug' => 'sejarah',
             'content' => 'Isi sejarah sekolah',
-            'group' => 'tentang',
             'is_published' => true,
         ]);
 
-        $response = $this->get('/laman/sejarah');
+        $response = $this->get('/sejarah');
 
         $response->assertOk();
         $response->assertInertia(fn (Assert $page) => $page
@@ -73,23 +34,21 @@ class AboutCategoryPagesTest extends TestCase
         );
     }
 
-    public function test_archive_group_page_renders_and_is_shared_with_public_navigation(): void
+    public function test_archive_page_renders_and_is_shared_with_public_navigation(): void
     {
         Page::create([
             'title' => 'Kalender Akademik',
             'slug' => 'kalender-akademik',
             'content' => 'Jadwal akademik sekolah',
-            'group' => 'arsip',
             'is_published' => true,
         ]);
 
-        $response = $this->get('/laman/kalender-akademik');
+        $response = $this->get('/kalender-akademik');
 
         $response->assertOk();
         $response->assertInertia(fn (Assert $page) => $page
             ->component('Public/Page')
-            ->where('page.group', 'arsip')
-            ->where('archivePages.0.slug', 'kalender-akademik')
+            ->where('page.slug', 'kalender-akademik')
         );
     }
 
@@ -111,7 +70,7 @@ class AboutCategoryPagesTest extends TestCase
             'published_at' => now(),
         ]);
 
-        $response = $this->get('/arsip/kegiatan-siswa');
+        $response = $this->get('/kegiatan-siswa');
 
         $response->assertOk();
         $response->assertInertia(fn (Assert $page) => $page
@@ -129,8 +88,6 @@ class AboutCategoryPagesTest extends TestCase
 
         $this->actingAs($user)->post('/admin/pages', [
             'title' => 'Sejarah Sekolah',
-            'group' => 'tentang',
-            'display_type' => 'text',
             'content' => 'Isi sejarah sekolah.',
             'is_published' => true,
             'image' => UploadedFile::fake()->image('sejarah.jpg'),
@@ -166,16 +123,12 @@ class AboutCategoryPagesTest extends TestCase
         $page = Page::create([
             'title' => 'Visi Misi',
             'slug' => 'visi-misi',
-            'group' => 'tentang',
-            'display_type' => 'text',
             'content' => 'Visi misi sekolah.',
             'is_published' => true,
         ]);
 
         $this->actingAs($user)->put("/admin/pages/{$page->id}", [
             'title' => 'Visi Misi',
-            'group' => 'tentang',
-            'display_type' => 'text',
             'content' => 'Visi misi sekolah diperbarui.',
             'is_published' => true,
             'image' => UploadedFile::fake()->image('visi.jpg'),
@@ -197,8 +150,6 @@ class AboutCategoryPagesTest extends TestCase
         $page = Page::create([
             'title' => 'Sejarah Sekolah',
             'slug' => 'sejarah',
-            'group' => 'tentang',
-            'display_type' => 'text',
             'content' => 'Isi sejarah sekolah.',
             'image' => '/storage/pages/sejarah.jpg',
             'metadata' => [
@@ -209,7 +160,7 @@ class AboutCategoryPagesTest extends TestCase
             'is_published' => true,
         ]);
 
-        $this->get('/laman/sejarah')->assertOk()->assertInertia(fn (Assert $assert) => $assert
+        $this->get('/sejarah')->assertOk()->assertInertia(fn (Assert $assert) => $assert
             ->component('Public/Page')
             ->where('page.image', '/storage/pages/sejarah.jpg')
             ->where('page.metadata.blocks.0.content', 'Catatan sejarah.')

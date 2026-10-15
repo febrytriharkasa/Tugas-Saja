@@ -4,20 +4,18 @@ import Button from '@/Components/Button';
 import ActionIcon from '@/Components/ActionIcon';
 import Pagination from '@/Components/Pagination';
 import ConfirmDeleteModal from '@/Components/ConfirmDeleteModal';
-import { router } from '@inertiajs/react';
+import Modal from '@/Components/Modal';
+import Icon from '@/Components/Icon';
+import { Link, router, usePage } from '@inertiajs/react';
 import { useState } from 'react';
 
-const groupLabels = {
-    tentang: 'Tentang Kami',
-    arsip: 'Arsip Kustom',
-    laman: 'Laman Kustom',
-};
-
 export default function PageIndex({ pages }) {
+    const { flash = {} } = usePage().props;
     const pageItems = Array.isArray(pages) ? pages : (pages?.data || []);
     const pageLinks = Array.isArray(pages) ? null : pages?.links;
     const [deleteTarget, setDeleteTarget] = useState(null);
     const [processing, setProcessing] = useState(false);
+    const [navPromptOpen, setNavPromptOpen] = useState(!!flash.page_created);
 
     const confirmDelete = () => {
         setProcessing(true);
@@ -31,10 +29,33 @@ export default function PageIndex({ pages }) {
 
     return (
         <AdminLayout title="Kelola Laman">
+            <Modal show={navPromptOpen} maxWidth="sm" onClose={() => setNavPromptOpen(false)}>
+                <div className="p-6">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-100 text-emerald-700">
+                        <Icon name="check" className="h-6 w-6" />
+                    </div>
+                    <h2 className="mt-4 text-base font-bold text-slate-800">Laman Tersimpan</h2>
+                    <p className="mt-2 text-sm text-slate-600">
+                        Laman <span className="font-semibold">{flash.page_title}</span> berhasil disimpan.
+                        Laman baru tidak otomatis muncul di navbar. Mau ditambahkan ke menu navigasi sekarang?
+                    </p>
+                    <div className="mt-6 gap-3">
+                        <Button variant="outline" onClick={() => setNavPromptOpen(false)} className="w-full">
+                            Nanti saja
+                        </Button>
+                    </div>
+                    <div className="mt-2 gap-3">
+                        <Button href="/admin/settings/navigation" icon="settings" className="w-full">
+                            <p className="text-sm">Tambahkan ke Navigasi</p>
+                        </Button>
+                    </div>
+                </div>
+            </Modal>
+
             <div className="mb-6 flex items-center justify-between">
                 <div>
                     <h1 className="text-lg font-bold text-slate-800">Halaman Statis</h1>
-                    <p className="mt-1 text-sm text-slate-500">Kelola laman Tentang, Arsip, dan halaman kustom lainnya</p>
+                    <p className="mt-1 text-sm text-slate-500">Kelola konten halaman statis sekolah</p>
                 </div>
                 <Button href="/admin/pages/create" icon="plus">
                     Tambah Laman
@@ -48,7 +69,6 @@ export default function PageIndex({ pages }) {
                             <tr>
                                 <th className="px-4 py-3">Judul</th>
                                 <th className="px-4 py-3">Slug</th>
-                                <th className="px-4 py-3">Grup</th>
                                 <th className="px-4 py-3">Status</th>
                                 <th className="px-4 py-3 text-right">Aksi</th>
                             </tr>
@@ -57,12 +77,7 @@ export default function PageIndex({ pages }) {
                             {pageItems.map((p) => (
                                 <tr key={p.id} className="transition hover:bg-slate-50">
                                     <td className="px-4 py-3 font-medium text-slate-800">{p.title}</td>
-                                    <td className="px-4 py-3 font-mono text-xs text-slate-500">/laman/{p.slug}</td>
-                                    <td className="px-4 py-3">
-                                        <span className="inline-flex rounded-full bg-secondary/10 px-2.5 py-0.5 text-xs font-medium text-secondary">
-                                            {groupLabels[p.group] || p.group}
-                                        </span>
-                                    </td>
+                                    <td className="px-4 py-3 font-mono text-xs text-slate-500">/{p.slug}</td>
                                     <td className="px-4 py-3">
                                         <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${
                                             p.is_published ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-600'
@@ -81,7 +96,7 @@ export default function PageIndex({ pages }) {
                             ))}
                             {pageItems.length === 0 && (
                                 <tr>
-                                    <td colSpan="5" className="px-4 py-12 text-center">
+                                    <td colSpan="4" className="px-4 py-12 text-center">
                                         <div className="flex flex-col items-center gap-2">
                                             <div className="flex h-12 w-12 items-center justify-center rounded-full bg-slate-100 text-slate-400">
                                                 <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">
