@@ -56,18 +56,6 @@ function PostMedia({ post }) {
     return null;
 }
 
-function MetaChip({ label, value, accentClass = 'bg-emerald-50 text-emerald-700' }) {
-    if (!value) {
-        return null;
-    }
-    return (
-        <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold ${accentClass}`}>
-            {label && <span className="opacity-70">{label}:</span>}
-            {value}
-        </span>
-    );
-}
-
 function DataTable({ title, description, columns, rows }) {
     if (!Array.isArray(columns) || columns.length === 0 || !Array.isArray(rows) || rows.length === 0) {
         return null;
@@ -108,23 +96,43 @@ function DataTable({ title, description, columns, rows }) {
     );
 }
 
-function FlatMetadata({ metadata, schema }) {
+function MetadataTable({ metadata, schema, categoryName }) {
     const labels = Object.fromEntries(
         (Array.isArray(schema) ? schema : [])
             .filter((field) => field?.key && field?.label)
             .map((field) => [field.key, field.label]),
     );
-    const flat = Object.entries(metadata || {}).filter(
-        ([key, val]) => key !== 'achievement_table' && key !== 'tables' && key !== 'blocks' && val !== null && val !== '',
+    const formatKey = (key) => key.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+    const rows = Object.entries(metadata || {}).filter(
+        ([key, val]) =>
+            key !== 'achievement_table' &&
+            key !== 'tables' &&
+            key !== 'blocks' &&
+            key !== 'attachments' &&
+            val !== null &&
+            val !== '' &&
+            !(Array.isArray(val) && val.length === 0),
     );
-    if (flat.length === 0) {
+    if (rows.length === 0) {
         return null;
     }
     return (
-        <div className="mt-6 flex flex-wrap gap-2">
-            {flat.map(([k, v]) => (
-                <MetaChip key={k} label={labels[k] || k} value={String(v)} accentClass="bg-slate-100 text-slate-600" />
-            ))}
+        <div className="mt-8">
+            <div className="overflow-hidden rounded-xl border border-slate-200 shadow-sm">
+                <div className="bg-primary px-5 py-3">
+                    <h3 className="text-sm font-bold text-white">Detail {categoryName || 'Informasi'}</h3>
+                </div>
+                <table className="w-full table-fixed text-left border-collapse text-sm">
+                    <tbody className="divide-y divide-slate-100">
+                        {rows.map(([k, v], rowIndex) => (
+                            <tr key={k} className={rowIndex % 2 === 0 ? 'bg-slate-50/50' : 'bg-white'}>
+                                <td className="w-1/3 px-5 py-3 font-semibold text-slate-700">{labels[k] || formatKey(k)}</td>
+                                <td className="px-5 py-3 text-slate-700 break-words">{String(v)}</td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
         </div>
     );
 }
@@ -310,7 +318,7 @@ export default function PostDetail({ post, relatedPosts = [], prevPost = null, n
                             <DownloadAttachment attachment={post.metadata.attachments[0]} />
                         )}
 
-                        <FlatMetadata metadata={post.metadata} schema={post.category?.metadata_schema} />
+                        <MetadataTable metadata={post.metadata} schema={post.category?.metadata_schema} categoryName={post.category?.name} />
 
                         <div className="mt-8 pt-6 border-t border-slate-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-slate-50 rounded-2xl p-4">
                             <div className="flex flex-wrap items-center gap-2">

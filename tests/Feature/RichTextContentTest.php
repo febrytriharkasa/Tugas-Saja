@@ -186,6 +186,35 @@ class RichTextContentTest extends TestCase
         $this->assertStringContainsString('<em>saja</em>', $blocks[0]['content']);
     }
 
+    public function test_page_accepts_callout_and_blockquote_blocks(): void
+    {
+        $page = Page::create([
+            'title' => 'Laman Kutipan',
+            'slug' => 'laman-kutipan',
+            'content' => '<p>Isi laman</p>',
+            'is_published' => true,
+        ]);
+
+        $this->actingAs($this->admin())->put("/admin/pages/{$page->id}", [
+            'title' => 'Laman Kutipan',
+            'content' => '<p>Isi laman</p>',
+            'is_published' => true,
+            'meta' => [
+                'blocks' => [
+                    ['type' => 'callout', 'content' => '<p>Info <strong>PPDB</strong></p>'],
+                    ['type' => 'blockquote', 'content' => '<p>Belajar hari ini.</p>', 'source' => '<b>Kepala Sekolah</b>'],
+                    ['type' => 'text', 'content' => '   '],
+                ],
+            ],
+        ])->assertRedirect(route('admin.pages.index'));
+
+        $blocks = $page->fresh()->metadata['blocks'];
+
+        $this->assertSame(['callout', 'blockquote'], array_column($blocks, 'type'));
+        $this->assertStringContainsString('<strong>PPDB</strong>', $blocks[0]['content']);
+        $this->assertSame('Kepala Sekolah', $blocks[1]['source']);
+    }
+
     public function test_page_text_block_content_is_sanitized(): void
     {
         $page = Page::create([
@@ -230,6 +259,26 @@ class RichTextContentTest extends TestCase
         $this->assertStringContainsString('font-style:italic', $content);
     }
 
+    public function test_picked_list_marker_type_survives_sanitising(): void
+    {
+        $category = Category::create(['name' => 'Berita', 'slug' => 'berita']);
+
+        $this->actingAs($this->admin())->post('/admin/posts', [
+            'title' => 'Marker Pilihan',
+            'category_id' => $category->id,
+            'content' => '<ol><li style="list-style-type: lower-alpha;">Huruf</li>'
+                . '<li style="list-style-type: decimal;">Angka</li>'
+                . '<li style="list-style-type: lower-roman;">Romawi</li></ol>',
+            'status' => 'published',
+        ])->assertRedirect(route('admin.posts.index'));
+
+        $content = str_replace(' ', '', Post::where('title', 'Marker Pilihan')->value('content'));
+
+        $this->assertStringContainsString('list-style-type:lower-alpha', $content);
+        $this->assertStringContainsString('list-style-type:lower-roman', $content);
+        $this->assertStringContainsString('list-style-type:decimal', $content);
+    }
+
     public function test_style_properties_outside_the_allowlist_are_stripped_from_list_items(): void
     {
         $category = Category::create(['name' => 'Berita', 'slug' => 'berita']);
@@ -245,6 +294,28 @@ class RichTextContentTest extends TestCase
 
         $this->assertStringContainsString('font-size:24px', str_replace(' ', '', $content));
         $this->assertStringNotContainsString('position', $content);
+    }
+
+    public function test_nested_lists_round_trip_through_save(): void
+    {
+        $category = Category::create(['name' => 'Berita', 'slug' => 'berita']);
+
+        $this->actingAs($this->admin())->post('/admin/posts', [
+            'title' => 'Daftar Bersarang',
+            'category_id' => $category->id,
+            'content' => '<ol><li>Utama</li><li><ol><li>Sub a</li><li>Sub b</li></ol></li><li>Akhir</li></ol>'
+                . '<ul><li>Poin</li><li><ul><li>Sub poin</li></ul></li></ul>',
+            'status' => 'published',
+        ])->assertRedirect(route('admin.posts.index'));
+
+        $content = Post::where('title', 'Daftar Bersarang')->value('content');
+
+        // The indent survives as genuine nesting, so the page renumbers sub-levels
+        // instead of restarting one flat list; no editor-only plumbing leaks out.
+        $this->assertStringContainsString('<ol><li>Utama</li><li><ol><li>Sub a</li>', $content);
+        $this->assertStringContainsString('<ul><li>Poin</li><li><ul><li>Sub poin</li>', $content);
+        $this->assertStringNotContainsString('ql-indent', $content);
+        $this->assertStringNotContainsString('data-list', $content);
     }
 
     public function test_heading_levels_survive_sanitising_but_h1_is_dropped(): void

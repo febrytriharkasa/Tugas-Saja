@@ -108,8 +108,9 @@ class PageController extends Controller
             'meta' => ['nullable', 'array'],
             'meta.*' => ['nullable'],
             'meta.blocks' => ['nullable', 'array'],
-            'meta.blocks.*.type' => ['required_with:meta.blocks', Rule::in(['text', 'table'])],
+            'meta.blocks.*.type' => ['required_with:meta.blocks', Rule::in(['text', 'table', 'callout', 'blockquote'])],
             'meta.blocks.*.content' => ['nullable', 'string'],
+            'meta.blocks.*.source' => ['nullable', 'string', 'max:255'],
             'meta.blocks.*.title' => ['nullable', 'string', 'max:255'],
             'meta.blocks.*.description' => ['nullable', 'string', 'max:500'],
             'meta.blocks.*.columns' => ['nullable', 'array'],
@@ -127,6 +128,10 @@ class PageController extends Controller
         return $validated;
     }
 
+    /**
+     * Rich-text block bodies arrive as HTML, so they are purified here and blocks
+     * that end up empty after cleaning are dropped instead of saved blank.
+     */
     private function metadata(array $validated): ?array
     {
         $blocks = $validated['meta']['blocks'] ?? [];
@@ -140,6 +145,10 @@ class PageController extends Controller
                 $block['content'] = Purifier::clean($block['content'], 'content');
             }
 
+            if (isset($block['source']) && is_string($block['source'])) {
+                $block['source'] = strip_tags($block['source']);
+            }
+
             return $block;
         }, $blocks);
 
@@ -147,7 +156,7 @@ class PageController extends Controller
             if (! isset($block['type'])) {
                 return false;
             }
-            if ($block['type'] === 'text') {
+            if (in_array($block['type'], ['text', 'callout', 'blockquote'], true)) {
                 return trim($block['content'] ?? '') !== '';
             }
             if ($block['type'] === 'table') {

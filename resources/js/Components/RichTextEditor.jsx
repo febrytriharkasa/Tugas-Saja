@@ -4,23 +4,41 @@ import 'quill/dist/quill.snow.css';
 import { toParagraphs } from '@/lib/content';
 import { normalizeQuillHtml, syncListMarkers } from '@/lib/quillContent';
 
-const FONT_SIZES = ['12px', '14px', '16px', '18px', '24px', '32px'];
-const FORMATS = ['header', 'size', 'bold', 'italic', 'underline', 'strike', 'list', 'link'];
+const FORMATS = ['bold', 'italic', 'underline', 'strike', 'list', 'indent', 'link', 'listStyle'];
 
-// Inline px sizes instead of Quill's default small/large/huge classes, so the
-// stored HTML carries the exact size the author picked (and the purifier keeps it).
-// `false` gives both pickers a "Normal" entry; their labels live in app.css
-// because Quill only ships English ones.
-const SizeStyle = Quill.import('attributors/style/size');
-SizeStyle.whitelist = FONT_SIZES;
-Quill.register(SizeStyle, true);
+const Parchment = Quill.import('parchment');
+
+// Ordered-marker types the author can pick. Plain CSS keywords, so the editor,
+// the saved HTML and the published page all carry the same `list-style-type`.
+const LIST_STYLES = ['decimal', 'lower-alpha', 'lower-roman'];
+
+// BLOCK scope puts the value on the `<li>` itself. An item without one keeps
+// Quill's own rotation by depth (1. / a. / i.).
+const ListStyle = new Parchment.StyleAttributor('listStyle', 'list-style-type', {
+    scope: Parchment.Scope.BLOCK,
+    whitelist: LIST_STYLES,
+});
+Quill.register(ListStyle, true);
 
 const TOOLBAR = [
-    [{ header: [2, 3, 4, false] }, { size: [false, ...FONT_SIZES] }],
     ['bold', 'italic', 'underline', 'strike'],
-    [{ list: 'ordered' }, { list: 'bullet' }],
+    [{ list: 'ordered' }, { list: 'bullet' }, { indent: '-1' }, { indent: '+1' }],
+    [{ listStyle: [false, ...LIST_STYLES] }],
     ['link', 'clean'],
 ];
+
+// The marker picker belongs to numbered items: on a bullet or plain line the pick
+// is ignored, so a published bullet list never turns into a lettered one.
+function listStyle(value) {
+    const range = this.quill.getSelection();
+    const formats = range == null ? {} : this.quill.getFormat(range);
+
+    if (formats.list !== 'ordered') {
+        return;
+    }
+
+    this.quill.format('listStyle', value, Quill.sources.USER);
+}
 
 /** Loads stored HTML through Quill's parser, which rebuilds lists and their markers. */
 function loadHtml(quill, html) {
@@ -53,11 +71,38 @@ export default function RichTextEditor({
         const quill = new Quill(hostRef.current, {
             theme: 'snow',
             placeholder,
-            modules: { toolbar: TOOLBAR },
+            modules: {
+                toolbar: { container: TOOLBAR, handlers: { listStyle } },
+            },
             formats: FORMATS,
         });
 
         quillRef.current = quill;
+
+        // Preserve inline formats (size/bold/italic/underline/strike) across Enter.
+        // Quill's default handleEnter only copies block formats (list/indent).
+        const keyboard = quill.getModule('keyboard');
+        keyboard.addBinding({ key: 'Enter', shiftKey: null }, function (range, context) {
+            const formats = quill.getFormat(range);
+            const inline = {};
+            Object.keys(formats).forEach((name) => {
+                if (!quill.scroll.query(name, Scope.BLOCK) && !Array.isArray(formats[name])) {
+                    inline[name] = formats[name];
+                }
+            });
+
+            // Default handleEnter inserts \n with block formats. Let it run.
+            const handled = this.quill.keyboard.bindings.Enter.find(
+                (b) => b.handler.name === 'handleEnter'
+            )?.handler.call(this, range, context);
+
+            // Apply inline formats to new empty line as pending formats for next typed char.
+            if (Object.keys(inline).length > 0) {
+                Object.keys(inline).forEach((name) => quill.format(name, inline[name]));
+            }
+
+            return handled;
+        });
 
         if (lastEmitted.current) {
             loadHtml(quill, lastEmitted.current);
@@ -114,7 +159,10 @@ export default function RichTextEditor({
                     'rich-text-editor',
                     compact ? 'rich-text-editor--compact' : '',
                     variant ? `rich-text-editor--${variant}` : '',
-                    'mt-1 overflow-hidden rounded-lg border border-slate-300 bg-white',
+                    // overflow-hidden would clip Quill's dropdown when it is taller
+                    // than the writing area; the rounded corners live on the toolbar
+                    // and container instead (see app.css).
+                    'mt-1 rounded-lg border border-slate-300 bg-white',
                 ].join(' ')}
             >
                 <div ref={hostRef} />

@@ -128,7 +128,6 @@ export default function PageForm({ page }) {
                         blocks={blocks}
                         onChange={setBlocks}
                         errors={errors}
-                        types={['text', 'table']}
                     />
 
                             </div>
