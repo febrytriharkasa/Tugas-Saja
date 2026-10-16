@@ -101,7 +101,7 @@ function PostCard({ post, delay = 0 }) {
                     <div className="relative aspect-[16/9] sm:aspect-[16/10] overflow-hidden bg-slate-100 shrink-0">
                         {thumbnail ? (
                             <div className="relative h-full w-full">
-                                <img src={thumbnail} alt={post.title} className="h-full w-full object-cover" />
+                                <img src={thumbnail} alt={post.title} loading="lazy" className="h-full w-full object-cover" />
                                 {post.media_type === 'video' && (
                                     <span className="absolute inset-0 flex items-center justify-center bg-slate-900/35" aria-hidden="true">
                                         <svg className="h-9 w-9 text-white drop-shadow" fill="currentColor" viewBox="0 0 24 24">
@@ -444,6 +444,7 @@ export default function Welcome({ settings = {}, posts = [], homeSections = [], 
                                                     <img
                                                         src={thumb}
                                                         alt={item.title}
+                                                        loading="lazy"
                                                         className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                                                     />
                                                     {item.media_type === 'video' ? (

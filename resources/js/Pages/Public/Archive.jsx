@@ -111,6 +111,7 @@ export default function Archive({ title, type, items }) {
                                                 <img
                                                     src={thumbnail}
                                                     alt={post.title}
+                                                    loading="lazy"
                                                     className="h-full w-full object-cover"
                                                 />
                                                 {post.media_type === 'video' && (
@@ -164,7 +165,7 @@ export default function Archive({ title, type, items }) {
                                 <Link href={postUrl(agenda)} className="block shrink-0">
                                     <div className="relative aspect-[16/9] w-full bg-slate-100 flex items-center justify-center">
                                         {agenda.featured_image ? (
-                                            <img src={agenda.featured_image} alt={agenda.title} className="w-full h-full object-cover" />
+                                            <img src={agenda.featured_image} alt={agenda.title} loading="lazy" className="w-full h-full object-cover" />
                                         ) : (
                                             <span className="text-xs text-slate-400 font-medium">Gambar tidak tersedia</span>
                                         )}
@@ -201,7 +202,7 @@ export default function Archive({ title, type, items }) {
                             <Link href={postUrl(ach)} className="block shrink-0">
                                 <div className="relative aspect-[16/10] w-full bg-slate-100 flex items-center justify-center">
                                     {ach.featured_image ? (
-                                        <img src={ach.featured_image} alt={ach.title} className="w-full h-full object-cover" />
+                                        <img src={ach.featured_image} alt={ach.title} loading="lazy" className="w-full h-full object-cover" />
                                     ) : (
                                         <span className="text-xs text-slate-400 font-medium">Gambar tidak tersedia</span>
                                     )}
@@ -245,9 +246,9 @@ export default function Archive({ title, type, items }) {
                                         return (
                                             <div className="relative w-full h-full bg-slate-800">
                                                 {videoThumb ? (
-                                                    <img src={videoThumb} alt={item.title} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
+                                                    <img src={videoThumb} alt={item.title} loading="lazy" className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
                                                 ) : item.featured_image ? (
-                                                    <img src={item.featured_image} alt={item.title} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
+                                                    <img src={item.featured_image} alt={item.title} loading="lazy" className="w-full w-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
                                                 ) : null}
                                                 <div className="absolute inset-0 flex items-center justify-center">
                                                     <svg className="w-10 h-10 text-white drop-shadow" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
@@ -258,7 +259,7 @@ export default function Archive({ title, type, items }) {
                                         );
                                     })() : item.featured_image ? (
                                         <div className="relative h-full w-full">
-                                            <img src={item.featured_image} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+                                            <img src={item.featured_image} alt={item.title} loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
                                             <span className="absolute bottom-2 right-2 rounded-md bg-slate-900/60 p-1.5 text-white opacity-0 group-hover:opacity-100 transition-opacity" aria-hidden="true">
                                                 <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                                                     <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M11 19a8 8 0 100-16 8 8 0 000 16zm-3-8h6m-3-3v6" />

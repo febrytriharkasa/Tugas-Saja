@@ -392,7 +392,7 @@ export default function PostDetail({ post, relatedPosts = [], prevPost = null, n
                                                 <div className="relative w-24 h-24 rounded-xl overflow-hidden flex-shrink-0 bg-slate-100">
                                                     {relThumb ? (
                                                         <>
-                                                            <img src={relThumb} alt={rel.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+                                                            <img src={relThumb} alt={rel.title} loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
                                                             {rel.media_type === 'video' && (
                                                                 <span className="absolute inset-0 flex items-center justify-center bg-slate-900/35" aria-hidden="true">
                                                                     <svg className="h-6 w-6 text-white drop-shadow" fill="currentColor" viewBox="0 0 24 24">

@@ -109,6 +109,7 @@ export default function Search({ keyword = '', items }) {
                                                         <img
                                                             src={thumbnail}
                                                             alt={post.title}
+                                                            loading="lazy"
                                                             className="h-full w-full object-cover"
                                                         />
                                                         {post.media_type === 'video' && (
