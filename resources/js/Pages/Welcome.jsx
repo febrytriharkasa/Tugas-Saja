@@ -124,7 +124,7 @@ function PostCard({ post, delay = 0 }) {
                         <h3 className="mt-1.5 min-h-10 line-clamp-2 break-words text-sm font-bold text-slate-900 sm:mt-3 sm:min-h-14 sm:text-lg">
                             <Link href={postUrl(post)} className="hover:text-primary">{post.title}</Link>
                         </h3>
-                        {post.user?.name && (
+                        {post.category?.name?.toLowerCase() === 'berita' && post.user?.name && (
                             <p className="mt-1 break-words text-[10px] text-slate-500 sm:mt-2 sm:text-xs">
                                 <span className="font-semibold text-slate-700">{post.user.name}</span>
                             </p>

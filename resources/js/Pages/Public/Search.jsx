@@ -14,8 +14,8 @@ function Pagination({ links }) {
         raw
             .replace('&laquo;', '«')
             .replace('&raquo;', '»')
-            .replace('Previous', 'Sebelumnya')
-            .replace('Next', 'Berikutnya');
+            .replace('Previous', '')
+            .replace('Next', '');
 
     return (
         <nav className="mt-10 flex flex-wrap items-center justify-center gap-1.5" aria-label="Navigasi halaman">
@@ -24,7 +24,6 @@ function Pagination({ links }) {
                     <Link
                         key={index}
                         href={link.url}
-                        preserveScroll
                         aria-current={link.active ? 'page' : undefined}
                         className={`inline-flex min-h-10 min-w-10 items-center justify-center rounded-lg border px-3 text-sm font-semibold transition ${
                             link.active
