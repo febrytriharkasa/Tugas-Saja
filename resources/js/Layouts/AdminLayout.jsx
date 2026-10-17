@@ -1,5 +1,6 @@
 import { Link, usePage } from '@inertiajs/react';
 import { useEffect, useRef, useState } from 'react';
+import Button from '@/Components/Button';
 import Icon from '@/Components/Icon';
 import ThemeToggle from '@/Components/ThemeToggle';
 
@@ -79,12 +80,8 @@ export default function AdminLayout({ children, title }) {
 
                     <div className="flex items-center gap-x-3 sm:gap-x-4">
                         <ThemeToggle />
-                        <Link
-                            href="/"
-                            className="rounded-lg bg-slate-200 px-3.5 py-2 text-xs font-semibold text-primary shadow-sm transition hover:bg-white/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary sm:text-sm"
-                        >
-                            Lihat Situs
-                        </Link>
+
+                        <Button href="/" variant="outline" target="_blank" rel="noreferrer" icon="external-link">Lihat beranda</Button>
 
                         <div ref={userMenuRef} className="relative">
                             <button
