@@ -4,12 +4,13 @@ import Button from '@/Components/Button';
 import ActionIcon from '@/Components/ActionIcon';
 import Pagination from '@/Components/Pagination';
 import ConfirmDeleteModal from '@/Components/ConfirmDeleteModal';
+import SearchInput from '@/Components/SearchInput';
 import { router } from '@inertiajs/react';
 import { useState } from 'react';
 
 const typeLabels = { guru: 'Guru', tendik: 'Tendik', gtk: 'GTK' };
 
-export default function StaffIndex({ staff }) {
+export default function StaffIndex({ staff, filters = {} }) {
     const staffItems = Array.isArray(staff) ? staff : (staff?.data || []);
     const staffLinks = Array.isArray(staff) ? null : staff?.links;
     const [deleteTarget, setDeleteTarget] = useState(null);
@@ -27,14 +28,28 @@ export default function StaffIndex({ staff }) {
 
     return (
         <AdminLayout title="Guru & Tendik">
-            <div className="mb-6 flex items-center justify-between">
+            <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                     <h1 className="text-lg font-bold text-slate-800">Data Guru & Tenaga Kependidikan</h1>
                     <p className="mt-1 text-sm text-slate-500">Kelola profil pengajar dan tenaga kependidikan sekolah</p>
                 </div>
-                <Button href="/admin/staff/create" icon="plus">
-                    Tambah Guru/Tendik
-                </Button>
+                <div className="flex flex-wrap items-center gap-3">
+                    <SearchInput href="/admin/staff" filters={filters} placeholder="Cari nama atau jabatan..." />
+                    <select
+                        defaultValue={filters?.type || ''}
+                        onChange={(e) => router.get('/admin/staff', { ...filters, type: e.target.value || undefined }, { preserveState: true })}
+                        aria-label="Filter tipe guru atau tendik"
+                        className="rounded-lg border-slate-300 py-2 pl-3 pr-10 text-sm focus:border-primary focus:ring-primary"
+                    >
+                        <option value="">Semua Tipe</option>
+                        {Object.entries(typeLabels).map(([value, label]) => (
+                            <option key={value} value={value}>{label}</option>
+                        ))}
+                    </select>
+                    <Button href="/admin/staff/create" icon="plus">
+                        Tambah Guru/Tendik
+                    </Button>
+                </div>
             </div>
 
             <Card className="overflow-hidden">
@@ -91,8 +106,21 @@ export default function StaffIndex({ staff }) {
                                                     <path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                                                 </svg>
                                             </div>
-                                            <p className="text-sm font-medium text-slate-500">Belum ada data guru atau tendik</p>
-                                            <p className="text-xs text-slate-400">Tambah profil pengajar dan staf sekolah</p>
+                                            {filters?.search || filters?.type ? (
+                                                <>
+                                                    <p className="text-sm font-medium text-slate-500">
+                                                        {filters.search ? `Tidak ada guru atau tendik yang cocok dengan "${filters.search}"` : 'Tidak ada guru atau tendik dengan tipe ini'}
+                                                    </p>
+                                                    <Button variant="ghost" size="sm" href="/admin/staff">
+                                                        Hapus filter
+                                                    </Button>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <p className="text-sm font-medium text-slate-500">Belum ada data guru atau tendik</p>
+                                                    <p className="text-xs text-slate-400">Tambah profil pengajar dan staf sekolah</p>
+                                                </>
+                                            )}
                                         </div>
                                     </td>
                                 </tr>

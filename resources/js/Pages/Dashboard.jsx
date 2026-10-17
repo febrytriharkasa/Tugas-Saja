@@ -228,7 +228,7 @@ export default function Dashboard({ metrics, latestPosts, latestPages, siteInfo,
                                                 <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${
                                                     page.is_published ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-600'
                                                 }`}>
-                                                    {page.is_published ? 'Tayang' : 'Draf'}
+                                                    {page.is_published ? 'Terbit' : 'Draf'}
                                                 </span>
                                             </td>
 

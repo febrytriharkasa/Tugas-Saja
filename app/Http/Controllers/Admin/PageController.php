@@ -13,10 +13,21 @@ use Mews\Purifier\Facades\Purifier;
 
 class PageController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        $query = Page::latest();
+
+        if ($request->search) {
+            $query->where('title', 'like', '%'.$request->search.'%');
+        }
+
+        if (in_array($request->status, ['published', 'draft'], true)) {
+            $query->where('is_published', $request->status === 'published');
+        }
+
         return Inertia::render('Admin/Pages/Index', [
-            'pages' => Page::latest()->paginate(10)->withQueryString(),
+            'pages' => $query->paginate(10)->withQueryString(),
+            'filters' => $request->only(['search', 'status']),
         ]);
     }
 

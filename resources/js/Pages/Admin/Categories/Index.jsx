@@ -4,10 +4,11 @@ import Button from '@/Components/Button';
 import ActionIcon from '@/Components/ActionIcon';
 import Pagination from '@/Components/Pagination';
 import ConfirmDeleteModal from '@/Components/ConfirmDeleteModal';
+import SearchInput from '@/Components/SearchInput';
 import { router, usePage } from '@inertiajs/react';
 import { useState } from 'react';
 
-export default function CategoryIndex({ categories }) {
+export default function CategoryIndex({ categories, filters = {} }) {
     const { flash = {} } = usePage().props;
     const categoryItems = Array.isArray(categories) ? categories : (categories?.data || []);
     const categoryLinks = Array.isArray(categories) ? null : categories?.links;
@@ -37,14 +38,27 @@ export default function CategoryIndex({ categories }) {
                 </div>
             )}
 
-            <div className="mb-6 flex items-center justify-between">
+            <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                     <h1 className="text-lg font-bold text-slate-800">Kategori Konten</h1>
                     <p className="mt-1 text-sm text-slate-500">Kelola kategori berita, pengumuman, agenda, dan prestasi</p>
                 </div>
-                <Button href="/admin/categories/create" icon="plus">
-                    Tambah Kategori
-                </Button>
+                <div className="flex flex-wrap items-center gap-3">
+                    <SearchInput href="/admin/categories" filters={filters} placeholder="Cari kategori..." />
+                    <select
+                        defaultValue={filters?.show_on_home || ''}
+                        onChange={(e) => router.get('/admin/categories', { ...filters, show_on_home: e.target.value || undefined }, { preserveState: true })}
+                        aria-label="Filter tampil di beranda"
+                        className="rounded-lg border-slate-300 py-2 pl-3 pr-10 text-sm focus:border-primary focus:ring-primary"
+                    >
+                        <option value="">Semua Tampilan</option>
+                        <option value="shown">Tampil</option>
+                        <option value="hidden">Tidak tampil</option>
+                    </select>
+                    <Button href="/admin/categories/create" icon="plus">
+                        Tambah Kategori
+                    </Button>
+                </div>
             </div>
 
             <Card className="overflow-hidden">
@@ -101,8 +115,21 @@ export default function CategoryIndex({ categories }) {
                                                     <path strokeLinecap="round" strokeLinejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
                                                 </svg>
                                             </div>
-                                            <p className="text-sm font-medium text-slate-500">Belum ada kategori</p>
-                                            <p className="text-xs text-slate-400">Tambah kategori untuk mengorganisir konten</p>
+                                            {filters?.search || filters?.show_on_home ? (
+                                                <>
+                                                    <p className="text-sm font-medium text-slate-500">
+                                                        {filters.search ? `Tidak ada kategori yang cocok dengan "${filters.search}"` : 'Tidak ada kategori dengan tampilan ini'}
+                                                    </p>
+                                                    <Button variant="ghost" size="sm" href="/admin/categories">
+                                                        Hapus filter
+                                                    </Button>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <p className="text-sm font-medium text-slate-500">Belum ada kategori</p>
+                                                    <p className="text-xs text-slate-400">Tambah kategori untuk mengorganisir konten</p>
+                                                </>
+                                            )}
                                         </div>
                                     </td>
                                 </tr>

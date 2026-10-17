@@ -5,13 +5,13 @@ export default function Pagination({ links, className = '' }) {
     if (!links || links.length <= 3) return null;
 
     return (
-        <nav aria-label="Navigasi halaman" className={`flex flex-wrap items-center justify-center gap-1 border-t border-slate-100 px-4 py-3 ${className}`}>
+        <nav aria-label="Navigasi halaman" className={`flex flex-wrap items-center justify-end gap-1 border-t border-slate-100 px-4 py-3 ${className}`}>
             {links.map((link, index) => {
                 const label = link.label
                     .replace('&laquo;', '‹')
                     .replace('&raquo;', '›')
-                    .replace('Previous', 'Sebelumnya')
-                    .replace('Next', 'Berikutnya');
+                    .replace('Previous', '')
+                    .replace('Next', '');
 
                 if (!link.url) {
                     return (

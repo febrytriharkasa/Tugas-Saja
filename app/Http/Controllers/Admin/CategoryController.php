@@ -10,14 +10,29 @@ use Inertia\Inertia;
 
 class CategoryController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        $query = Category::withCount('posts')->latest();
+
+        if ($request->search) {
+            $query->where('name', 'like', '%'.$request->search.'%');
+        }
+
+        if ($request->show_on_home === 'shown') {
+            $query->where(fn ($q) => $q->where('show_on_home', true)->orWhereIn('slug', Category::FIXED_HOME_SLUGS));
+        }
+
+        if ($request->show_on_home === 'hidden') {
+            $query->where('show_on_home', false)->whereNotIn('slug', Category::FIXED_HOME_SLUGS);
+        }
+
         return Inertia::render('Admin/Categories/Index', [
-            'categories' => Category::withCount('posts')->latest()->paginate(10)->withQueryString()
+            'categories' => $query->paginate(10)->withQueryString()
                 ->through(fn (Category $category) => [
                     ...$category->toArray(),
                     'is_fixed_on_home' => $category->isFixedOnHome(),
                 ]),
+            'filters' => $request->only(['search', 'show_on_home']),
         ]);
     }
 

@@ -9,10 +9,24 @@ use Inertia\Inertia;
 
 class StaffController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        $query = Staff::latest();
+
+        if ($request->search) {
+            $query->where(function ($q) use ($request) {
+                $q->where('name', 'like', '%'.$request->search.'%')
+                    ->orWhere('role', 'like', '%'.$request->search.'%');
+            });
+        }
+
+        if ($request->type) {
+            $query->where('type', $request->type);
+        }
+
         return Inertia::render('Admin/Staff/Index', [
-            'staff' => Staff::latest()->paginate(10)->withQueryString(),
+            'staff' => $query->paginate(10)->withQueryString(),
+            'filters' => $request->only(['search', 'type']),
         ]);
     }
 
