@@ -53,6 +53,7 @@ export default function AdminLayout({ children, title }) {
         { name: 'Link Topbar', href: '/admin/settings/topbar' },
         { name: 'Banner Beranda (Hero)', href: '/admin/settings/hero' },
         { name: 'Kontak & Link PPDB', href: '/admin/settings/contact' },
+        { name: 'Kartu PPDB (Sidebar Artikel)', href: '/admin/settings/sidebar-cta' },
         { name: 'Layanan Pintas (3 Card)', href: '/admin/settings/quick-links' },
         { name: 'Media Sosial', href: '/admin/settings/social-media' },
     ];

@@ -274,6 +274,37 @@ class SiteSettingController extends Controller
         ]);
     }
 
+    public function sidebarCta()
+    {
+        $settings = SiteSetting::all()->groupBy('group_name');
+
+        return Inertia::render('Admin/Settings/SidebarCta', [
+            'groupedSettings' => $settings,
+            'linkOptions' => $this->footerLinkOptions(),
+        ]);
+    }
+
+    public function updateSidebarCta(Request $request)
+    {
+        $validated = $request->validate([
+            'sidebar_cta_enabled' => 'boolean',
+            'sidebar_cta_title' => 'nullable|string|max:100',
+            'sidebar_cta_heading' => 'nullable|string|max:150',
+            'sidebar_cta_description' => 'nullable|string|max:500',
+            'sidebar_cta_button_text' => 'nullable|string|max:50',
+            'sidebar_cta_button_url' => 'nullable|string|max:500',
+        ]);
+
+        foreach ($validated as $key => $value) {
+            SiteSetting::updateOrCreate(
+                ['key' => $key],
+                ['value' => is_bool($value) ? ($value ? '1' : '0') : $value, 'updated_at' => now()]
+            );
+        }
+
+        return redirect()->back();
+    }
+
     public function updateTopbar(Request $request)
     {
         $validated = $request->validate([

@@ -60,6 +60,8 @@ Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(
     Route::post('/settings/navigation', [SiteSettingController::class, 'updateNavigation'])->name('settings.navigation.update');
     Route::get('/settings/topbar', [SiteSettingController::class, 'topbar'])->name('settings.topbar');
     Route::post('/settings/topbar', [SiteSettingController::class, 'updateTopbar'])->name('settings.topbar.update');
+    Route::get('/settings/sidebar-cta', [SiteSettingController::class, 'sidebarCta'])->name('settings.sidebar-cta');
+    Route::post('/settings/sidebar-cta', [SiteSettingController::class, 'updateSidebarCta'])->name('settings.sidebar-cta.update');
 });
 
 Route::get('/dashboard', fn () => redirect()->route('admin.dashboard'))
@@ -72,3 +74,6 @@ Route::middleware('auth')->group(function () {
 });
 
 require __DIR__.'/auth.php';
+
+// Unknown GET URLs stay inside the web middleware group, so the 404 page keeps the site chrome (nav, logo, footer).
+Route::get('/{any}', fn () => abort(404))->where('any', '.*');

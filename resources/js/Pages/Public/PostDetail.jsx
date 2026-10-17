@@ -1,4 +1,4 @@
-import { Link, router } from '@inertiajs/react';
+import { Link, router, usePage } from '@inertiajs/react';
 import PublicLayout from '@/Layouts/PublicLayout';
 import Breadcrumbs from '@/Components/Breadcrumbs';
 import RichContent from '@/Components/RichContent';
@@ -208,6 +208,16 @@ export default function PostDetail({ post, relatedPosts = [], prevPost = null, n
     const readingMinutes = Math.max(1, Math.round(plainText(post.content).split(/\s+/).filter(Boolean).length / 200));
 
     const blocks = blocksFromMetadata(post.metadata);
+
+    const { settings } = usePage().props;
+    const sidebarCta = {
+        enabled: settings?.sidebar_cta_enabled !== '0',
+        title: settings?.sidebar_cta_title || '',
+        heading: settings?.sidebar_cta_heading || '',
+        description: settings?.sidebar_cta_description || '',
+        buttonText: settings?.sidebar_cta_button_text || '',
+        buttonUrl: settings?.sidebar_cta_button_url || '',
+    };
 
     return (
         <PublicLayout>
@@ -428,18 +438,27 @@ export default function PostDetail({ post, relatedPosts = [], prevPost = null, n
                             </div>
                         )}
 
-                        <div className="rounded-2xl bg-primary text-white shadow-md flex flex-col gap-3 p-5 relative overflow-hidden">
-                            <div className="absolute -right-6 -bottom-6 w-28 h-28 rounded-full bg-white/10 pointer-events-none" />
-                            <span className="text-xs font-bold text-emerald-200 uppercase tracking-wide">PPDB 2026 / 2027</span>
-                            <h4 className="font-bold text-lg leading-tight">Bergabung Bersama Generasi Unggul SMA XYZ</h4>
-                            <p className="text-sm text-white/80">Pendaftaran Gelombang 1 telah dibuka. Dapatkan jalur beasiswa tahfidz dan prestasi akademik.</p>
-                            <a
-                                href="#"
-                                className="mt-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-white text-primary font-bold text-sm hover:bg-slate-100 transition-colors shadow-sm"
-                            >
-                                Daftar Sekarang →
-                            </a>
-                        </div>
+                        {sidebarCta.enabled && sidebarCta.heading && (
+                            <div className="rounded-2xl bg-primary text-white shadow-md flex flex-col gap-3 p-5 relative overflow-hidden">
+                                <div className="absolute -right-6 -bottom-6 w-28 h-28 rounded-full bg-white/10 pointer-events-none" />
+                                {sidebarCta.title && (
+                                    <span className="text-xs font-bold text-emerald-200 uppercase tracking-wide">{sidebarCta.title}</span>
+                                )}
+                                <h4 className="font-bold text-lg leading-tight">{sidebarCta.heading}</h4>
+                                {sidebarCta.description && (
+                                    <p className="text-sm text-white/80">{sidebarCta.description}</p>
+                                )}
+                                {sidebarCta.buttonUrl && sidebarCta.buttonText && (
+                                    <a
+                                        href={sidebarCta.buttonUrl}
+                                        className="mt-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-white text-primary font-bold text-sm hover:bg-slate-100 transition-colors shadow-sm"
+                                    >
+                                        {sidebarCta.buttonText}
+                                        <span aria-hidden="true">→</span>
+                                    </a>
+                                )}
+                            </div>
+                        )}
                     </aside>
                 </div>
             </div>
