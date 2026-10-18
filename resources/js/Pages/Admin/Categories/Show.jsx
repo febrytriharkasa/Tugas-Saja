@@ -2,8 +2,14 @@ import AdminLayout from '@/Layouts/AdminLayout';
 import Card from '@/Components/Card';
 import Button from '@/Components/Button';
 
-export default function CategoryShow({ category }) {
+export default function CategoryShow({ category, navPlacement = {} }) {
     const homeStatus = category.is_fixed_on_home ? 'Permanen' : category.show_on_home ? 'Tampil' : 'Tidak tampil';
+    const navLinked = navPlacement.placement === 'top' || navPlacement.placement === 'dropdown';
+    const navText = navPlacement.placement === 'top'
+        ? 'Item utama'
+        : navPlacement.placement === 'dropdown'
+            ? `Anak dropdown: ${navPlacement.parent_label}`
+            : 'Tidak tampil di navbar';
 
     return (
         <AdminLayout title="Detail Kategori">
@@ -25,6 +31,15 @@ export default function CategoryShow({ category }) {
                     <div>
                         <dt className="text-xs font-semibold uppercase text-slate-500">Jumlah konten</dt>
                         <dd className="mt-1 text-slate-800">{category.posts_count}</dd>
+                    </div>
+                    <div>
+                        <dt className="text-xs font-semibold uppercase text-slate-500">Navbar</dt>
+                        <dd className="mt-1 text-slate-800">
+                            {navText}
+                            {navLinked && navPlacement.label && (
+                                <span className="block text-xs text-slate-500">Label menu: {navPlacement.label}</span>
+                            )}
+                        </dd>
                     </div>
                 </dl>
                 <h2 className="mt-8 text-base font-bold text-slate-800">Field Metadata</h2>

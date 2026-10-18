@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Concerns\ManagesNavMenu;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use Illuminate\Http\Request;
@@ -10,6 +11,8 @@ use Inertia\Inertia;
 
 class CategoryController extends Controller
 {
+    use ManagesNavMenu;
+
     public function index(Request $request)
     {
         $query = Category::withCount('posts')->latest();
@@ -26,11 +29,14 @@ class CategoryController extends Controller
             $query->where('show_on_home', false)->whereNotIn('slug', Category::FIXED_HOME_SLUGS);
         }
 
+        $navUrls = $this->navUrls();
+
         return Inertia::render('Admin/Categories/Index', [
             'categories' => $query->paginate(10)->withQueryString()
                 ->through(fn (Category $category) => [
                     ...$category->toArray(),
                     'is_fixed_on_home' => $category->isFixedOnHome(),
+                    'in_nav' => in_array('/'.$category->slug, $navUrls, true),
                 ]),
             'filters' => $request->only(['search', 'show_on_home']),
         ]);
@@ -40,19 +46,24 @@ class CategoryController extends Controller
     {
         return Inertia::render('Admin/Categories/Form', [
             'category' => null,
+            'navDropdowns' => $this->navDropdowns(),
+            'navPlacement' => ['placement' => 'none', 'label' => '', 'parent_label' => null],
         ]);
     }
 
     public function store(Request $request)
     {
         $validated = $this->validateCategory($request);
+        $nav = $this->navInput($request);
 
-        Category::create([
+        $category = Category::create([
             'name' => $validated['name'],
             'slug' => Str::slug($validated['name']),
             'metadata_schema' => array_values($validated['metadata_schema'] ?? []),
             'show_on_home' => $validated['show_on_home'] ?? false,
         ]);
+
+        $this->syncNavPlacement('/'.$category->slug, $category->name, $nav);
 
         return redirect()->route('admin.categories.index')->with('success', 'Kategori berhasil ditambahkan.');
     }
@@ -61,6 +72,7 @@ class CategoryController extends Controller
     {
         return Inertia::render('Admin/Categories/Show', [
             'category' => [...$category->loadCount('posts')->toArray(), 'is_fixed_on_home' => $category->isFixedOnHome()],
+            'navPlacement' => $this->navPlacement('/'.$category->slug),
         ]);
     }
 
@@ -68,12 +80,16 @@ class CategoryController extends Controller
     {
         return Inertia::render('Admin/Categories/Form', [
             'category' => [...$category->toArray(), 'is_fixed_on_home' => $category->isFixedOnHome()],
+            'navDropdowns' => $this->navDropdowns(),
+            'navPlacement' => $this->navPlacement('/'.$category->slug),
         ]);
     }
 
     public function update(Request $request, Category $category)
     {
         $validated = $this->validateCategory($request, $category);
+        $nav = $this->navInput($request);
+        $oldUrl = '/'.$category->slug;
 
         $category->update([
             'name' => $validated['name'],
@@ -81,6 +97,13 @@ class CategoryController extends Controller
             'metadata_schema' => array_values($validated['metadata_schema'] ?? []),
             'show_on_home' => $category->isFixedOnHome() || ($validated['show_on_home'] ?? $category->show_on_home),
         ]);
+
+        // A renamed category changes its public URL; the menu entry must follow it.
+        if ('/'.$category->slug !== $oldUrl) {
+            $this->removeNavEntry($oldUrl);
+        }
+
+        $this->syncNavPlacement('/'.$category->slug, $category->name, $nav);
 
         return redirect()->route('admin.categories.index')->with('success', 'Kategori berhasil diperbarui.');
     }
@@ -91,6 +114,7 @@ class CategoryController extends Controller
             return redirect()->route('admin.categories.index')->with('error', 'Kategori tetap tidak dapat dihapus.');
         }
 
+        $this->removeNavEntry('/'.$category->slug);
         $category->delete();
 
         return redirect()->route('admin.categories.index')->with('success', 'Kategori berhasil dihapus.');

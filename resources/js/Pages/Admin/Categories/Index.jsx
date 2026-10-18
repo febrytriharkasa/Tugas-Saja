@@ -63,13 +63,14 @@ export default function CategoryIndex({ categories, filters = {} }) {
 
             <Card className="overflow-hidden">
                 <div className="overflow-x-auto">
-                    <table className="w-full min-w-[760px] border-collapse text-left text-sm">
+                    <table className="w-full min-w-[820px] border-collapse text-left text-sm">
                         <thead className="border-b border-slate-200 bg-slate-50 text-xs font-semibold uppercase tracking-wide text-slate-500">
                             <tr>
                                 <th className="px-4 py-3">Nama</th>
                                 <th className="px-4 py-3">Slug</th>
                                 <th className="px-4 py-3">Tampil di Beranda</th>
                                 <th className="px-4 py-3">Jumlah Konten</th>
+                                <th className="px-4 py-3">Navbar</th>
                                 <th className="px-4 py-3 text-right">Aksi</th>
                             </tr>
                         </thead>
@@ -96,6 +97,13 @@ export default function CategoryIndex({ categories, filters = {} }) {
                                         </div>
                                     </td>
                                     <td className="px-4 py-3">
+                                        <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                                            category.in_nav ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-600'
+                                        }`}>
+                                            {category.in_nav ? 'Sudah' : 'Belum'}
+                                        </span>
+                                    </td>
+                                    <td className="px-4 py-3">
                                         <div className="flex items-center justify-end gap-1">
                                             <ActionIcon icon="eye" label="Lihat detail" href={`/admin/categories/${category.id}`} color="slate" />
                                             <ActionIcon icon="pencil" label="Edit kategori" href={`/admin/categories/${category.id}/edit`} color="primary" />
@@ -108,7 +116,7 @@ export default function CategoryIndex({ categories, filters = {} }) {
                             ))}
                             {categoryItems.length === 0 && (
                                 <tr>
-                                    <td colSpan="5" className="px-4 py-12 text-center">
+                                    <td colSpan="6" className="px-4 py-12 text-center">
                                         <div className="flex flex-col items-center gap-2">
                                             <div className="flex h-12 w-12 items-center justify-center rounded-full bg-slate-100 text-slate-400">
                                                 <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Concerns\ManagesNavMenu;
 use App\Http\Controllers\Controller;
 use App\Models\Page;
 use Illuminate\Http\Request;
@@ -13,6 +14,8 @@ use Mews\Purifier\Facades\Purifier;
 
 class PageController extends Controller
 {
+    use ManagesNavMenu;
+
     public function index(Request $request)
     {
         $query = Page::latest();
@@ -25,8 +28,12 @@ class PageController extends Controller
             $query->where('is_published', $request->status === 'published');
         }
 
+        $navUrls = $this->navUrls();
+
         return Inertia::render('Admin/Pages/Index', [
-            'pages' => $query->paginate(10)->withQueryString(),
+            'pages' => $query->paginate(10)->withQueryString()->through(
+                fn (Page $page) => $page->setAttribute('in_nav', in_array('/'.$page->slug, $navUrls, true)),
+            ),
             'filters' => $request->only(['search', 'status']),
         ]);
     }
@@ -35,16 +42,21 @@ class PageController extends Controller
     {
         return Inertia::render('Admin/Pages/Form', [
             'page' => null,
+            'navDropdowns' => $this->navDropdowns(),
+            'navPlacement' => ['placement' => 'none', 'label' => '', 'parent_label' => null],
         ]);
     }
 
     public function store(Request $request)
     {
         $data = $this->validatePage($request);
+        $nav = $this->navInput($request);
         $data['slug'] = $this->uniqueSlug($data['title']);
         $data['image'] = $request->hasFile('image') ? $this->storeImage($request) : null;
         $data['metadata'] = $this->metadata($data);
         $page = Page::create($data);
+
+        $this->syncNavPlacement('/'.$page->slug, $page->title, $nav);
 
         return redirect()->route('admin.pages.index')->with([
             'success' => 'Laman berhasil dibuat.',
@@ -57,6 +69,7 @@ class PageController extends Controller
     {
         return Inertia::render('Admin/Pages/Show', [
             'page' => $page,
+            'navPlacement' => $this->navPlacement('/'.$page->slug),
         ]);
     }
 
@@ -64,6 +77,8 @@ class PageController extends Controller
     {
         return Inertia::render('Admin/Pages/Form', [
             'page' => $page,
+            'navDropdowns' => $this->navDropdowns(),
+            'navPlacement' => $this->navPlacement('/'.$page->slug),
         ]);
     }
 
@@ -81,6 +96,7 @@ class PageController extends Controller
     public function update(Request $request, Page $page)
     {
         $data = $this->validatePage($request);
+        $nav = $this->navInput($request);
 
         if ($request->hasFile('image')) {
             $this->deleteImage($page->image);
@@ -94,6 +110,8 @@ class PageController extends Controller
 
         $page->update($data);
 
+        $this->syncNavPlacement('/'.$page->slug, $page->title, $nav);
+
         return redirect()->route('admin.pages.index')->with([
             'success' => 'Laman berhasil diperbarui.',
             'page_created' => true,
@@ -104,6 +122,7 @@ class PageController extends Controller
     public function destroy(Page $page)
     {
         $this->deleteImage($page->image);
+        $this->removeNavEntry('/'.$page->slug);
         $page->delete();
 
         return redirect()->route('admin.pages.index')->with('success', 'Laman berhasil dihapus.');

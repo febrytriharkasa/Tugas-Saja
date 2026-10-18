@@ -84,6 +84,7 @@ export default function PageIndex({ pages, filters = {} }) {
                                 <th className="px-4 py-3">Judul</th>
                                 <th className="px-4 py-3">Slug</th>
                                 <th className="px-4 py-3">Status</th>
+                                <th className="px-4 py-3">Navbar</th>
                                 <th className="px-4 py-3 text-right">Aksi</th>
                             </tr>
                         </thead>
@@ -100,6 +101,13 @@ export default function PageIndex({ pages, filters = {} }) {
                                         </span>
                                     </td>
                                     <td className="px-4 py-3">
+                                        <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                                            p.in_nav ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-600'
+                                        }`}>
+                                            {p.in_nav ? 'Sudah' : 'Belum'}
+                                        </span>
+                                    </td>
+                                    <td className="px-4 py-3">
                                         <div className="flex items-center justify-end gap-1">
                                             <ActionIcon icon="eye" label="Lihat detail" href={`/admin/pages/${p.id}`} color="slate" />
                                             <ActionIcon icon="pencil" label="Edit laman" href={`/admin/pages/${p.id}/edit`} color="primary" />
@@ -110,7 +118,7 @@ export default function PageIndex({ pages, filters = {} }) {
                             ))}
                             {pageItems.length === 0 && (
                                 <tr>
-                                    <td colSpan="4" className="px-4 py-12 text-center">
+                                    <td colSpan="5" className="px-4 py-12 text-center">
                                         <div className="flex flex-col items-center gap-2">
                                             <div className="flex h-12 w-12 items-center justify-center rounded-full bg-slate-100 text-slate-400">
                                                 <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor">

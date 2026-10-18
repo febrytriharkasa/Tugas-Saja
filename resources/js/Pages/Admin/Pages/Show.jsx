@@ -1,14 +1,21 @@
 import AdminLayout from '@/Layouts/AdminLayout';
 import Card from '@/Components/Card';
 import Button from '@/Components/Button';
+import DataTable from '@/Components/DataTable';
 import RichContent from '@/Components/RichContent';
 import { blocksFromMetadata } from '@/lib/postBlocks';
 import { router } from '@inertiajs/react';
 import { useState } from 'react';
 
-export default function PageShow({ page }) {
+export default function PageShow({ page, navPlacement = {} }) {
     const [updating, setUpdating] = useState(false);
     const blocks = blocksFromMetadata(page.metadata);
+    const navLinked = navPlacement.placement === 'top' || navPlacement.placement === 'dropdown';
+    const navText = navPlacement.placement === 'top'
+        ? 'Item utama'
+        : navPlacement.placement === 'dropdown'
+            ? `Anak dropdown: ${navPlacement.parent_label}`
+            : 'Tidak tampil di navbar';
 
     const handleStatusChange = (newPublished) => {
         setUpdating(true);
@@ -53,32 +60,15 @@ export default function PageShow({ page }) {
                                         <cite className="mt-2 block text-sm not-italic text-slate-500">— {block.source}</cite>
                                     )}
                                 </blockquote>
-                            ) : (
-                                <div key={index} className="mt-4 rounded-lg border border-slate-200">
-                                    <div className="border-b border-slate-200 bg-slate-50 px-4 py-2 text-sm font-semibold text-slate-700">{block.title || 'Tabel'}</div>
-                                    {block.description && <p className="px-4 py-2 text-xs text-slate-500">{block.description}</p>}
-                                    <div className="overflow-x-auto">
-                                        <table className="min-w-full text-left text-sm">
-                                            <thead>
-                                                <tr className="bg-slate-50 text-xs uppercase text-slate-500">
-                                                    {(block.columns || []).map((column, columnIndex) => (
-                                                        <th key={columnIndex} className="px-4 py-2">{column || `Kolom ${columnIndex + 1}`}</th>
-                                                    ))}
-                                                </tr>
-                                            </thead>
-                                            <tbody className="divide-y divide-slate-100">
-                                                {(block.rows || []).map((row, rowIndex) => (
-                                                    <tr key={rowIndex}>
-                                                        {(block.columns || []).map((_, columnIndex) => (
-                                                            <td key={columnIndex} className="px-4 py-2 text-slate-700">{row[columnIndex] || '-'}</td>
-                                                        ))}
-                                                    </tr>
-                                                ))}
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            )
+                            ) : block.type === 'table' ? (
+                                <DataTable
+                                    key={index}
+                                    title={block.title}
+                                    description={block.description}
+                                    columns={block.columns}
+                                    rows={block.rows}
+                                />
+                            ) : null
                         )}
                     </Card>
                 </div>
@@ -101,6 +91,22 @@ export default function PageShow({ page }) {
                             </select>
                             {updating && <p className="mt-2 text-xs text-slate-400">Memperbarui...</p>}
                         </div>
+                    </Card>
+
+                    <Card className="p-6">
+                        <h2 className="text-base font-bold text-slate-800">Menu Navigasi</h2>
+                        <p className="mt-1 text-xs text-slate-500">Tempat laman ini muncul di navbar situs.</p>
+                        <p className="mt-4 text-sm font-medium text-slate-700">{navText}</p>
+                        {navLinked && (
+                            <p className="mt-1 text-xs text-slate-500">
+                                Label menu: <span className="font-medium text-slate-700">{navPlacement.label}</span>
+                            </p>
+                        )}
+                        {navLinked && !page.is_published && (
+                            <p className="mt-4 rounded-lg border border-amber-300 bg-amber-50 p-3 text-xs text-amber-700">
+                                Laman masih draf: tautan belum tampil di navbar publik.
+                            </p>
+                        )}
                     </Card>
                 </div>
             </div>

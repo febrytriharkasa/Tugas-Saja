@@ -44,7 +44,7 @@ class SiteSettingController extends Controller
                 $data[$imageKey] = Storage::url($path);
             } elseif ($request->boolean("remove_hero_slide_{$i}_image")) {
                 $imageKey = "hero_slide_{$i}_image";
-                $fallbackKey = "hero_background_image";
+                $fallbackKey = 'hero_background_image';
                 $existingImage = SiteSetting::where('key', $imageKey)->first();
                 $existingFallback = SiteSetting::where('key', $fallbackKey)->first();
                 if ($existingImage) {
@@ -163,7 +163,7 @@ class SiteSettingController extends Controller
     /**
      * Ready-to-pick internal pages so admins never copy URLs by hand.
      */
-    public function footerLinkOptions(): array
+    public function footerLinkOptions(bool $includeDrafts = false): array
     {
         $options = [
             ['label' => 'Beranda', 'url' => '/'],
@@ -176,8 +176,16 @@ class SiteSettingController extends Controller
             $options[] = ['label' => 'Daftar PPDB', 'url' => $ppdbUrl];
         }
 
-        foreach (Page::where('is_published', true)->orderBy('title')->get(['title', 'slug']) as $page) {
-            $options[] = ['label' => 'Laman: '.$page->title, 'url' => '/'.$page->slug];
+        $pages = Page::query()
+            ->when(! $includeDrafts, fn ($query) => $query->where('is_published', true))
+            ->orderBy('title')
+            ->get(['title', 'slug', 'is_published']);
+
+        foreach ($pages as $page) {
+            $options[] = [
+                'label' => 'Laman: '.$page->title.($page->is_published ? '' : ' (draf)'),
+                'url' => '/'.$page->slug,
+            ];
         }
 
         foreach (Category::orderBy('name')->get(['name', 'slug']) as $category) {
@@ -240,7 +248,7 @@ class SiteSettingController extends Controller
 
         return Inertia::render('Admin/Settings/Navigation', [
             'groupedSettings' => $settings,
-            'linkOptions' => $this->footerLinkOptions(),
+            'linkOptions' => $this->footerLinkOptions(includeDrafts: true),
         ]);
     }
 
@@ -249,10 +257,11 @@ class SiteSettingController extends Controller
         $validated = $request->validate([
             'nav_items' => 'nullable|array',
             'nav_items.*.type' => 'required|in:single,dropdown',
-            'nav_items.*.label' => 'required|string|max:100',
+            // Dropdowns may be parked half-finished: label, url, and children can stay empty.
+            'nav_items.*.label' => 'nullable|string|max:255|required_if:nav_items.*.type,single',
             'nav_items.*.url' => 'required_if:nav_items.*.type,single|nullable|string|max:500',
-            'nav_items.*.children' => 'required_if:nav_items.*.type,dropdown|array',
-            'nav_items.*.children.*.label' => 'required|string|max:100',
+            'nav_items.*.children' => 'nullable|array',
+            'nav_items.*.children.*.label' => 'required|string|max:255',
             'nav_items.*.children.*.url' => 'required|string|max:500',
         ]);
 

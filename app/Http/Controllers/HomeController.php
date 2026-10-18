@@ -50,12 +50,19 @@ class HomeController extends Controller
         ]);
     }
 
-    public function pageBySlug($slug)
+    public function pageBySlug(Request $request, $slug)
     {
-        $page = Page::where('slug', $slug)->where('is_published', true)->first();
+        $previewing = $request->boolean('preview') && (bool) $request->user()?->canManageContent();
+
+        $page = Page::where('slug', $slug)
+            ->when(! $previewing, fn ($query) => $query->where('is_published', true))
+            ->first();
 
         if ($page) {
-            return Inertia::render('Public/Page', ['page' => $page]);
+            return Inertia::render('Public/Page', [
+                'page' => $page,
+                'draftPreview' => $previewing && ! $page->is_published,
+            ]);
         }
 
         $category = Category::where('slug', $slug)->firstOrFail();

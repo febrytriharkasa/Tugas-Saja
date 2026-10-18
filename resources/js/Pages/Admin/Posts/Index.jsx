@@ -50,7 +50,7 @@ export default function PostIndex({ posts, categories, filters }) {
                             <tr>
                                 <th className="px-4 py-3">Judul</th>
                                 <th className="px-4 py-3">Kategori</th>
-                                <th className="px-4 py-3">Metadata</th>
+                                {/* <th className="px-4 py-3">Metadata</th> */}
                                 <th className="px-4 py-3">Status</th>
                                 <th className="px-4 py-3">Tanggal</th>
                                 <th className="px-4 py-3 text-right">Aksi</th>
@@ -82,7 +82,7 @@ export default function PostIndex({ posts, categories, filters }) {
                                             {post.category?.name || '-'}
                                         </span>
                                     </td>
-                                    <td className="px-4 py-3 text-xs text-slate-500">
+                                    {/* <td className="px-4 py-3 text-xs text-slate-500">
                                         {post.metadata && Object.keys(post.metadata).filter((k) => k !== 'achievement_table' && k !== 'blocks').length > 0 ? (
                                             <div className="max-w-xs space-y-0.5">
                                                 {Object.entries(post.metadata).filter(([k]) => k !== 'achievement_table' && k !== 'blocks').map(([k, v]) => (
@@ -96,7 +96,7 @@ export default function PostIndex({ posts, categories, filters }) {
                                         ) : (
                                             <span className="text-slate-400">—</span>
                                         )}
-                                    </td>
+                                    </td> */}
                                     <td className="px-4 py-3">
                                         <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${
                                             post.status === 'published' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'

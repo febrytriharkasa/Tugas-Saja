@@ -3,9 +3,12 @@ import Card from '@/Components/Card';
 import Button from '@/Components/Button';
 import LinkUrlPicker, { plainLabel } from '@/Components/LinkUrlPicker';
 import Icon from '@/Components/Icon';
-import { useForm } from '@inertiajs/react';
+import { useForm, usePage } from '@inertiajs/react';
 
 export default function NavigationSettings({ groupedSettings, linkOptions = [] }) {
+    const { draftPageSlugs = [] } = usePage().props;
+
+    const isDraftUrl = (url) => typeof url === 'string' && draftPageSlugs.includes(url.replace(/^\//, ''));
     const rawSettings = Object.values(groupedSettings).flat().reduce((acc, curr) => {
         acc[curr.key] = curr.value;
         return acc;
@@ -42,7 +45,7 @@ export default function NavigationSettings({ groupedSettings, linkOptions = [] }
 
     const removeChild = (itemIndex, childIndex) => {
         setData('nav_items', data.nav_items.map((item, i) =>
-            i === itemIndex ? { ...item, children: item.children.filter((_, j) => j !== childIndex) } : item
+            i === itemIndex ? { ...item, children: (item.children || []).filter((_, j) => j !== childIndex) } : item
         ));
     };
 
@@ -50,7 +53,7 @@ export default function NavigationSettings({ groupedSettings, linkOptions = [] }
         setData('nav_items', data.nav_items.map((item, i) =>
             i === itemIndex ? {
                 ...item,
-                children: item.children.map((child, j) => j === childIndex ? { ...child, [field]: value } : child)
+                children: (item.children || []).map((child, j) => j === childIndex ? { ...child, [field]: value } : child)
             } : item
         ));
     };
@@ -67,11 +70,26 @@ export default function NavigationSettings({ groupedSettings, linkOptions = [] }
         setData('nav_items', data.nav_items.map((item, i) =>
             i === itemIndex ? {
                 ...item,
-                children: item.children.map((child, j) => j === childIndex
+                children: (item.children || []).map((child, j) => j === childIndex
                     ? { ...child, url, label: plainLabel(option?.label) || child.label }
                     : child)
             } : item
         ));
+    };
+
+    // Parked dropdowns (no label / no submenu) are skipped by the public navbar.
+    const dropdownNotice = (item) => {
+        if (item.type !== 'dropdown') {
+            return null;
+        }
+        if (!String(item.label || '').trim()) {
+            return 'Dropdown tanpa label tidak tampil di navbar publik.';
+        }
+        if ((item.children || []).length === 0) {
+            return 'Dropdown tanpa submenu tidak tampil di navbar publik.';
+        }
+
+        return null;
     };
 
     const handleSubmit = (e) => {
@@ -104,6 +122,7 @@ export default function NavigationSettings({ groupedSettings, linkOptions = [] }
                         <div>
                             <h2 className="text-base font-bold text-slate-800">Item Menu Navigasi</h2>
                             <p className="text-xs text-slate-500 mt-1">Menu akan tampil sesuai urutan di bawah. Tautan tunggal langsung terbuka, dropdown punya submenu.</p>
+                            <p className="text-xs text-slate-500 mt-1">Laman juga bisa menaruh dirinya ke sini lewat form Laman.</p>
                         </div>
                         <button
                             type="button"
@@ -149,7 +168,7 @@ export default function NavigationSettings({ groupedSettings, linkOptions = [] }
                                                     <label className="block text-xs font-medium text-slate-600 mb-1">Label Menu</label>
                                                     <input
                                                         type="text"
-                                                        value={item.label}
+                                                        value={item.label || ''}
                                                         onChange={(e) => updateItem(itemIndex, 'label', e.target.value)}
                                                         placeholder="Misal: Beranda, Tentang Kami"
                                                         className="block w-full rounded-lg border-slate-300 text-sm focus:border-primary focus:ring-primary"
@@ -165,6 +184,11 @@ export default function NavigationSettings({ groupedSettings, linkOptions = [] }
                                                         value={item.url || ''}
                                                         onChange={(url) => selectUrl(itemIndex, url)}
                                                     />
+                                                    {isDraftUrl(item.url) && (
+                                                        <p className="mt-1.5 text-xs font-semibold text-amber-700">
+                                                            Laman draf: disembunyikan dari navbar publik sampai diterbitkan.
+                                                        </p>
+                                                    )}
                                                 </div>
                                             )}
 
@@ -190,7 +214,7 @@ export default function NavigationSettings({ groupedSettings, linkOptions = [] }
                                                                         <label className="block text-xs font-medium text-slate-600 mb-1">Label Submenu</label>
                                                                         <input
                                                                             type="text"
-                                                                            value={child.label}
+                                                                            value={child.label || ''}
                                                                             onChange={(e) => updateChild(itemIndex, childIndex, 'label', e.target.value)}
                                                                             placeholder="Misal: Visi Misi"
                                                                             className="block w-full rounded-lg border-slate-300 text-sm focus:border-primary focus:ring-primary"
@@ -203,6 +227,11 @@ export default function NavigationSettings({ groupedSettings, linkOptions = [] }
                                                                             value={child.url || ''}
                                                                             onChange={(url) => selectChildUrl(itemIndex, childIndex, url)}
                                                                         />
+                                                                        {isDraftUrl(child.url) && (
+                                                                            <p className="mt-1.5 text-xs font-semibold text-amber-700">
+                                                                                Laman draf: disembunyikan dari navbar publik.
+                                                                            </p>
+                                                                        )}
                                                                     </div>
                                                                 </div>
                                                                 <button
@@ -216,6 +245,12 @@ export default function NavigationSettings({ groupedSettings, linkOptions = [] }
                                                             </div>
                                                         ))}
                                                     </div>
+
+                                                    {dropdownNotice(item) && (
+                                                        <p className="mt-3 rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-700">
+                                                            {dropdownNotice(item)}
+                                                        </p>
+                                                    )}
                                                 </div>
                                             )}
                                         </div>

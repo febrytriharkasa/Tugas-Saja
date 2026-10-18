@@ -8,10 +8,20 @@ import { blocksFromMetadata } from '@/lib/postBlocks';
 import { useForm } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
 
-export default function PageForm({ page }) {
+export default function PageForm({ page, navDropdowns = [], navPlacement = {} }) {
     const isEdit = !!page;
     const [imagePreview, setImagePreview] = useState(page?.image || null);
     const [imagePreviewError, setImagePreviewError] = useState(false);
+
+    const initialMenu = navPlacement.placement === 'top'
+        ? 'top'
+        : navPlacement.placement === 'dropdown'
+            ? `dropdown:${navPlacement.parent_label || navDropdowns[0]?.label || ''}`
+            : 'none';
+
+    const [menu, setMenu] = useState(initialMenu);
+    const [menuLabel, setMenuLabel] = useState(navPlacement.label || '');
+
     const { data, setData, post, processing, errors, transform } = useForm({
         title: page?.title || '',
         content: page?.content || '',
@@ -55,10 +65,18 @@ export default function PageForm({ page }) {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        transform((d) => ({
-            ...d,
-            ...(isEdit ? { _method: 'put' } : {}),
-        }));
+        transform((d) => {
+            const separator = menu.indexOf(':');
+            const kind = separator === -1 ? menu : menu.slice(0, separator);
+            const parentLabel = separator === -1 ? '' : menu.slice(separator + 1);
+            return {
+                ...d,
+                nav_placement: kind,
+                nav_parent_label: kind === 'dropdown' ? parentLabel : '',
+                nav_label: menu === 'none' ? '' : menuLabel,
+                ...(isEdit ? { _method: 'put' } : {}),
+            };
+        });
         post(isEdit ? `/admin/pages/${page.id}` : '/admin/pages', {
             forceFormData: true,
         });
@@ -149,6 +167,68 @@ export default function PageForm({ page }) {
                                     <option value="draft">Draf</option>
                                     <option value="published">Terbit</option>
                                 </select>
+                            </div>
+                            {isEdit && !data.is_published && (
+                                <a
+                                    href={`/${page.slug}?preview=1`}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline"
+                                >
+                                    <Icon name="external-link" className="h-3.5 w-3.5" />
+                                    Pratinjau draf
+                                </a>
+                            )}
+                        </Card>
+
+                        <Card className="p-6">
+                            <h2 className="text-base font-bold text-slate-800">Menu Navigasi</h2>
+                            <p className="mt-1 text-xs text-slate-500">Tempat laman ini muncul di navbar situs.</p>
+                            <div className="mt-4 space-y-4">
+                                <div>
+                                    <label htmlFor="page-menu" className="block text-sm font-medium text-slate-700">Posisi</label>
+                                    <select
+                                        id="page-menu"
+                                        value={menu}
+                                        onChange={(e) => setMenu(e.target.value)}
+                                        className="mt-1 block w-full rounded-lg border-slate-300 text-sm focus:border-primary focus:ring-primary"
+                                    >
+                                        <option value="none">Tidak tampil di navbar</option>
+                                        <option value="top">Item utama</option>
+                                        {navDropdowns.map((dropdown, index) => (
+                                            <option key={`${dropdown.label}-${index}`} value={`dropdown:${dropdown.label}`}>
+                                                Anak dropdown: {dropdown.label}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    {navDropdowns.length === 0 && (
+                                        <p className="mt-1 text-xs text-slate-500">
+                                            Belum ada dropdown di navbar. Buat dulu di Pengaturan Menu Navigasi.
+                                        </p>
+                                    )}
+                                    {errors.nav_parent_label && <p className="mt-1 text-xs text-red-500">{errors.nav_parent_label}</p>}
+                                </div>
+
+                                {menu !== 'none' && (
+                                    <div>
+                                        <label htmlFor="page-menu-label" className="block text-sm font-medium text-slate-700">Label menu</label>
+                                        <input
+                                            id="page-menu-label"
+                                            type="text"
+                                            value={menuLabel}
+                                            onChange={(e) => setMenuLabel(e.target.value)}
+                                            placeholder={data.title || 'Judul laman'}
+                                            className="mt-1 block w-full rounded-lg border-slate-300 text-sm focus:border-primary focus:ring-primary"
+                                        />
+                                        {errors.nav_label && <p className="mt-1 text-xs text-red-500">{errors.nav_label}</p>}
+                                    </div>
+                                )}
+
+                                {menu !== 'none' && !data.is_published && (
+                                    <p className="rounded-lg border border-amber-300 bg-amber-50 p-3 text-xs text-amber-700">
+                                        Laman masih draf: tautannya ikut disimpan, tapi baru tampil di navbar setelah diterbitkan.
+                                    </p>
+                                )}
                             </div>
                         </Card>
 

@@ -15,15 +15,8 @@ export default function PublicLayout({ children, settings = {} }) {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [openMenu, setOpenMenu] = useState(null);
     const { url, props } = usePage();
-    const { aboutPages = [], customPages = [], archivePages = [], settings: sharedSettings = {} } = props;
+    const { aboutPages = [], customPages = [], archivePages = [], navItems = [], navConfigured = false, settings: sharedSettings = {} } = props;
     const siteSettings = { ...sharedSettings, ...settings };
-
-    let navItems = [];
-    try {
-        navItems = siteSettings.nav_items ? JSON.parse(siteSettings.nav_items) : [];
-    } catch {
-        navItems = [];
-    }
 
     let topbarLinks = [];
     try {
@@ -32,7 +25,8 @@ export default function PublicLayout({ children, settings = {} }) {
         topbarLinks = [];
     }
 
-    const useDefaultNav = navItems.length === 0;
+    // Fallback menu only when no menu was ever built; hidden/parked items leave the navbar empty on purpose.
+    const useDefaultNav = !navConfigured;
 
     const currentUrl = url.split('?')[0];
     const matches = (href) => currentUrl === href || currentUrl.startsWith(`${href}/`);

@@ -1,6 +1,7 @@
 import AdminLayout from '@/Layouts/AdminLayout';
 import Card from '@/Components/Card';
 import Button from '@/Components/Button';
+import DataTable from '@/Components/DataTable';
 import RichContent from '@/Components/RichContent';
 import { blocksFromMetadata } from '@/lib/postBlocks';
 import { router } from '@inertiajs/react';
@@ -94,32 +95,15 @@ export default function PostShow({ post }) {
                                         <cite className="mt-2 block text-sm not-italic text-slate-500">— {block.source}</cite>
                                     )}
                                 </blockquote>
-                            ) : (
-                                <div key={index} className="mt-4 rounded-lg border border-slate-200">
-                                    <div className="border-b border-slate-200 bg-slate-50 px-4 py-2 text-sm font-semibold text-slate-700">{block.title || 'Tabel'}</div>
-                                    {block.description && <p className="px-4 py-2 text-xs text-slate-500">{block.description}</p>}
-                                    <div className="overflow-x-auto">
-                                        <table className="min-w-full text-left text-sm">
-                                            <thead>
-                                                <tr className="bg-slate-50 text-xs uppercase text-slate-500">
-                                                    {(block.columns || []).map((column, columnIndex) => (
-                                                        <th key={columnIndex} className="px-4 py-2">{column || `Kolom ${columnIndex + 1}`}</th>
-                                                    ))}
-                                                </tr>
-                                            </thead>
-                                            <tbody className="divide-y divide-slate-100">
-                                                {(block.rows || []).map((row, rowIndex) => (
-                                                    <tr key={rowIndex}>
-                                                        {(block.columns || []).map((_, columnIndex) => (
-                                                            <td key={columnIndex} className="px-4 py-2 text-slate-700">{row[columnIndex] || '-'}</td>
-                                                        ))}
-                                                    </tr>
-                                                ))}
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            )
+                            ) : block.type === 'table' ? (
+                                <DataTable
+                                    key={index}
+                                    title={block.title}
+                                    description={block.description}
+                                    columns={block.columns}
+                                    rows={block.rows}
+                                />
+                            ) : null
                         )}
                     </Card>
                 </div>

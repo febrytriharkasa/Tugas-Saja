@@ -87,11 +87,12 @@ class NavigationSettingsTest extends TestCase
         $response->assertSessionHasErrors('nav_items.0.url');
     }
 
-    public function test_dropdown_item_requires_children(): void
+    public function test_dropdown_item_may_stay_without_children(): void
     {
         $admin = User::factory()->create();
 
-        $response = $this->actingAs($admin)->from('/admin/settings/navigation')->post('/admin/settings/navigation', [
+        // A dropdown can lose all its children when its page is deleted, so an empty one must stay saveable.
+        $this->actingAs($admin)->post('/admin/settings/navigation', [
             'nav_items' => [
                 [
                     'type' => 'dropdown',
@@ -100,9 +101,47 @@ class NavigationSettingsTest extends TestCase
                     'children' => [],
                 ],
             ],
+        ])->assertSessionHasNoErrors();
+
+        $saved = json_decode(SiteSetting::where('key', 'nav_items')->first()->value, true);
+
+        $this->assertSame([], $saved[0]['children']);
+    }
+
+    public function test_dropdown_item_may_be_saved_empty(): void
+    {
+        $admin = User::factory()->create();
+
+        // Dropdowns can be parked half-finished: label, url, and children all empty.
+        $this->actingAs($admin)->post('/admin/settings/navigation', [
+            'nav_items' => [
+                ['type' => 'dropdown', 'label' => null, 'url' => null, 'children' => null],
+            ],
+        ])->assertSessionHasNoErrors();
+
+        $saved = json_decode(SiteSetting::where('key', 'nav_items')->first()->value, true);
+
+        $this->assertNull($saved[0]['label']);
+        $this->assertNull($saved[0]['children']);
+    }
+
+    public function test_dropdown_child_requires_url(): void
+    {
+        $admin = User::factory()->create();
+
+        $response = $this->actingAs($admin)->from('/admin/settings/navigation')->post('/admin/settings/navigation', [
+            'nav_items' => [
+                [
+                    'type' => 'dropdown',
+                    'label' => 'Tentang',
+                    'children' => [
+                        ['label' => 'Visi', 'url' => ''],
+                    ],
+                ],
+            ],
         ]);
 
-        $response->assertSessionHasErrors('nav_items.0.children');
+        $response->assertSessionHasErrors('nav_items.0.children.0.url');
     }
 
     public function test_navigation_page_provides_link_options(): void

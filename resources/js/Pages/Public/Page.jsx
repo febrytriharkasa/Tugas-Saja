@@ -1,57 +1,26 @@
 import PublicLayout from '@/Layouts/PublicLayout';
 import Breadcrumbs from '@/Components/Breadcrumbs';
 import ChatWidget from '@/Components/ChatWidget';
+import DataTable from '@/Components/DataTable';
 import RichContent from '@/Components/RichContent';
 import { blocksFromMetadata } from '@/lib/postBlocks';
 
-function DataTable({ title, description, columns, rows }) {
-    if (!Array.isArray(columns) || columns.length === 0 || !Array.isArray(rows) || rows.length === 0) {
-        return null;
-    }
-
-    return (
-        <div className="mt-8">
-            {description && (
-                <p className="mb-3 text-sm italic text-slate-600 border-l-4 border-primary/40 pl-3">{description}</p>
-            )}
-            <div className="overflow-hidden rounded-xl border border-slate-200 shadow-sm">
-                <div className="bg-primary px-5 py-3">
-                    <h3 className="text-sm font-bold text-white">{title || 'Daftar Data'}</h3>
-                </div>
-                <table className="w-full table-fixed text-[10px] text-left border-collapse sm:text-sm">
-                    <thead>
-                        <tr className="bg-slate-50 border-b border-slate-200 text-[10px] font-semibold text-slate-600 uppercase tracking-wide sm:text-xs">
-                            <th className="w-8 px-2 py-2 sm:px-5 sm:py-3">#</th>
-                            {columns.map((column, index) => (
-                                <th key={index} className="px-2 py-2 sm:px-5 sm:py-3">{column || `Kolom ${index + 1}`}</th>
-                            ))}
-                        </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100">
-                        {rows.map((row, rowIndex) => (
-                            <tr key={rowIndex} className={rowIndex % 2 === 0 ? 'bg-white' : 'bg-slate-50/50'}>
-                                <td className="px-2 py-2 sm:px-5 sm:py-3 text-slate-400 font-medium">{rowIndex + 1}</td>
-                                {columns.map((_, columnIndex) => (
-                                    <td key={columnIndex} className="px-2 py-2 sm:px-5 sm:py-3 text-slate-700">
-                                        {row[columnIndex] || '-'}
-                                    </td>
-                                ))}
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    );
-}
-
-export default function Page({ page }) {
+export default function Page({ page, draftPreview = false }) {
     const blocks = blocksFromMetadata(page.metadata);
 
     return (
         <PublicLayout>
             <Breadcrumbs items={[{ label: 'Beranda', href: '/' }, { label: page.title }]} />
             <div className="block w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+                {draftPreview && (
+                    <div className="mb-6 flex flex-wrap items-center gap-x-3 gap-y-1 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+                        <span className="font-bold">Pratinjau draf</span>
+                        <span className="text-amber-700">Laman ini belum diterbitkan: pengunjung belum bisa membukanya.</span>
+                        <a href={`/admin/pages/${page.id}/edit`} className="font-semibold text-primary hover:underline">
+                            Edit laman
+                        </a>
+                    </div>
+                )}
                 <div className="mb-4">
                     <p className="mt-2 text-xs font-bold uppercase tracking-[0.14em] text-secondary">Tentang Kami</p>
                 </div>
