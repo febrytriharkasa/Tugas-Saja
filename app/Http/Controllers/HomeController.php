@@ -13,15 +13,17 @@ use Inertia\Inertia;
 
 class HomeController extends Controller
 {
+    private const ITEM_LIMIT = 2;
+
     public function index()
     {
         $settings = SiteSetting::all()->pluck('value', 'key');
 
         return Inertia::render('Welcome', [
             'settings' => $settings,
-            'posts' => $this->categoryPosts('berita', 6),
+            'posts' => $this->categoryPosts('berita'),
             'homeSections' => $this->homeSections(),
-            'galleries' => $this->categoryPosts('galeri', 8),
+            'galleries' => $this->categoryPosts('galeri'),
             'staff' => Staff::latest()->take(8)->get(),
         ]);
     }
@@ -31,7 +33,7 @@ class HomeController extends Controller
      *
      * @return Collection<int, array{id: int, name: string, slug: string, posts: Collection<int, Post>}>
      */
-    private function homeSections()
+    private function homeSections(int $limit = self::ITEM_LIMIT)
     {
         $categories = Category::shownOnHome()->get();
 
@@ -46,7 +48,7 @@ class HomeController extends Controller
             'id' => $category->id,
             'name' => $category->name,
             'slug' => $category->slug,
-            'posts' => $postsByCategory->get($category->id, collect())->take(8)->values(),
+            'posts' => $postsByCategory->get($category->id, collect())->take($limit)->values(),
         ]);
     }
 
@@ -158,7 +160,7 @@ class HomeController extends Controller
         return Inertia::render('Public/PostDetail', compact('post', 'relatedPosts', 'prevPost', 'nextPost'));
     }
 
-    private function categoryPosts(string $slug, ?int $limit = null, bool $paginate = false)
+    private function categoryPosts(string $slug, ?int $limit = self::ITEM_LIMIT, bool $paginate = false)
     {
         $query = Post::with(['category', 'user'])
             ->where('status', 'published')
