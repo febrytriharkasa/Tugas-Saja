@@ -46,7 +46,7 @@ class HomeController extends Controller
             'id' => $category->id,
             'name' => $category->name,
             'slug' => $category->slug,
-            'posts' => $postsByCategory->get($category->id, collect())->take(3)->values(),
+            'posts' => $postsByCategory->get($category->id, collect())->take(8)->values(),
         ]);
     }
 
