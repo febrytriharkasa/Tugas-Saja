@@ -555,6 +555,245 @@ class DatabaseSeeder extends Seeder
                 ]],
                 'status' => 'published', 'published_at' => now()->subDays(3),
             ],
+            [
+                'title' => 'Pelajar SMA XYZ Belajar Robotika di Laboratorium ITS Surabaya',
+                'slug' => 'kunjungan-robotika-its-surabaya',
+                'category_id' => $catBerita->id,
+                'content' => <<<'HTML'
+                <p>Sebanyak 48 siswa kelas XI MIPA mengikuti kunjungan edukasi ke Laboratorium Robotika dan Mekatronika ITS Surabaya. Kegiatan ini melengkapi kelas teknologi yang berjalan di sekolah setiap pekan.</p>
+                <p>Di laboratorium, siswa menyaksikan demonstrasi lengan robot, sistem sensor otomatis, dan cara mahasiswa menyusun prototipe untuk kompetisi. Sesi tanya jawab berlangsung bersama dua asisten laboratorium dan tiga anggota tim robotika kampus.</p>
+                <p>Pertanyaan yang paling sering muncul dari siswa:</p>
+                <ul>
+                    <li>Bagaimana cara menguji sensor sebelum robot dirakit?</li>
+                    <li>Bagaimana pembagian tugas tim saat kompetisi berlangsung?</li>
+                    <li>Jalur belajar apa yang perlu disiapkan untuk masuk rekayasa robotika?</li>
+                </ul>
+                <p>Sepulang kunjungan, siswa mendapat tugas merancang robot sederhana berbahan sensor cahaya yang dikumpulkan dua pekan kemudian.</p>
+                HTML,
+                'status' => 'published', 'published_at' => now()->subDays(1),
+            ],
+            [
+                'title' => 'ANBK 2026: 45 Siswa Kelas XI Ikut Asesmen Literasi dan Numerasi',
+                'slug' => 'anbk-2026-siswa-kelas-xi',
+                'category_id' => $catBerita->id,
+                'content' => <<<'HTML'
+                <p>Asesmen Nasional Berbasis Komputer (ANBK) 2026 digelar dua hari di Lab Komputer 1 dan 2. Sebanyak 45 siswa kelas XI terpilih sebagai sampel mengerjakan soal literasi membaca, numerasi, dan survei karakter.</p>
+                <p>Pelaksanaan dibagi dua sesi setiap hari dengan pendampingan proktor dan teknisi sekolah. Pengawas silang datang dari sekolah lain sesuai jadwal dari dinas pendidikan.</p>
+                <p>Hasil asesmen dipakai sekolah untuk membaca mutu pembelajaran, terutama pola jawaban numerasi yang paling sering salah. Rangkumannya dibahas dalam rapat kurikulum bersama seluruh guru mapel.</p>
+                HTML,
+                'status' => 'published', 'published_at' => now()->subDays(3),
+            ],
+            [
+                'title' => 'Bimbingan Karir Kelas XII: Memilih Jurusan Sesuai Minat dan Peluang',
+                'slug' => 'bimbingan-karir-kelas-xii',
+                'category_id' => $catBerita->id,
+                'content' => <<<'HTML'
+                <p>Seluruh siswa kelas XII mengikuti bimbingan karir di Aula Utama bersama empat alumni yang kini berkuliah di UNAIR, ITS, dan Al-Azhar Kairo, serta satu praktisi dari industri teknologi Surabaya.</p>
+                <p>Alumni berbagi cara memilih jurusan: mengenali mata pelajaran yang paling dikuasai, memeriksa peluang beasiswa di tiap kampus, dan menyusun strategi belajar untuk SNBT. Sesi terakhir dipakai untuk konsultasi kelompok kecil.</p>
+                <p>Tiga hal yang ditekankan berulang kali dalam tanya jawab:</p>
+                <ul>
+                    <li>Nilai rapor tetap fondasi, tetapi portofolio kegiatan juga dihitung pada jalur seleksi tertentu.</li>
+                    <li>Setiap siswa perlu menyiapkan kampus cadangan dengan alasan yang dipahami sendiri.</li>
+                    <li>Latihan soal dimulai dari sekarang, bukan setelah pendaftaran dibuka.</li>
+                </ul>
+                <p>Guru bimbingan konseling membuka sesi lanjutan setiap Rabu setelah jam pelajaran untuk membahas pilihan masing-masing siswa.</p>
+                HTML,
+                'status' => 'published', 'published_at' => now()->subDays(2),
+            ],
+            [
+                'title' => 'Perpustakaan Tambah 480 Koleksi Baru untuk Semester Ganjil',
+                'slug' => 'perpustakaan-tambah-480-koleksi',
+                'category_id' => $catBerita->id,
+                'content' => <<<'HTML'
+                <p>Perpustakaan Digital dan Media Center menambah 480 koleksi baru: buku referensi sains, novel remaja, biografi tokoh Muslim, dan buku keterampilan. Sebagian judul dipilih dari usulan siswa lewat kotak saran perpustakaan.</p>
+                <p>Pengadaan berlangsung sejak awal semester. Sebanyak 120 di antaranya judul baru, sisanya salinan tambahan untuk judul favorit yang selalu habis dipinjam.</p>
+                <p>Aturan peminjaman juga disederhanakan:</p>
+                <ul>
+                    <li>Anggota bisa meminjam dua buku sekaligus untuk masa pinjam satu pekan.</li>
+                    <li>Katalog digital diperbarui sehingga siswa bisa memeriksa ketersediaan judul sebelum ke sekolah.</li>
+                    <li>Perpanjangan pinjaman dapat dilakukan lewat petugas perpustakaan.</li>
+                </ul>
+                <p>Lomba resensi buku digelar akhir bulan sebagai bagian dari Pekan Literasi Sekolah.</p>
+                HTML,
+                'status' => 'published', 'published_at' => now()->subDays(6),
+            ],
+            [
+                'title' => 'Pelatihan Jurnalistik: Siswa Belajar Menulis dan Memverifikasi Berita',
+                'slug' => 'pelatihan-jurnalistik-siswa',
+                'category_id' => $catBerita->id,
+                'content' => <<<'HTML'
+                <p>Sebanyak 30 anggota tim majalah sekolah dan pengurus OSIS mengikuti pelatihan jurnalistik bersama pemimpin redaksi sebuah media lokal di Sidoarjo. Pelatihan berlangsung satu hari di ruang multimedia.</p>
+                <p>Materi pagi membahas cara menemukan sudut berita kegiatan sekolah, menyusun pertanyaan wawancara, dan menulis berita pendek. Sesi siang diisi praktik: setiap tim mewawancarai narasumber di lingkungan sekolah lalu menuliskan hasilnya.</p>
+                <p>Narasumber menekankan tiga aturan yang selalu diuji di dunia jurnalistik:</p>
+                <ul>
+                    <li>Periksa satu informasi dari minimal dua sumber sebelum ditulis.</li>
+                    <li>Cantumkan identitas narasumber dengan jabatan yang benar.</li>
+                    <li>Jangan mengubah kutipan tanpa sepengetahuan narasumber.</li>
+                </ul>
+                <p>Hasil pelatihan langsung dipakai untuk menyiapkan majalah sekolah edisi berikutnya.</p>
+                HTML,
+                'status' => 'published', 'published_at' => now()->subDays(7),
+            ],
+            [
+                'title' => 'Rapat Kerja Semester Ganjil Tetapkan Empat Prioritas Program',
+                'slug' => 'raker-semester-ganjil',
+                'category_id' => $catBerita->id,
+                'content' => <<<'HTML'
+                <p>Rapat kerja semester ganjil digelar dua hari di aula sekolah, diikuti kepala sekolah, para wakil, guru, dan perwakilan pengurus yayasan. Rapat menyepakati empat prioritas yang dijalankan sampai akhir tahun ajaran.</p>
+                <ol>
+                    <li>Penguatan literasi dan numerasi lewat asesmen seragam setiap bulan.</li>
+                    <li>Pembinaan olimpiade berjenjang mulai kelas X.</li>
+                    <li>Digitalisasi administrasi dan layanan orang tua lewat portal sekolah.</li>
+                    <li>Pembinaan karakter bersama wali kelas dan guru tahfidz.</li>
+                </ol>
+                <p>Setiap prioritas memiliki penanggung jawab dan tenggat evaluasi. Progresnya dibahas dalam rapat bulanan pimpinan dan dilaporkan ke orang tua pada pertemuan wali murid.</p>
+                HTML,
+                'status' => 'published', 'published_at' => now()->subDays(9),
+            ],
+            [
+                'title' => 'SMA XYZ Berbagi Praktik Sistem Informasi Sekolah dengan Tim SMAN 1 Gresik',
+                'slug' => 'studi-tiru-sman-1-gresik',
+                'category_id' => $catBerita->id,
+                'content' => <<<'HTML'
+                <p>Tim SMAN 1 Gresik berkunjung untuk mempelajari pengelolaan sistem informasi sekolah yang berjalan di SMA XYZ. Rombongan berjumlah 12 orang, terdiri atas kepala sekolah, wakil kepala, dan staf tata usaha.</p>
+                <p>Diskusi di ruang rapat membahas alur penerbitan konten portal sekolah, penatausahaan data siswa, dan pemanfaatan laboratorium komputer untuk asesmen daring. Tim tamu juga melihat proses pengelolaan konten di ruang multimedia.</p>
+                <p>Kunjungan dibalas bulan depan: tim SMA XYZ akan belajar pengelolaan program kewirausahaan siswa ke SMAN 1 Gresik dalam agenda studi tiru balik.</p>
+                HTML,
+                'status' => 'published', 'published_at' => now()->subDays(11),
+            ],
+            [
+                'title' => 'Kantin Sekolah Raih Sertifikat Laik Higiene Sanitasi',
+                'slug' => 'kantin-sertifikat-laik-higiene',
+                'category_id' => $catBerita->id,
+                'content' => <<<'HTML'
+                <p>Kantin SMA XYZ menerima sertifikat laik higiene sanitasi dari Puskesmas Krian setelah melalui pemeriksaan dapur, area penyajian, dan sampel menu. Sertifikat berlaku tiga tahun dan diperbarui lewat pemeriksaan berkala.</p>
+                <p>Petugas menilai kebersihan alat masak, penyimpanan bahan, kualitas air, hingga penanganan sampah. Para pengelola kantin mengikuti penyuluhan keamanan pangan sehari sebelum penilaian.</p>
+                <p>Ke depan, sekolah dan pengelola kantin menetapkan pemeriksaan kebersihan setiap Jumat serta uji sampel makanan bergilir untuk seluruh tenant.</p>
+                HTML,
+                'status' => 'published', 'published_at' => now()->subDays(13),
+            ],
+            [
+                'title' => 'Pendaftaran Beasiswa Prestasi Yayasan Semester Genap Dibuka',
+                'slug' => 'beasiswa-prestasi-semester-genap',
+                'category_id' => $catPengumuman->id,
+                'content' => <<<'HTML'
+                <p>Pendaftaran beasiswa prestasi yayasan untuk semester genap dibuka sampai 14 November 2026. Beasiswa diberikan dalam bentuk potongan biaya pendidikan satu semester bagi siswa berprestasi akademik maupun non-akademik.</p>
+                <p>Syarat yang harus dipenuhi pendaftar:</p>
+                <ol>
+                    <li>Rata-rata nilai rapor semester terakhir minimal 85.</li>
+                    <li>Hafalan Al-Qur'an minimal dua juz dengan keterangan pembimbing tahfidz.</li>
+                    <li>Aktif dalam minimal satu ekstrakurikuler atau organisasi sekolah.</li>
+                    <li>Tidak pernah menerima sanksi kedisiplinan berat.</li>
+                </ol>
+                <p>Berkas diserahkan ke ruang tata usaha dalam satu map: fotokopi rapor, surat keterangan prestasi, dan formulir yang diambil dari wali kelas. Hasil seleksi diumumkan pada 25 November 2026 melalui portal sekolah.</p>
+                HTML,
+                'status' => 'published', 'published_at' => now()->subDays(2),
+            ],
+            [
+                'title' => 'Kalender Libur dan Kegiatan Akhir Semester Ganjil 2026/2027',
+                'slug' => 'kalender-akhir-semester-ganjil',
+                'category_id' => $catPengumuman->id,
+                'content' => <<<'HTML'
+                <p>Jadwal akhir semester ganjil sudah ditetapkan. Kegiatan belajar efektif berakhir 28 November 2026, dilanjutkan pekan ujian dan pembagian rapor sesuai kalender berikut.</p>
+                HTML,
+                'metadata' => ['blocks' => [
+                    ['type' => 'table', 'title' => 'Kalender Akhir Semester Ganjil', 'description' => 'Tanggal dapat berubah bila ada penyesuaian dari dinas pendidikan.', 'columns' => ['Kegiatan', 'Tanggal'], 'rows' => [
+                        ['Pekan ujian akhir semester', '1-9 Desember 2026'],
+                        ['Class meeting dan pekan kreativitas', '10-15 Desember 2026'],
+                        ['Pembagian rapor semester ganjil', '20 Desember 2026'],
+                        ['Libur semester ganjil', '21 Desember 2026 - 5 Januari 2027'],
+                        ['Awal semester genap', '6 Januari 2027'],
+                    ]],
+                    ['type' => 'callout', 'content' => '<p>Selama libur, portal siswa dan perpustakaan digital tetap dapat diakses dari rumah.</p>'],
+                ]],
+                'status' => 'published', 'published_at' => now()->subDays(4),
+            ],
+            [
+                'title' => 'Pendaftaran Anggota Baru Ekstrakurikuler Gelombang Kedua',
+                'slug' => 'pendaftaran-ekstrakurikuler-gelombang-2',
+                'category_id' => $catPengumuman->id,
+                'content' => <<<'HTML'
+                <p>Pendaftaran anggota baru ekstrakurikuler gelombang kedua dibuka sampai 20 Oktober 2026. Kuota tersedia untuk Pramuka, PMR, Robotika, English Club, KIR, Nasyid, Futsal, Basket, dan Voli.</p>
+                <p>Pendaftaran melalui wali kelas dengan mengisi formulir berisi maksimal dua pilihan ekstrakurikuler. Latihan percobaan berjalan dua pekan sebelum daftar anggota final ditetapkan pembina.</p>
+                <p>Sebagian ekstrakurikuler menetapkan seleksi karena keterbatasan alat, terutama Robotika dan Basket. Jadwal seleksinya diumumkan menyusul lewat portal siswa dan grup kelas.</p>
+                HTML,
+                'status' => 'published', 'published_at' => now()->subDays(5),
+            ],
+            [
+                'title' => 'Jadwal Apel Senin dan Piket Kelas Semester Ganjil',
+                'slug' => 'jadwal-apel-piket-semester-ganjil',
+                'category_id' => $catPengumuman->id,
+                'content' => <<<'HTML'
+                <p>Mulai pekan ini, apel Senin pagi dilaksanakan pukul 06.50 di lapangan multifungsi sebelum jam pertama. Kelas yang bertugas menyiapkan pengeras suara, teks doa, dan petugas upacara.</p>
+                <p>Roster petugas disusun bergilir per pekan oleh pengurus OSIS bersama waka kesiswaan. Kelas yang bertugas berlatih setiap Jumat sore didampingi pelatih dari pengurus OSIS.</p>
+                <p>Daftar piket harian kelas juga diperbarui:</p>
+                <ul>
+                    <li>Kebersihan kelas dan teras diselesaikan sebelum jam pertama.</li>
+                    <li>Sampah dipisah organik dan anorganik, lalu diantar ke bank sampah sekolah.</li>
+                    <li>Barang hilang dilaporkan ke sekretariat OSIS untuk dicatat.</li>
+                </ul>
+                HTML,
+                'status' => 'published', 'published_at' => now()->subDays(8),
+            ],
+            [
+                'title' => 'Seleksi Tim Olimpiade Sains Sekolah Periode 2027 Dibuka',
+                'slug' => 'seleksi-tim-olimpiade-sains-2027',
+                'category_id' => $catPengumuman->id,
+                'content' => <<<'HTML'
+                <p>Seleksi tim olimpiade sains sekolah dibuka bagi siswa kelas X dan XI untuk sembilan bidang: Matematika, Fisika, Kimia, Biologi, Informatika, Astronomi, Kebumian, Geografi, dan Ekonomi.</p>
+                <p>Tes seleksi berlangsung 16 November 2026 di ruang kelas XI. Siswa yang lolos mengikuti pembinaan dua kali sepekan bersama guru pembina dan alumni olimpiade.</p>
+                <p>Pendaftaran melalui guru mapel masing-masing atau langsung ke ruang kurikulum. Peserta diharapkan memilih maksimal dua bidang agar latihan tetap fokus.</p>
+                HTML,
+                'metadata' => ['blocks' => [
+                    ['type' => 'callout', 'content' => '<p>Jadwal pembinaan perdana diumumkan setelah hasil seleksi keluar. Pembinaan digelar Selasa dan Kamis, pukul 15.00-17.00.</p>'],
+                ]],
+                'status' => 'published', 'published_at' => now()->subDays(12),
+            ],
+            [
+                'title' => 'Tata Tertib Praktikum di Laboratorium IPA dan Komputer',
+                'slug' => 'tata-tertib-praktikum-laboratorium',
+                'category_id' => $catPengumuman->id,
+                'content' => <<<'HTML'
+                <p>Menjelang pekan praktikum terpadu, sekolah menegaskan tata tertib penggunaan laboratorium bagi seluruh siswa. Aturan ini berlaku di Laboratorium IPA Terpadu, Laboratorium Komputer, dan Studio Multimedia.</p>
+                <ol>
+                    <li>Masuk laboratorium hanya bersama guru atau laboran, tanpa jaket dan tas di meja praktik.</li>
+                    <li>Dilarang makan dan minum selama praktikum berlangsung.</li>
+                    <li>Alat yang rusak dilaporkan ke laboran, bukan dikembalikan diam-diam ke rak.</li>
+                    <li>Komputer laboratorium hanya dipakai untuk keperluan praktikum.</li>
+                </ol>
+                <p>Siswa yang melanggar aturan membantu laboran merapikan alat setelah jam sekolah. Kerusakan akibat kelalaian ditangani bersama wali kelas dan orang tua.</p>
+                HTML,
+                'status' => 'published', 'published_at' => now()->subDays(14),
+            ],
+            [
+                'title' => 'Jadwal Pemilihan Ketua OSIS Periode 2026/2027',
+                'slug' => 'pemilihan-ketua-osis-2026-2027',
+                'category_id' => $catPengumuman->id,
+                'content' => <<<'HTML'
+                <p>Pemilihan ketua dan wakil ketua OSIS periode 2026/2027 digelar pekan depan. Empat pasangan calon dari kelas X dan XI sudah lolos verifikasi berkas dan menyelesaikan masa kampanye tertulis.</p>
+                <ol>
+                    <li>Senin: penyampaian visi misi dan tanya jawab di aula utama.</li>
+                    <li>Selasa: pemungutan suara di bilik yang disiapkan di koridor kelas X.</li>
+                    <li>Rabu: penghitungan suara terbuka dan penetapan pemenang.</li>
+                </ol>
+                <p>Hak pilih dimiliki seluruh siswa dan guru dengan satu suara. Pasangan terpilih dilantik pada apel pekan berikutnya, lalu mengikuti LDKS bersama pembina OSIS.</p>
+                HTML,
+                'status' => 'published', 'published_at' => now()->subDays(18),
+            ],
+            [
+                'title' => 'Program Bimbingan Belajar Gratis Kelas XII Dimulai Pekan Depan',
+                'slug' => 'bimbingan-belajar-gratis-kelas-xii',
+                'category_id' => $catPengumuman->id,
+                'content' => <<<'HTML'
+                <p>Sekolah membuka bimbingan belajar gratis untuk kelas XII sebagai persiapan SNBT dan ujian sekolah. Kelas berjalan lima kali sepekan, Senin sampai Jumat, pukul 14.00-16.00 di ruang kelas XI MIPA 1 dan 2.</p>
+                <p>Mata pelajaran yang dibimbing: Matematika, Bahasa Indonesia, Bahasa Inggris, dan Penalaran Umum. Pengajarnya guru mapel sekolah dan dua alumni yang kini berkuliah di ITS dan UNAIR.</p>
+                <p>Pendaftaran tanpa biaya melalui wali kelas sampai 18 Oktober 2026. Kapasitas 80 siswa per angkatan dan tersedia daftar tunggu bila kuota penuh.</p>
+                HTML,
+                'metadata' => ['blocks' => [
+                    ['type' => 'callout', 'content' => '<p>Peserta membawa buku latihan sendiri. Hasil try out internal setiap dua pekan dikumpulkan untuk dievaluasi pembina.</p>'],
+                ]],
+                'status' => 'published', 'published_at' => now()->subDays(20),
+            ],
         ];
 
         // 5. Posts - Agenda (dengan metadata event_date & location)
@@ -634,6 +873,82 @@ class DatabaseSeeder extends Seeder
                 'metadata' => ['event_date' => now()->addDays(50)->toDateString(), 'location' => 'Halaman Kampus SMA XYZ'],
                 'status' => 'published', 'published_at' => now()->subDays(5),
             ],
+            [
+                'title' => 'Kunjungan Industri Kelas XI ke PT Petrokimia Gresik',
+                'slug' => 'kunjungan-industri-petrokimia-gresik',
+                'category_id' => $catAgenda->id,
+                'content' => <<<'HTML'
+                <p>Kunjungan industri tahun ini mengunjungi PT Petrokimia Gresik untuk melihat proses produksi pupuk dan pengelolaan laboratorium kendali mutu. Kegiatan diikuti siswa kelas XI MIPA dan IPS.</p>
+                <p>Siswa dibagi tiga kelompok besar agar tur pabrik berjalan tertib. Sebelum berangkat, setiap peserta mengikuti pengarahan keselamatan dan uji pemakaian alat pelindung diri.</p>
+                HTML,
+                'metadata' => [
+                    'event_date' => now()->addDays(30)->toDateString(),
+                    'location' => 'PT Petrokimia Gresik',
+                    'blocks' => [
+                        ['type' => 'callout', 'content' => '<p>Peserta wajib membawa kartu pelajar, memakai sepatu bersol karet, dan tidak diperkenankan membawa tas besar ke area pabrik.</p>'],
+                    ],
+                ],
+                'status' => 'published', 'published_at' => now()->subDays(1),
+            ],
+            [
+                'title' => 'Musabaqah Hifzil Qur\'an (MHQ) Cup Antar Kelas',
+                'slug' => 'mhq-cup-antar-kelas',
+                'category_id' => $catAgenda->id,
+                'content' => <<<'HTML'
+                <p>MHQ Cup antar kelas mempertandingkan hafalan juz 30 untuk kelas X dan satu juz pilihan untuk kelas XI dan XII. Setiap kelas mengirim dua peserta putra dan dua peserta putri.</p>
+                <p>Penilaian mencakup kelancaran, tajwid, dan adab peserta. Dewan juri terdiri atas guru tahfidz dan pembimbing dari pondok pesantren mitra.</p>
+                HTML,
+                'metadata' => [
+                    'event_date' => now()->addDays(45)->toDateString(),
+                    'location' => 'Masjid Kampus Al-Iman',
+                    'blocks' => [
+                        ['type' => 'table', 'title' => 'Babak MHQ Cup', 'description' => 'Peserta yang lolos babak penyisihan tampil ulang di babak final.', 'columns' => ['Babak', 'Waktu', 'Keterangan'], 'rows' => [
+                            ['Penyisihan', '07.30-10.00', 'Setoran juz 30 dan juz pilihan'],
+                            ['Final', '10.30-12.00', 'Tampil di depan juri dan peserta lain'],
+                        ]],
+                    ],
+                ],
+                'status' => 'published', 'published_at' => now()->subDays(2),
+            ],
+            [
+                'title' => 'Latihan Dasar Kepemimpinan Siswa untuk Pengurus OSIS Baru',
+                'slug' => 'ldks-osis-2026',
+                'category_id' => $catAgenda->id,
+                'content' => <<<'HTML'
+                <p>LDKS menjadi pembekalan wajib bagi pengurus OSIS periode 2026/2027 sebelum menjalankan program kerja. Kegiatan berlangsung dua hari dengan materi kepemimpinan, manajemen kegiatan, dan komunikasi organisasi.</p>
+                <p>Materi disampaikan waka kesiswaan, pembina OSIS, dan alumni pengurus OSIS. Hari kedua diisi simulasi penyusunan proposal kegiatan kelompok.</p>
+                HTML,
+                'metadata' => ['event_date' => now()->addDays(40)->toDateString(), 'location' => 'Aula Utama SMA XYZ'],
+                'status' => 'published', 'published_at' => now()->subDays(3),
+            ],
+            [
+                'title' => 'Pemeriksaan Kesehatan Berkala Siswa Bersama Puskesmas Krian',
+                'slug' => 'pemeriksaan-kesehatan-berkala',
+                'category_id' => $catAgenda->id,
+                'content' => <<<'HTML'
+                <p>Pemeriksaan kesehatan berkala digelar untuk seluruh siswa kelas X, berlanjut ke kelas XI pekan berikutnya. Pemeriksaannya meliputi tinggi badan, berat badan, tekanan darah, kesehatan mata, dan pemeriksaan gigi dasar.</p>
+                <p>Hasil pemeriksaan dicatat pada kartu kesehatan siswa. Siswa yang memerlukan pemeriksaan lanjutan dirujuk ke Puskesmas dengan surat pengantar sekolah.</p>
+                HTML,
+                'metadata' => [
+                    'event_date' => now()->addDays(21)->toDateString(),
+                    'location' => 'Ruang UKS & Aula SMA XYZ',
+                    'blocks' => [
+                        ['type' => 'callout', 'content' => '<p>Jadwal per kelas ditempel di papan pengumuman. Siswa hadir sesuai urutan kelas dan membawa kartu kesehatan yang dibagikan wali kelas.</p>'],
+                    ],
+                ],
+                'status' => 'published', 'published_at' => now()->subDays(4),
+            ],
+            [
+                'title' => 'Wisuda Tahfidz Angkatan ke-16',
+                'slug' => 'wisuda-tahfidz-angkatan-16',
+                'category_id' => $catAgenda->id,
+                'content' => <<<'HTML'
+                <p>Wisuda Tahfidz angkatan ke-16 menampilkan 58 siswa yang menyelesaikan target hafalan 3-5 juz. Acara dihadiri orang tua wisudawan, pengurus yayasan, dan pembimbing pondok pesantren mitra.</p>
+                <p>Rangkaian acara: tasmi' bersama, sambutan kepala sekolah, penyerahan piagam, dan penampilan tim nasyid sekolah.</p>
+                HTML,
+                'metadata' => ['event_date' => now()->addDays(60)->toDateString(), 'location' => 'Masjid Kampus Al-Iman'],
+                'status' => 'published', 'published_at' => now()->subDays(5),
+            ],
         ];
 
         // 6. Posts - Prestasi (dengan metadata rank, year, participant_name)
@@ -686,6 +1001,244 @@ class DatabaseSeeder extends Seeder
                 'metadata' => ['participant_name' => 'Aisyah Az-Zahra (XI IPS 1)', 'rank' => 'Juara 1', 'year' => 2025],
                 'status' => 'published', 'published_at' => now()->subDays(130),
             ],
+            [
+                'title' => 'Juara 2 Debat Bahasa Inggris Tingkat Provinsi Jawa Timur',
+                'slug' => 'juara-2-debat-bahasa-inggris-2026',
+                'category_id' => $catPrestasi->id,
+                'content' => 'Aqila Nafisah (XI MIPA 3) meraih Juara 2 Lomba Debat Bahasa Inggris Pelajar Se-Jawa Timur, sekaligus terpilih sebagai speaker terbaik kedua pada babak final.',
+                'metadata' => ['participant_name' => 'Aqila Nafisah (XI MIPA 3)', 'rank' => 'Juara 2', 'year' => 2026],
+                'status' => 'published', 'published_at' => now()->subDays(20),
+            ],
+            [
+                'title' => 'Juara 1 Lomba Karya Tulis Ilmiah Remaja Tingkat Kabupaten Sidoarjo',
+                'slug' => 'juara-1-ktir-sidoarjo-2026',
+                'category_id' => $catPrestasi->id,
+                'content' => 'Nafisa Rahma dan Bima Aryo (XI MIPA 1) meraih Juara 1 dengan karya berjudul Pemanfaatan Kulit Kopi sebagai Bahan Penjernih Air Sumur.',
+                'metadata' => ['participant_name' => 'Nafisa Rahma & Bima Aryo (XI MIPA 1)', 'rank' => 'Juara 1', 'year' => 2026],
+                'status' => 'published', 'published_at' => now()->subDays(25),
+            ],
+            [
+                'title' => 'Juara 3 Kejuaraan Pencak Silat Pagar Nusa Jawa Timur',
+                'slug' => 'juara-3-pencak-silat-jatim-2026',
+                'category_id' => $catPrestasi->id,
+                'content' => 'Zaki Mubarok (XII IPS 2) meraih Juara 3 kelas tanding putra pada kejuaraan Pagar Nusa tingkat Provinsi Jawa Timur di Surabaya.',
+                'metadata' => ['participant_name' => 'Zaki Mubarok (XII IPS 2)', 'rank' => 'Juara 3 (Perunggu)', 'year' => 2026],
+                'status' => 'published', 'published_at' => now()->subDays(45),
+            ],
+            [
+                'title' => 'Juara 1 Musabaqah Hifzil Qur\'an 5 Juz Tingkat Kabupaten',
+                'slug' => 'juara-1-mhq-kabupaten-2026',
+                'category_id' => $catPrestasi->id,
+                'content' => 'Salsabila Putri (X Keagamaan) meraih Juara 1 MHQ 5 juz tingkat Kabupaten Sidoarjo, dinilai dari kelancaran, tajwid, dan adab.',
+                'metadata' => ['participant_name' => 'Salsabila Putri (X Keagamaan)', 'rank' => 'Juara 1', 'year' => 2026],
+                'status' => 'published', 'published_at' => now()->subDays(60),
+            ],
+        ];
+
+        // Posts - Kegiatan Sekolah
+        $kegiatanData = [
+            [
+                'title' => 'MPLS 2026: Siswa Baru Kenal Sekolah Lewat Lima Hari Kegiatan',
+                'slug' => 'mpls-2026',
+                'category_id' => $catKegiatan->id,
+                'content' => <<<'HTML'
+                <p>Masa Pengenalan Lingkungan Sekolah (MPLS) diikuti 320 siswa baru selama lima hari. Kegiatannya berisi pengenalan kurikulum, tata tertib, fasilitas kampus, dan program tahfidz, tanpa perpeloncoan sesuai aturan dinas.</p>
+                <p>Setiap kelompok didampingi dua pengurus OSIS dan satu wali kelas. Hari terakhir ditutup pentas kelas: yel kelompok, pembacaan puisi, dan presentasi hasil tur keliling kampus.</p>
+                <p>Materi yang paling sering ditanyakan siswa baru:</p>
+                <ul>
+                    <li>Alur peminjaman buku dan pemakaian laboratorium.</li>
+                    <li>Jadwal setoran hafalan dan nama pendampingnya.</li>
+                    <li>Cara memilih ekstrakurikuler sesuai minat.</li>
+                </ul>
+                HTML,
+                'status' => 'published', 'published_at' => now()->subDays(95),
+            ],
+            [
+                'title' => 'Ziarah dan Studi Sejarah ke Makam Sunan Ampel',
+                'slug' => 'ziarah-sunan-ampel',
+                'category_id' => $catKegiatan->id,
+                'content' => <<<'HTML'
+                <p>Kelas X mengikuti ziarah dan studi sejarah ke Makam Sunan Ampel Surabaya. Kegiatan ini menjadi bagian dari pembelajaran sejarah Islam Nusantara sekaligus penguatan karakter santri.</p>
+                <p>Rombongan diterima pengurus makam, dilanjutkan ziarah, doa bersama, dan penjelasan riwayat dakwah Sunan Ampel di kawasan Ampel Denta. Siswa mencatat temuan untuk laporan singkat pelajaran sejarah.</p>
+                HTML,
+                'status' => 'published', 'published_at' => now()->subDays(35),
+            ],
+            [
+                'title' => 'Santunan Anak Yatim dan Dhuafa Bersama Yayasan',
+                'slug' => 'santunan-yatim-dhuafa',
+                'category_id' => $catKegiatan->id,
+                'content' => <<<'HTML'
+                <p>Sekolah menyalurkan santunan kepada 120 anak yatim dan dhuafa dari lingkungan sekitar Krian. Dana berasal dari donasi siswa, guru, wali murid, dan sebagian hasil bazar kewirausahaan siswa.</p>
+                <p>Acara diisi tausiyah, penyerahan santunan, dan makan bersama. Pengurus yayasan menegaskan penyaluran dibukukan terbuka dan laporannya ditempel di papan informasi sekolah.</p>
+                HTML,
+                'status' => 'published', 'published_at' => now()->subDays(48),
+            ],
+            [
+                'title' => 'Simulasi Tanggap Bencana Bersama BPBD Sidoarjo',
+                'slug' => 'simulasi-tanggap-bencana',
+                'category_id' => $catKegiatan->id,
+                'content' => <<<'HTML'
+                <p>Sekolah menggelar simulasi gempa dan kebakaran bersama BPBD Sidoarjo. Seluruh siswa berlatih evakuasi mandiri menuju titik kumpul di lapangan multifungsi saat sirine berbunyi.</p>
+                <p>Tim BPBD memandu jalur evakuasi, penggunaan alat pemadam api ringan, dan pertolongan pertama dasar bersama anggota PMR. Dalam evaluasi, waktu evakuasi seluruh warga sekolah tercatat empat menit tiga puluh detik.</p>
+                <p>Hasil evaluasi diserahkan ke tim keamanan sekolah untuk memperbaiki jalur keluar di koridor lantai dua.</p>
+                HTML,
+                'status' => 'published', 'published_at' => now()->subDays(50),
+            ],
+            [
+                'title' => 'Pekan Inovasi P5: Pameran Proyek Gaya Hidup Berkelanjutan',
+                'slug' => 'pekan-p5-semester-ganjil',
+                'category_id' => $catKegiatan->id,
+                'content' => <<<'HTML'
+                <p>Pekan Inovasi P5 menampilkan proyek kelas X bertema gaya hidup berkelanjutan. Setiap kelas memamerkan satu karya, dari kerajinan bahan daur ulang sampai purwarupa alat penghemat listrik sederhana.</p>
+                <p>Panel juri dari guru lintas mapel menilai kesesuaian tema, proses kerja kelompok, dan presentasi. Pengunjung dari kelas XI dan XII memberi suara untuk kategori favorit.</p>
+                <p>Tiga proyek terbaik dilanjutkan menjadi bahan Festival Karya Siswa akhir semester.</p>
+                HTML,
+                'status' => 'published', 'published_at' => now()->subDays(30),
+            ],
+            [
+                'title' => 'Pekan Literasi Sekolah: Resensi, Puisi, dan Book Fair',
+                'slug' => 'pekan-literasi-sekolah',
+                'category_id' => $catKegiatan->id,
+                'content' => <<<'HTML'
+                <p>Pekan Literasi Sekolah berlangsung lima hari dengan lomba resensi buku, menulis puisi, dan book fair yang melibatkan penerbit lokal. Seluruh kelas mengirim perwakilan.</p>
+                <p>Kategori yang dilombakan:</p>
+                <ul>
+                    <li>Resensi buku fiksi dan non-fiksi.</li>
+                    <li>Menulis puisi bertema lingkungan sekolah.</li>
+                    <li>Poster ajakan membaca.</li>
+                </ul>
+                <p>Perpustakaan mencatat kenaikan peminjaman buku selama pekan literasi, sehingga jadwal layanan ditambah sampai pukul 15.30.</p>
+                HTML,
+                'status' => 'published', 'published_at' => now()->subDays(20),
+            ],
+            [
+                'title' => 'Peringatan Maulid Nabi 1448 H dan Lomba Antar Kelas',
+                'slug' => 'maulid-nabi-1448h',
+                'category_id' => $catKegiatan->id,
+                'content' => <<<'HTML'
+                <p>Peringatan Maulid Nabi Muhammad SAW 1448 H digelar di Masjid Kampus Al-Iman, diisi tausiyah bersama pengasuh pondok pesantren mitra dan pembacaan selawat oleh tim nasyid sekolah.</p>
+                <p>Rangkaian lomba antar kelas berlangsung dua hari: tahfidz juz 30, pidato bahasa Arab, dan kaligrafi. Juaranya diumumkan pada penutupan di lapangan multifungsi.</p>
+                HTML,
+                'status' => 'published', 'published_at' => now()->subDays(42),
+            ],
+            [
+                'title' => 'Aksi Bersih Kampus: Penanaman Tanaman dan Penguatan Bank Sampah',
+                'slug' => 'aksi-bersih-lingkungan',
+                'category_id' => $catKegiatan->id,
+                'content' => <<<'HTML'
+                <p>Gerakan sekolah bersih digelar Jumat pertama setiap bulan. Selain membersihkan ruang kelas dan halaman, siswa menanam 200 bibit tanaman yang dibagikan per kelas.</p>
+                <p>Sampah anorganik diserahkan ke bank sampah sekolah untuk dipilah. Hasil penjualannya dipakai membeli alat kebersihan dan menambah koleksi buku perpustakaan.</p>
+                HTML,
+                'status' => 'published', 'published_at' => now()->subDays(65),
+            ],
+            [
+                'title' => 'Semarak HUT ke-81 RI: Upacara, Lomba, dan Malam Renungan',
+                'slug' => 'hut-ri-81-lomba',
+                'category_id' => $catKegiatan->id,
+                'content' => <<<'HTML'
+                <p>Peringatan HUT ke-81 kemerdekaan RI dibuka dengan upacara di lapangan multifungsi. Petugas upacara berasal dari pengurus OSIS dan anggota Pramuka, diikuti seluruh siswa, guru, dan karyawan.</p>
+                <p>Lomba antar kelas berlangsung dua hari: balap karung, tarik tambang, lomba tahfidz cepat, dan turnamen futsal kelas. Malam renungan diisi doa bersama untuk pahlawan bangsa di Masjid Kampus Al-Iman.</p>
+                HTML,
+                'status' => 'published', 'published_at' => now()->subDays(62),
+            ],
+        ];
+
+        // Posts - Ekstrakurikuler
+        $ekstraData = [
+            [
+                'title' => 'Klub Coding Uji Coba Portal Siswa: Jadwal, Pengumuman, dan Presensi',
+                'slug' => 'klub-coding-uji-coba-portal-siswa',
+                'category_id' => $catEkstra->id,
+                'content' => <<<'HTML'
+                <p>Sepuluh anggota Klub Coding menyelesaikan tahap uji coba portal siswa. Aplikasi web ini menampilkan jadwal pelajaran per kelas, pengumuman sekolah, dan rekap presensi.</p>
+                <p>Uji coba berjalan dua pekan di tiga kelas. Masukan yang terkumpul dibahas setiap Sabtu: tampilan jadwal perlu diringkas, pencarian pengumuman ditambah, dan notifikasi presensi dikirim ke wali kelas.</p>
+                <p>Pengembangan berikutnya menambah fitur pengumpulan tugas dan kalender agenda sekolah. Pendampingan teknis dilakukan kepala tata usaha yang juga mengelola sistem informasi sekolah.</p>
+                HTML,
+                'status' => 'published', 'published_at' => now()->subDays(8),
+            ],
+            [
+                'title' => 'Pramuka Ikut Jambore Ranting Krian',
+                'slug' => 'pramuka-jambore-ranting-krian',
+                'category_id' => $catEkstra->id,
+                'content' => <<<'HTML'
+                <p>Kontingen Pramuka SMA XYZ berjumlah 24 anggota mengikuti Jambore Ranting Krian selama tiga hari. Kegiatannya meliputi lomba pionering, lintas alam, penjelajahan, api unggun, dan pentas seni budaya.</p>
+                <p>Regu putra meraih juara 3 lomba yel dan regu putri juara harapan 1 lomba pionering. Pembina mencatat evaluasi keterampilan tali-temali untuk latihan rutin berikutnya.</p>
+                HTML,
+                'status' => 'published', 'published_at' => now()->subDays(28),
+            ],
+            [
+                'title' => 'PMR Ikut Pelatihan Pertolongan Pertama dan Bantuan Hidup Dasar',
+                'slug' => 'pmr-pelatihan-pertolongan-pertama',
+                'category_id' => $catEkstra->id,
+                'content' => <<<'HTML'
+                <p>Sebanyak 20 anggota PMR mengikuti pelatihan pertolongan pertama bersama tim Puskesmas Krian. Materinya pembidaian, penanganan luka, evakuasi korban, dan bantuan hidup dasar dengan manekin latihan.</p>
+                <p>Peserta yang lulus ujian praktik menerima sertifikat dan bertugas sebagai petugas P3K pada kegiatan sekolah seperti Porsis, LDKS, dan upacara besar.</p>
+                HTML,
+                'status' => 'published', 'published_at' => now()->subDays(12),
+            ],
+            [
+                'title' => 'Tim Nasyid Tampil di Festival Nasyid Pelajar Sidoarjo',
+                'slug' => 'nasyid-festival-pelajar-sidoarjo',
+                'category_id' => $catEkstra->id,
+                'content' => <<<'HTML'
+                <p>Tim nasyid sekolah tampil di Festival Nasyid Pelajar Sidoarjo yang diikuti 18 sekolah. Mereka membawakan dua lagu wajib dan satu aransemen pilihan dengan diiringi rebana.</p>
+                <p>Persiapan berlangsung tiga pekan: latihan vokal, pembagian suara, dan penataan panggung. Pembina menilai penampilan tahun ini lebih rapi dan akan dilanjutkan dengan rekaman dokumentasi untuk arsip sekolah.</p>
+                HTML,
+                'status' => 'published', 'published_at' => now()->subDays(18),
+            ],
+            [
+                'title' => 'Robotika Gelar Workshop Arduino untuk Anggota Baru',
+                'slug' => 'robotika-workshop-arduino',
+                'category_id' => $catEkstra->id,
+                'content' => <<<'HTML'
+                <p>Ekstrakurikuler Robotika menggelar workshop dasar Arduino selama dua pertemuan di Lab Komputer 1. Pesertanya 28 siswa anggota baru kelas X dan XI.</p>
+                <p>Materi meliputi pengenalan board, sensor, dan pemrograman sederhana. Proyek akhirnya lampu lalu lintas mini dan alarm jarak untuk pintu ruang kelas.</p>
+                <p>Peserta terbaik workshop diprioritaskan masuk tim yang disiapkan untuk kompetisi robotika tahun depan.</p>
+                HTML,
+                'status' => 'published', 'published_at' => now()->subDays(22),
+            ],
+            [
+                'title' => 'English Club Gelar English Day: Storytelling, Scrabble, dan Mini Debate',
+                'slug' => 'english-day-club',
+                'category_id' => $catEkstra->id,
+                'content' => <<<'HTML'
+                <p>English Club menggelar English Day dengan lomba storytelling, scrabble, dan debat mini berbahasa Inggris. Sebanyak 120 siswa dari semua kelas ikut ambil bagian.</p>
+                <p>Juri terdiri atas guru bahasa Inggris dan alumni yang kini berkuliah di jurusan sastra. Pemenang setiap lomba menjadi kandidat tim sekolah untuk lomba bahasa Inggris tingkat kabupaten.</p>
+                HTML,
+                'status' => 'published', 'published_at' => now()->subDays(33),
+            ],
+            [
+                'title' => 'KIR Uji Kulit Kopi sebagai Penjernih Air Sumur',
+                'slug' => 'kir-uji-kulit-kopi',
+                'category_id' => $catEkstra->id,
+                'content' => <<<'HTML'
+                <p>Kelompok Ilmiah Remaja menyelesaikan penelitian pemanfaatan kulit kopi sebagai bahan penjernih air sumur. Eksperimen dilakukan di Laboratorium IPA Terpadu selama enam pekan.</p>
+                <p>Sampel air diuji kadar kekeruhan dan pH sebelum dan sesudah perlakuan. Hasilnya dibandingkan dengan penjernih komersial, lalu disusun menjadi laporan ilmiah dan dipresentasikan di depan guru pembina.</p>
+                <p>Penelitian ini dikirim ke lomba karya tulis ilmiah remaja tingkat kabupaten.</p>
+                HTML,
+                'status' => 'published', 'published_at' => now()->subDays(38),
+            ],
+            [
+                'title' => 'Karantina Tahfidz Akhir Pekan: 40 Siswa Setor Satu Juz',
+                'slug' => 'karantina-tahfidz-akhir-pekan',
+                'category_id' => $catEkstra->id,
+                'content' => <<<'HTML'
+                <p>Program karantina tahfidz akhir pekan diikuti 40 siswa kelas X dan XI. Bertempat di Masjid Kampus Al-Iman, kegiatan berjalan dua hari dengan setoran hafalan, tahsin, dan murajaah malam.</p>
+                <p>Penutupan diisi tasmi' di depan pembimbing dan orang tua. Empat peserta dengan setoran terbaik mendapat prioritas mewakili sekolah pada MHQ tingkat kabupaten.</p>
+                HTML,
+                'status' => 'published', 'published_at' => now()->subDays(44),
+            ],
+            [
+                'title' => 'Tim Jurnalistik Terbitkan Majalah Sekolah Edisi Perdana',
+                'slug' => 'jurnalistik-majalah-edisi-perdana',
+                'category_id' => $catEkstra->id,
+                'content' => <<<'HTML'
+                <p>Tim jurnalistik sekolah menerbitkan majalah Lentera edisi perdana setebal 48 halaman. Isinya laporan kegiatan, profil guru, karya siswa, dan rubrik dokumentasi foto.</p>
+                <p>Majalah dicetak 300 eksemplar dan dibagikan ke setiap kelas serta perpustakaan. Halaman digitalnya juga bisa dibaca lewat portal sekolah.</p>
+                <p>Edisi kedua mulai digarap dengan fokus liputan kegiatan semester genap.</p>
+                HTML,
+                'status' => 'published', 'published_at' => now()->subDays(55),
+            ],
         ];
 
         $fasilitasData = [
@@ -695,6 +1248,10 @@ class DatabaseSeeder extends Seeder
             ['title' => 'Laboratorium IPA Terpadu', 'content' => 'Peralatan praktikum Fisika, Kimia, dan Biologi, termasuk mikroskop digital.', 'slug' => 'laboratorium-ipa-terpadu'],
             ['title' => 'Lapangan Olahraga Multifungsi', 'content' => 'Lapangan outdoor untuk Futsal, Basket, Voli, dan Bulutangkis dengan pencahayaan malam.', 'slug' => 'lapangan-olahraga-multifungsi'],
             ['title' => 'Studio Podcast & Multimedia', 'content' => 'Studio kedap suara dengan kamera 4K, lighting, mixer audio, dan podcast microphone.', 'slug' => 'studio-podcast-multimedia'],
+            ['title' => 'Ruang Kelas Ber-AC dengan Smart Display', 'content' => 'AC, proyektor interaktif, koneksi wifi, dan lemari buku di setiap ruang kelas.', 'slug' => 'ruang-kelas-ber-ac-smart-display'],
+            ['title' => 'Aula Utama & Ruang Serbaguna', 'content' => 'Aula berkapasitas 500 orang untuk pertemuan wali murid, seminar, dan wisuda.', 'slug' => 'aula-utama-ruang-serbaguna'],
+            ['title' => 'Kantin Sehat & Koperasi Siswa', 'content' => 'Sepuluh tenant dengan menu tersertifikasi higiene; koperasi menyediakan alat tulis dan perlengkapan sekolah.', 'slug' => 'kantin-sehat-koperasi-siswa'],
+            ['title' => 'Ruang UKS & Klinik Layanan Kesehatan', 'content' => 'Ruang periksa dengan petugas piket harian dan kerja sama Puskesmas Krian untuk rujukan.', 'slug' => 'ruang-uks-klinik-sekolah'],
         ];
 
         $alumniData = [
@@ -702,9 +1259,15 @@ class DatabaseSeeder extends Seeder
             ['title' => 'Nabila Syakira, S.T.', 'content' => 'Klub Komputer dan Coding di SMA XYZ menjadi pintu awal karir saya di industri IT nasional. Guru-gurunya sangat mendukung bakat siswa!', 'slug' => 'nabila-syakira', 'metadata' => ['graduation_year' => 2021, 'current_profession' => 'Cloud Engineer di Bank Syariah Indonesia Jakarta']],
             ['title' => 'Muhammad Hafiz, Lc.', 'content' => 'Bimbingan Bahasa Arab intensif di SMA XYZ memudahkan saya lolos seleksi beasiswa Al-Azhar Mesir tanpa kendala bahasa.', 'slug' => 'muhammad-hafiz', 'metadata' => ['graduation_year' => 2019, 'current_profession' => 'Alumni Universitas Al-Azhar Kairo / Dai Muda']],
             ['title' => 'Anisa Rahmawati, S.M.', 'content' => 'Pameran Kewirausahaan di sekolah mengajarkan saya berani eksekusi ide bisnis sejak kelas 11. Bangga menjadi alumni SMA XYZ.', 'slug' => 'anisa-rahmawati', 'metadata' => ['graduation_year' => 2022, 'current_profession' => 'Entrepreneur / Founder Startup Fashion Muslim Sidoarjo']],
+            ['title' => 'Fauzan Ramadhan, S.Kom.', 'content' => 'Klub Coding dan Olimpiade Informatika di SMA XYZ adalah titik awal saya mengenal pemrograman. Dua hal yang saya bawa dari sekolah: rasa ingin tahu dan disiplin menyelesaikan proyek.', 'slug' => 'fauzan-ramadhan', 'metadata' => ['graduation_year' => 2018, 'current_profession' => 'Software Engineer di Perusahaan Teknologi Singapura']],
+            ['title' => 'Ahmad Faisal, S.Si., M.Sc.', 'content' => 'Laboratorium IPA Terpadu dan bimbingan Bu Dewi membuat saya percaya bahwa penelitian bisa dimulai dari pertanyaan sederhana. Kebiasaan itu yang saya bawa sampai sekarang.', 'slug' => 'ahmad-faisal', 'metadata' => ['graduation_year' => 2017, 'current_profession' => 'Peneliti di Badan Riset dan Inovasi Nasional (BRIN)']],
+            ['title' => 'Zahra Amelia, S.H.', 'content' => 'Latihan pidato dan debat di SMA XYZ mengajarkan saya berdiri di depan orang dan menyusun argumen yang jujur. Bekal itu saya pakai setiap hari di ruang sidang.', 'slug' => 'zahra-amelia', 'metadata' => ['graduation_year' => 2019, 'current_profession' => 'Advokat Muda pada Kantor Hukum di Surabaya']],
+            ['title' => 'Ustadz Rizky Maulana, Lc., M.A.', 'content' => 'Target hafalan yang dulu terasa berat ternyata menjadi modal saya menempuh studi di Mesir. Guru-guru tahfidz di SMA XYZ tidak hanya mengajar menghafal, tetapi juga menjaga adab.', 'slug' => 'rizky-maulana', 'metadata' => ['graduation_year' => 2016, 'current_profession' => 'Dosen dan Penulis Bidang Pendidikan Islam']],
+            ['title' => 'Salma Nur Aini, S.Psi.', 'content' => 'Menjadi pendamping MPLS dan pengurus OSIS mengajarkan saya mendengarkan orang lain. Keterampilan itu ternyata yang paling sering saya pakai sekarang.', 'slug' => 'salma-nur-aini', 'metadata' => ['graduation_year' => 2020, 'current_profession' => 'Psikolog di Layanan Konseling Remaja Surabaya']],
+            ['title' => 'Putri Andini, S.K.M.', 'content' => 'Pengalaman di PMR dan kegiatan bakti sosial sekolah membuat saya yakin bekerja di bidang kesehatan masyarakat. Ilmu dasarnya justru dimulai dari kepedulian sederhana.', 'slug' => 'putri-andini', 'metadata' => ['graduation_year' => 2021, 'current_profession' => 'Koordinator Promosi Kesehatan Puskesmas Krian']],
         ];
 
-        foreach ([...$beritaData, ...$agendaData, ...$prestasiData] as $pData) {
+        foreach ([...$beritaData, ...$agendaData, ...$prestasiData, ...$kegiatanData, ...$ekstraData] as $pData) {
             Post::updateOrCreate(['slug' => $pData['slug']], array_merge($pData, ['user_id' => $humas->id]));
         }
 
@@ -757,6 +1320,7 @@ class DatabaseSeeder extends Seeder
             'Praktikum Biologi Ekosistem di Lab IPA Terpadu',
             'Pentas Seni Islam & Bazar Kewirausahaan',
             'Studi Lapangan Pelatihan Kepemimpinan OSIS',
+            'Pameran Proyek P5 Gaya Hidup Berkelanjutan',
         ];
         foreach ($galleriesData as $title) {
             Post::updateOrCreate(['slug' => Str::slug($title)], [

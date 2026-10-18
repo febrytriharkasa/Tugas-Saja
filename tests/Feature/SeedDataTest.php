@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Category;
 use App\Models\Page;
 use App\Models\Post;
 use Database\Seeders\DatabaseSeeder;
@@ -50,5 +51,23 @@ class SeedDataTest extends TestCase
                 ->component('Public/Page')
                 ->where('page.metadata.blocks.0.type', 'blockquote')
             );
+    }
+
+    /**
+     * The demo site must look populated on every category archive, so the
+     * seeder keeps exactly ten posts per category.
+     */
+    public function test_every_category_ships_ten_posts(): void
+    {
+        $this->seed(DatabaseSeeder::class);
+
+        $counts = Post::query()
+            ->selectRaw('category_id, count(*) as total')
+            ->groupBy('category_id')
+            ->pluck('total', 'category_id');
+
+        foreach (Category::all() as $category) {
+            $this->assertSame(10, (int) ($counts[$category->id] ?? 0), "Kategori {$category->slug} tidak memiliki 10 post.");
+        }
     }
 }
