@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\PostCoverGenerator;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -27,6 +28,12 @@ class Post extends Model
         'metadata' => 'array',
         'published_at' => 'datetime',
     ];
+
+    protected static function booted(): void
+    {
+        // Every post keeps a generated cover until an author uploads a photo.
+        static::saved(fn (Post $post) => app(PostCoverGenerator::class)->ensure($post));
+    }
 
     public function user()
     {
