@@ -4,19 +4,15 @@ import Button from '@/Components/Button';
 import ActionIcon from '@/Components/ActionIcon';
 import Pagination from '@/Components/Pagination';
 import ConfirmDeleteModal from '@/Components/ConfirmDeleteModal';
-import Modal from '@/Components/Modal';
-import Icon from '@/Components/Icon';
 import SearchInput from '@/Components/SearchInput';
-import { Link, router, usePage } from '@inertiajs/react';
+import { router } from '@inertiajs/react';
 import { useState } from 'react';
 
 export default function PageIndex({ pages, filters = {} }) {
-    const { flash = {} } = usePage().props;
     const pageItems = Array.isArray(pages) ? pages : (pages?.data || []);
     const pageLinks = Array.isArray(pages) ? null : pages?.links;
     const [deleteTarget, setDeleteTarget] = useState(null);
     const [processing, setProcessing] = useState(false);
-    const [navPromptOpen, setNavPromptOpen] = useState(!!flash.page_created);
 
     const confirmDelete = () => {
         setProcessing(true);
@@ -30,29 +26,6 @@ export default function PageIndex({ pages, filters = {} }) {
 
     return (
         <AdminLayout title="Kelola Laman">
-            <Modal show={navPromptOpen} maxWidth="sm" onClose={() => setNavPromptOpen(false)}>
-                <div className="p-6">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-100 text-emerald-700">
-                        <Icon name="check" className="h-6 w-6" />
-                    </div>
-                    <h2 className="mt-4 text-base font-bold text-slate-800">Laman Tersimpan</h2>
-                    <p className="mt-2 text-sm text-slate-600">
-                        Laman <span className="font-semibold">{flash.page_title}</span> berhasil disimpan.
-                        Laman baru tidak otomatis muncul di navbar. Mau ditambahkan ke menu navigasi sekarang?
-                    </p>
-                    <div className="mt-6 gap-3">
-                        <Button variant="outline" onClick={() => setNavPromptOpen(false)} className="w-full">
-                            Nanti saja
-                        </Button>
-                    </div>
-                    <div className="mt-2 gap-3">
-                        <Button href="/admin/settings/navigation" icon="settings" className="w-full">
-                            <p className="text-sm">Tambahkan ke Navigasi</p>
-                        </Button>
-                    </div>
-                </div>
-            </Modal>
-
             <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
                     <h1 className="text-lg font-bold text-slate-800">Halaman Statis</h1>

@@ -58,11 +58,7 @@ class PageController extends Controller
 
         $this->syncNavPlacement('/'.$page->slug, $page->title, $nav);
 
-        return redirect()->route('admin.pages.index')->with([
-            'success' => 'Laman berhasil dibuat.',
-            'page_created' => true,
-            'page_title' => $page->title,
-        ]);
+        return redirect()->route('admin.pages.index')->with('success', 'Laman berhasil dibuat.');
     }
 
     public function show(Page $page)
@@ -112,11 +108,7 @@ class PageController extends Controller
 
         $this->syncNavPlacement('/'.$page->slug, $page->title, $nav);
 
-        return redirect()->route('admin.pages.index')->with([
-            'success' => 'Laman berhasil diperbarui.',
-            'page_created' => true,
-            'page_title' => $page->title,
-        ]);
+        return redirect()->route('admin.pages.index')->with('success', 'Laman berhasil diperbarui.');
     }
 
     public function destroy(Page $page)

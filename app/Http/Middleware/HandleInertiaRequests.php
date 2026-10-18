@@ -39,8 +39,6 @@ class HandleInertiaRequests extends Middleware
             'flash' => [
                 'success' => $request->session()->get('success'),
                 'error' => $request->session()->get('error'),
-                'page_created' => $request->session()->get('page_created'),
-                'page_title' => $request->session()->get('page_title'),
             ],
             'settings' => fn () => SiteSetting::all()->pluck('value', 'key'),
             'navItems' => fn () => $this->publicNavItems(),
