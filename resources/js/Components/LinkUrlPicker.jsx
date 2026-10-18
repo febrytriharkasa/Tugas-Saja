@@ -43,34 +43,37 @@ export default function LinkUrlPicker({ options = [], value = '', onChange }) {
         setHighlightIndex(0);
     }, [search]);
 
+    // 320px ~ tinggi maksimum panel (input cari + daftar max-h-60).
+    const positionPanel = () => {
+        if (!containerRef.current) return;
+        const r = containerRef.current.getBoundingClientRect();
+        const spaceBelow = window.innerHeight - r.bottom;
+        const flipUp = spaceBelow < 320 && r.top > spaceBelow;
+        setRect(flipUp
+            ? { bottom: window.innerHeight - r.top + 4, left: r.left, width: r.width }
+            : { top: r.bottom + 4, left: r.left, width: r.width });
+    };
+
     useEffect(() => {
         const handleClickOutside = (e) => {
             if (containerRef.current && !containerRef.current.contains(e.target)) {
                 setOpen(false);
             }
         };
-        const handleReposition = () => {
-            if (!containerRef.current) return;
-            const r = containerRef.current.getBoundingClientRect();
-            setRect({ top: r.bottom, left: r.left, width: r.width });
-        };
         document.addEventListener('mousedown', handleClickOutside);
-        window.addEventListener('scroll', handleReposition, true);
-        window.addEventListener('resize', handleReposition);
+        window.addEventListener('scroll', positionPanel, true);
+        window.addEventListener('resize', positionPanel);
         return () => {
             document.removeEventListener('mousedown', handleClickOutside);
-            window.removeEventListener('scroll', handleReposition, true);
-            window.removeEventListener('resize', handleReposition);
+            window.removeEventListener('scroll', positionPanel, true);
+            window.removeEventListener('resize', positionPanel);
         };
     }, []);
 
     const toggleOpen = () => {
         setOpen((prev) => {
             const next = !prev;
-            if (next && containerRef.current) {
-                const r = containerRef.current.getBoundingClientRect();
-                setRect({ top: r.bottom, left: r.left, width: r.width });
-            }
+            if (next) positionPanel();
             return next;
         });
     };
@@ -188,9 +191,9 @@ export default function LinkUrlPicker({ options = [], value = '', onChange }) {
                 <div
                     style={rect ? {
                         position: 'fixed',
-                        top: `${rect.top + 4}px`,
                         left: `${rect.left}px`,
                         width: `${rect.width}px`,
+                        ...(rect.bottom != null ? { bottom: `${rect.bottom}px` } : { top: `${rect.top}px` }),
                     } : undefined}
                     className={`${rect ? '' : 'absolute left-0 top-full mt-1 w-full'} z-[9999] rounded-lg border border-slate-200 bg-white shadow-xl`}
                 >
