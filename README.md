@@ -99,9 +99,13 @@ Seeder utama membuat akun admin, kategori, pengaturan situs, halaman, konten con
 
 | Email | Password | Role |
 | --- | --- | --- |
-| `admin@smaliska.sch.id` | `password` | superadmin |
-| `humas@smaliska.sch.id` | `password` | admin |
-| `it@smaliska.sch.id` | `password` | admin |
+| `admin@smaxyz.sch.id` | `password` | superadmin |
+| `humas@smaxyz.sch.id` | `password` | admin |
+| `it@smaxyz.sch.id` | `password` | admin |
+| `kurikulum@smaxyz.sch.id` | `password` | staff |
+| `kesiswaan@smaxyz.sch.id` | `password` | staff |
+
+Hanya `superadmin` yang bisa membuka menu Kelola Pengguna. `staff` hanya mendapat dashboard baca-saja.
 
 Ganti password dummy sebelum deployment.
 

@@ -28,7 +28,7 @@ export default function Register() {
             <div className="mb-8">
                 <p className="text-sm font-semibold text-primary">Akun Portal</p>
                 <h2 className="mt-2 text-3xl font-bold tracking-tight text-slate-900">Buat akun baru</h2>
-                <p className="mt-2 text-sm leading-6 text-slate-600">Daftarkan akun untuk mengakses portal sekolah.</p>
+                <p className="mt-2 text-sm leading-6 text-slate-600">Daftarkan akun untuk mengakses portal sekolah. Akun baru aktif setelah disetujui superadmin.</p>
             </div>
 
             <form onSubmit={submit} className="space-y-5">

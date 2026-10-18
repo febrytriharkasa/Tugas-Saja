@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\PageController;
 use App\Http\Controllers\Admin\PostController;
 use App\Http\Controllers\Admin\SiteSettingController;
 use App\Http\Controllers\Admin\StaffController;
+use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\ChatBotController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProfileController;
@@ -27,41 +28,46 @@ Route::get('/{category}/{slug}', [HomeController::class, 'showPost'])
     ->where('category', '^(?!admin|api|login|logout|register|password|email|dashboard|profile|sanctum|_debugbar|reset-password|verify-email).*$')
     ->name('public.post');
 
-Route::middleware(['auth', 'verified'])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth', 'verified', 'active'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-    Route::post('/dashboard/toggle-chat', [DashboardController::class, 'toggleChat'])->name('dashboard.toggle-chat');
-    Route::resource('posts', PostController::class);
-    Route::patch('/posts/{post}/status', [PostController::class, 'updateStatus'])->name('posts.status');
-    Route::resource('pages', PageController::class);
-    Route::patch('/pages/{page}/status', [PageController::class, 'updateStatus'])->name('pages.status');
-    Route::resource('categories', CategoryController::class);
-    Route::get('/home-content', [HomeContentController::class, 'index'])->name('home-content.index');
-    Route::put('/home-content', [HomeContentController::class, 'update'])->name('home-content.update');
+    Route::post('/dashboard/toggle-chat', [DashboardController::class, 'toggleChat'])->middleware('admin')->name('dashboard.toggle-chat');
+    Route::resource('posts', PostController::class)->middleware('admin');
+    Route::patch('/posts/{post}/status', [PostController::class, 'updateStatus'])->middleware('admin')->name('posts.status');
+    Route::resource('pages', PageController::class)->middleware('admin');
+    Route::patch('/pages/{page}/status', [PageController::class, 'updateStatus'])->middleware('admin')->name('pages.status');
+    Route::resource('categories', CategoryController::class)->middleware('admin');
+    Route::get('/home-content', [HomeContentController::class, 'index'])->middleware('admin')->name('home-content.index');
+    Route::put('/home-content', [HomeContentController::class, 'update'])->middleware('admin')->name('home-content.update');
     Route::get('/galleries', fn () => redirect()->route('admin.posts.index', [
         'category_id' => Category::where('slug', 'galeri')->value('id'),
-    ]))->name('galleries.index');
+    ]))->middleware('admin')->name('galleries.index');
     Route::get('/galleries/create', fn () => redirect()->route('admin.posts.create', [
         'category_id' => Category::where('slug', 'galeri')->value('id'),
-    ]))->name('galleries.create');
-    Route::resource('staff', StaffController::class)->parameters(['staff' => 'staff']);
+    ]))->middleware('admin')->name('galleries.create');
+    Route::resource('staff', StaffController::class)->parameters(['staff' => 'staff'])->middleware('admin');
     Route::redirect('/content', '/admin/staff');
 
-    Route::get('/settings/hero', [SiteSettingController::class, 'hero'])->name('settings.hero');
-    Route::post('/settings/hero', [SiteSettingController::class, 'updateHero'])->name('settings.hero.update');
-    Route::get('/settings/contact', [SiteSettingController::class, 'contact'])->name('settings.contact');
-    Route::post('/settings/contact', [SiteSettingController::class, 'updateContact'])->name('settings.contact.update');
-    Route::get('/settings/quick-links', [SiteSettingController::class, 'quickLinks'])->name('settings.quick-links');
-    Route::post('/settings/quick-links', [SiteSettingController::class, 'updateQuickLinks'])->name('settings.quick-links.update');
-    Route::get('/settings/social-media', [SiteSettingController::class, 'socialMedia'])->name('settings.social-media');
-    Route::post('/settings/social-media', [SiteSettingController::class, 'updateSocialMedia'])->name('settings.social-media.update');
-    Route::get('/settings/footer', [SiteSettingController::class, 'footer'])->name('settings.footer');
-    Route::post('/settings/footer', [SiteSettingController::class, 'updateFooter'])->name('settings.footer.update');
-    Route::get('/settings/navigation', [SiteSettingController::class, 'navigation'])->name('settings.navigation');
-    Route::post('/settings/navigation', [SiteSettingController::class, 'updateNavigation'])->name('settings.navigation.update');
-    Route::get('/settings/topbar', [SiteSettingController::class, 'topbar'])->name('settings.topbar');
-    Route::post('/settings/topbar', [SiteSettingController::class, 'updateTopbar'])->name('settings.topbar.update');
-    Route::get('/settings/sidebar-cta', [SiteSettingController::class, 'sidebarCta'])->name('settings.sidebar-cta');
-    Route::post('/settings/sidebar-cta', [SiteSettingController::class, 'updateSidebarCta'])->name('settings.sidebar-cta.update');
+    Route::get('/settings/hero', [SiteSettingController::class, 'hero'])->middleware('admin')->name('settings.hero');
+    Route::post('/settings/hero', [SiteSettingController::class, 'updateHero'])->middleware('admin')->name('settings.hero.update');
+    Route::get('/settings/contact', [SiteSettingController::class, 'contact'])->middleware('admin')->name('settings.contact');
+    Route::post('/settings/contact', [SiteSettingController::class, 'updateContact'])->middleware('admin')->name('settings.contact.update');
+    Route::get('/settings/quick-links', [SiteSettingController::class, 'quickLinks'])->middleware('admin')->name('settings.quick-links');
+    Route::post('/settings/quick-links', [SiteSettingController::class, 'updateQuickLinks'])->middleware('admin')->name('settings.quick-links.update');
+    Route::get('/settings/social-media', [SiteSettingController::class, 'socialMedia'])->middleware('admin')->name('settings.social-media');
+    Route::post('/settings/social-media', [SiteSettingController::class, 'updateSocialMedia'])->middleware('admin')->name('settings.social-media.update');
+    Route::get('/settings/footer', [SiteSettingController::class, 'footer'])->middleware('admin')->name('settings.footer');
+    Route::post('/settings/footer', [SiteSettingController::class, 'updateFooter'])->middleware('admin')->name('settings.footer.update');
+    Route::get('/settings/navigation', [SiteSettingController::class, 'navigation'])->middleware('admin')->name('settings.navigation');
+    Route::post('/settings/navigation', [SiteSettingController::class, 'updateNavigation'])->middleware('admin')->name('settings.navigation.update');
+    Route::get('/settings/topbar', [SiteSettingController::class, 'topbar'])->middleware('admin')->name('settings.topbar');
+    Route::post('/settings/topbar', [SiteSettingController::class, 'updateTopbar'])->middleware('admin')->name('settings.topbar.update');
+    Route::get('/settings/sidebar-cta', [SiteSettingController::class, 'sidebarCta'])->middleware('admin')->name('settings.sidebar-cta');
+    Route::post('/settings/sidebar-cta', [SiteSettingController::class, 'updateSidebarCta'])->middleware('admin')->name('settings.sidebar-cta.update');
+
+    Route::get('/users', [UserController::class, 'index'])->middleware('superadmin')->name('users.index');
+    Route::patch('/users/{user}', [UserController::class, 'update'])->middleware('superadmin')->name('users.update');
+    Route::delete('/users/{user}', [UserController::class, 'destroy'])->middleware('superadmin')->name('users.destroy');
+    Route::post('/users/{user}/reset-password', [UserController::class, 'resetPassword'])->middleware('superadmin')->name('users.reset-password');
 });
 
 Route::get('/dashboard', fn () => redirect()->route('admin.dashboard'))
