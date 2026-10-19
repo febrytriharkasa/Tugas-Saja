@@ -61,6 +61,7 @@ class CategoryController extends Controller
             'slug' => Str::slug($validated['name']),
             'metadata_schema' => array_values($validated['metadata_schema'] ?? []),
             'show_on_home' => $validated['show_on_home'] ?? false,
+            'preview_mode' => $validated['preview_mode'] ?? 'standard',
         ]);
 
         $this->syncNavPlacement('/'.$category->slug, $category->name, $nav);
@@ -96,6 +97,7 @@ class CategoryController extends Controller
             'slug' => $category->isFixedOnHome() ? $category->slug : Str::slug($validated['name']),
             'metadata_schema' => array_values($validated['metadata_schema'] ?? []),
             'show_on_home' => $category->isFixedOnHome() || ($validated['show_on_home'] ?? $category->show_on_home),
+            'preview_mode' => $validated['preview_mode'] ?? $category->preview_mode,
         ]);
 
         // A renamed category changes its public URL; the menu entry must follow it.
@@ -131,6 +133,7 @@ class CategoryController extends Controller
             'metadata_schema.*.label' => 'required|string|max:100',
             'metadata_schema.*.type' => 'required|string|in:text,date,number',
             'show_on_home' => 'nullable|boolean',
+            'preview_mode' => 'nullable|string|in:standard,media',
         ]);
     }
 }

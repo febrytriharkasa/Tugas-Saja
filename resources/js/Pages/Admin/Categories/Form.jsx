@@ -18,6 +18,7 @@ export default function CategoryForm({ category, navDropdowns = [], navPlacement
 
     const { data, setData, post, put, processing, errors, transform } = useForm({
         name: category?.name || '',
+        preview_mode: category?.preview_mode || 'standard',
         metadata_schema: category?.metadata_schema || [],
     });
 
@@ -60,6 +61,23 @@ export default function CategoryForm({ category, navDropdowns = [], navPlacement
                             <label htmlFor="category-name" className="block text-sm font-semibold text-slate-700">Nama Kategori</label>
                             <input id="category-name" value={data.name} onChange={event => setData('name', event.target.value)} className="mt-1 block w-full rounded-lg border-slate-300 text-sm focus:border-primary focus:ring-primary" />
                             {errors.name && <p className="mt-1 text-xs text-red-600">{errors.name}</p>}
+                        </div>
+
+                        <div>
+                            <label htmlFor="category-preview-mode" className="block text-sm font-semibold text-slate-700">Mode Pratinjau Halaman</label>
+                            <select
+                                id="category-preview-mode"
+                                value={data.preview_mode}
+                                onChange={(event) => setData('preview_mode', event.target.value)}
+                                className="mt-1 block w-full rounded-lg border-slate-300 text-sm focus:border-primary focus:ring-primary"
+                            >
+                                <option value="standard">Standar (daftar artikel)</option>
+                                <option value="media">Galeri media (pratinjau gambar &amp; video)</option>
+                            </select>
+                            <p className="mt-1 text-xs text-slate-500">
+                                Pilih &quot;Galeri media&quot; untuk kategori seperti dokumentasi video atau YouTube sekolah agar publik bisa melihat lightbox gambar/video langsung.
+                            </p>
+                            {errors.preview_mode && <p className="mt-1 text-xs text-red-600">{errors.preview_mode}</p>}
                         </div>
 
                         <div>

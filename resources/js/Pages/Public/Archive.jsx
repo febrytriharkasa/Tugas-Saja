@@ -51,7 +51,7 @@ function Pagination({ links }) {
     );
 }
 
-export default function Archive({ title, type, items }) {
+export default function Archive({ title, type, previewMode = 'standard', items }) {
     const [previewItem, setPreviewItem] = useState(null);
     const post = items.data?.[0] ?? null;
 
@@ -95,37 +95,110 @@ export default function Archive({ title, type, items }) {
             );
         }
         
+        if (previewMode === 'media') {
+            return (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+                    {items.data.map((item) => {
+                        const thumb = item.media_type === 'video' && item.video_url ? youtubeThumbnailUrl(item.video_url) : item.featured_image;
+                        return (
+                            <Card key={item.id} className="overflow-hidden group flex flex-col h-full bg-white">
+                                <button
+                                    type="button"
+                                    onClick={() => setPreviewItem(item)}
+                                    className="relative aspect-[16/10] w-full bg-slate-100 overflow-hidden text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary cursor-zoom-in"
+                                    aria-label={`Preview: ${item.title}`}
+                                >
+                                    {item.media_type === 'video' && item.video_url ? (
+                                        <div className="relative w-full h-full bg-slate-800">
+                                            {thumb ? (
+                                                <img src={thumb} alt={item.title} loading="lazy" className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
+                                            ) : null}
+                                            <span className="absolute inset-0 flex items-center justify-center" aria-hidden="true">
+                                                <svg className="w-10 h-10 text-white drop-shadow" fill="currentColor" viewBox="0 0 24 24">
+                                                    <path d="M8 5v14l11-7z" />
+                                                </svg>
+                                            </span>
+                                        </div>
+                                    ) : item.featured_image ? (
+                                        <div className="relative h-full w-full">
+                                            <img src={item.featured_image} alt={item.title} loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+                                            <span className="absolute bottom-2 right-2 rounded-md bg-slate-900/60 p-1.5 text-white opacity-0 group-hover:opacity-100 transition-opacity" aria-hidden="true">
+                                                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M11 19a8 8 0 100-16 8 8 0 000 16zm-3-8h6m-3-3v6" />
+                                                </svg>
+                                            </span>
+                                        </div>
+                                    ) : (
+                                        <span className="flex h-full w-full items-center justify-center p-2 text-center text-xs text-slate-400 font-medium">Gambar tidak tersedia</span>
+                                    )}
+                                </button>
+                                <div className="flex flex-1 items-center bg-white p-3">
+                                    <Link
+                                        href={postUrl(item)}
+                                        className="line-clamp-2 break-words text-xs font-bold text-slate-800 transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded sm:text-sm"
+                                        title={`Buka detail: ${item.title}`}
+                                    >
+                                        {item.title}
+                                    </Link>
+                                </div>
+                            </Card>
+                        );
+                    })}
+                </div>
+            );
+        }
+
         if (!['agenda', 'prestasi', 'galeri'].includes(type)) {
             return (
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
                     
                     {items.data.map((post) => {
                         const thumbnail = post.media_type === 'video' ? youtubeThumbnailUrl(post.video_url) : post.featured_image;
+                        const hasMedia = post.media_type === 'video' ? Boolean(post.video_url) : Boolean(post.featured_image);
                         return (
                             <Card key={post.id} hover className="flex flex-col overflow-hidden h-full">
-                                <Link href={postUrl(post)} className="block shrink-0">
-                                    <div className="relative aspect-[16/10] overflow-hidden bg-slate-100 flex items-center justify-center">
-                                        {thumbnail ? (
-                                            <div className="relative h-full w-full">
-                                                <img
-                                                    src={thumbnail}
-                                                    alt={post.title}
-                                                    loading="lazy"
-                                                    className="h-full w-full object-cover"
-                                                />
-                                                {post.media_type === 'video' && (
-                                                    <span className="absolute inset-0 flex items-center justify-center bg-slate-900/35" aria-hidden="true">
-                                                        <svg className="h-9 w-9 text-white drop-shadow" fill="currentColor" viewBox="0 0 24 24">
-                                                            <path d="M8 5v14l11-7z" />
-                                                        </svg>
-                                                    </span>
-                                                )}
-                                            </div>
-                                        ) : (
+                                {hasMedia ? (
+                                    <button
+                                        type="button"
+                                        onClick={() => setPreviewItem(post)}
+                                        className="block shrink-0 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary cursor-zoom-in"
+                                        aria-label={`Preview: ${post.title}`}
+                                    >
+                                        <div className="relative aspect-[16/10] overflow-hidden bg-slate-100 flex items-center justify-center group">
+                                            {thumbnail ? (
+                                                <div className="relative h-full w-full">
+                                                    <img
+                                                        src={thumbnail}
+                                                        alt={post.title}
+                                                        loading="lazy"
+                                                        className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                                                    />
+                                                    {post.media_type === 'video' ? (
+                                                        <span className="absolute inset-0 flex items-center justify-center bg-slate-900/35" aria-hidden="true">
+                                                            <svg className="h-9 w-9 text-white drop-shadow" fill="currentColor" viewBox="0 0 24 24">
+                                                                <path d="M8 5v14l11-7z" />
+                                                            </svg>
+                                                        </span>
+                                                    ) : (
+                                                        <span className="absolute bottom-2 right-2 rounded-md bg-slate-900/60 p-1.5 text-white opacity-0 group-hover:opacity-100 transition-opacity" aria-hidden="true">
+                                                            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                                                                <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M11 19a8 8 0 100-16 8 8 0 000 16zm-3-8h6m-3-3v6" />
+                                                            </svg>
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            ) : (
+                                                <span className="text-xs text-slate-400 font-medium">Gambar tidak tersedia</span>
+                                            )}
+                                        </div>
+                                    </button>
+                                ) : (
+                                    <Link href={postUrl(post)} className="block shrink-0">
+                                        <div className="relative aspect-[16/10] overflow-hidden bg-slate-100 flex items-center justify-center">
                                             <span className="text-xs text-slate-400 font-medium">Gambar tidak tersedia</span>
-                                        )}
-                                    </div>
-                                </Link>
+                                        </div>
+                                    </Link>
+                                )}
                                 <div className="flex flex-1 flex-col justify-between p-4 sm:p-5">
                                     <div>
                                         <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] text-slate-600 sm:text-xs">
@@ -137,8 +210,8 @@ export default function Archive({ title, type, items }) {
                                         <h3 className="mt-2 line-clamp-2 break-words text-base font-bold text-slate-900 sm:mt-3 sm:text-lg">
                                             <Link href={postUrl(post)} className="hover:text-primary">{post.title}</Link>
                                         </h3>
-                                        {post.user?.name && (
-                                            <p className="mt-2 break-words text-[11px] text-slate-500 sm:text-xs">
+                                        {post.category?.name?.toLowerCase() === 'berita' && post.user?.name && (
+                                            <p className="mt-1 break-words text-[10px] text-slate-500 sm:mt-2 sm:text-xs">
                                                 <span className="font-semibold text-slate-700">{post.user.name}</span>
                                             </p>
                                         )}
@@ -223,64 +296,6 @@ export default function Archive({ title, type, items }) {
                             </div>
                         </Card>
                     ))}
-                </div>
-            );
-        }
-
-        if (type === 'galeri') {
-            return (
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
-                    {items.data.map((item) => {
-                        const thumb = item.media_type === 'video' && item.video_url ? youtubeThumbnailUrl(item.video_url) : item.featured_image;
-                        return (
-                            <Card key={item.id} className="overflow-hidden group flex flex-col h-full bg-white">
-                                <button
-                                    type="button"
-                                    onClick={() => setPreviewItem(item)}
-                                    className="relative aspect-[16/10] w-full bg-slate-100 overflow-hidden text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary cursor-zoom-in"
-                                    aria-label={`Lihat gambar penuh: ${item.title}`}
-                                >
-                                    {item.media_type === 'video' && item.video_url ? (() => {
-                                        const videoThumb = youtubeThumbnailUrl(item.video_url);
-                                        return (
-                                            <div className="relative w-full h-full bg-slate-800">
-                                                {videoThumb ? (
-                                                    <img src={videoThumb} alt={item.title} loading="lazy" className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
-                                                ) : item.featured_image ? (
-                                                    <img src={item.featured_image} alt={item.title} loading="lazy" className="w-full w-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
-                                                ) : null}
-                                                <div className="absolute inset-0 flex items-center justify-center">
-                                                    <svg className="w-10 h-10 text-white drop-shadow" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                                                        <path d="M8 5v14l11-7z"/>
-                                                    </svg>
-                                                </div>
-                                            </div>
-                                        );
-                                    })() : item.featured_image ? (
-                                        <div className="relative h-full w-full">
-                                            <img src={item.featured_image} alt={item.title} loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
-                                            <span className="absolute bottom-2 right-2 rounded-md bg-slate-900/60 p-1.5 text-white opacity-0 group-hover:opacity-100 transition-opacity" aria-hidden="true">
-                                                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M11 19a8 8 0 100-16 8 8 0 000 16zm-3-8h6m-3-3v6" />
-                                                </svg>
-                                            </span>
-                                        </div>
-                                    ) : (
-                                        <span className="flex h-full w-full items-center justify-center p-2 text-center text-xs text-slate-400 font-medium">Gambar tidak tersedia</span>
-                                    )}
-                                </button>
-                                <div className="flex flex-1 items-center bg-white p-3">
-                                    <Link
-                                        href={postUrl(item)}
-                                        className="line-clamp-2 break-words text-xs font-bold text-slate-800 transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded sm:text-sm"
-                                        title={`Buka detail: ${item.title}`}
-                                    >
-                                        {item.title}
-                                    </Link>
-                                </div>
-                            </Card>
-                        );
-                    })}
                 </div>
             );
         }

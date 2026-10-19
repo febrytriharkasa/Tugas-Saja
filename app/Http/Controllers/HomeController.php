@@ -13,7 +13,7 @@ use Inertia\Inertia;
 
 class HomeController extends Controller
 {
-    private const ITEM_LIMIT = 2;
+    private const ITEM_LIMIT = 8;
 
     public function index()
     {
@@ -48,6 +48,7 @@ class HomeController extends Controller
             'id' => $category->id,
             'name' => $category->name,
             'slug' => $category->slug,
+            'preview_mode' => $category->preview_mode,
             'posts' => $postsByCategory->get($category->id, collect())->take($limit)->values(),
         ]);
     }
@@ -72,6 +73,7 @@ class HomeController extends Controller
         return Inertia::render('Public/Archive', [
             'title' => $category->name,
             'type' => $category->slug,
+            'previewMode' => $category->preview_mode,
             'items' => $this->categoryPosts($category->slug, null, true),
         ]);
     }
@@ -80,7 +82,7 @@ class HomeController extends Controller
     {
         $posts = $this->categoryPosts('berita', null, true);
 
-        return Inertia::render('Public/Archive', ['title' => 'Berita', 'type' => 'berita', 'items' => $posts]);
+        return Inertia::render('Public/Archive', ['title' => 'Berita', 'type' => 'berita', 'previewMode' => 'standard', 'items' => $posts]);
     }
 
     public function search(Request $request)

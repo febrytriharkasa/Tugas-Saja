@@ -139,7 +139,7 @@ function PostCard({ post, delay = 0 }) {
     );
 }
 
-function PostSection({ id, eyebrow, title, href, posts, tone = 'plain' }) {
+function PostSection({ id, eyebrow, title, href, posts, tone = 'plain', previewMode = 'standard', onPreview }) {
     return (
         <section id={id} className={tone === 'muted' ? 'bg-slate-50 py-12 sm:py-20' : 'bg-white py-12 sm:py-20'}>
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -147,9 +147,65 @@ function PostSection({ id, eyebrow, title, href, posts, tone = 'plain' }) {
                 {posts.length ? (
                     <HorizontalRail label={title}>
                         {posts.slice(0, 8).map((post, idx) => (
-                            <div key={post.id} className="w-[calc((100%-1.5rem)/2)] shrink-0 snap-start sm:w-[calc((100%-1.5rem)/2)] lg:w-[calc((100%-3rem)/3)] xl:w-[calc((100%-4.5rem)/4)]">
-                                <PostCard post={post} delay={idx * 0.1} />
-                            </div>
+                            previewMode === 'media' ? (
+                                <motion.div
+                                    key={post.id}
+                                    className="w-[calc((100%-1.5rem)/2)] shrink-0 snap-start sm:w-[calc((100%-1.5rem)/2)] lg:w-[calc((100%-3rem)/3)] xl:w-[calc((100%-4.5rem)/4)]"
+                                    initial={{ opacity: 0, scale: 0.95 }}
+                                    whileInView={{ opacity: 1, scale: 1 }}
+                                    viewport={{ once: true }}
+                                    transition={{ duration: 0.3, delay: idx * 0.05 }}
+                                >
+                                    <Card className="overflow-hidden flex flex-col h-full bg-white group">
+                                        <button
+                                            type="button"
+                                            onClick={() => onPreview(post)}
+                                            className="relative aspect-[16/9] sm:aspect-[16/10] w-full bg-slate-100 overflow-hidden text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary cursor-zoom-in"
+                                            aria-label={`Lihat gambar penuh: ${post.title}`}
+                                        >
+                                            {(() => {
+                                                const thumb = post.media_type === 'video' ? youtubeThumbnailUrl(post.video_url) : post.featured_image;
+                                                return thumb ? (
+                                                    <div className="relative h-full w-full">
+                                                        <img
+                                                            src={thumb}
+                                                            alt={post.title}
+                                                            loading="lazy"
+                                                            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                                                        />
+                                                        {post.media_type === 'video' ? (
+                                                            <span className="absolute inset-0 flex items-center justify-center bg-slate-900/35" aria-hidden="true">
+                                                                <svg className="h-9 w-9 text-white drop-shadow" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
+                                                            </span>
+                                                        ) : (
+                                                            <span className="absolute bottom-2 right-2 rounded-md bg-slate-900/60 p-1.5 text-white opacity-0 group-hover:opacity-100 transition-opacity" aria-hidden="true">
+                                                                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                                                                    <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M11 19a8 8 0 100-16 8 8 0 000 16zm-3-8h6m-3-3v6" />
+                                                                </svg>
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                ) : (
+                                                    <div className="flex h-full w-full items-center justify-center text-xs text-slate-400 font-medium">Gambar tidak tersedia</div>
+                                                );
+                                            })()}
+                                        </button>
+                                        <div className="flex flex-1 items-center bg-white p-3">
+                                            <Link
+                                                href={postUrl(post)}
+                                                className="line-clamp-2 break-words text-xs font-bold text-slate-800 transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded sm:text-sm"
+                                                title={`Buka detail: ${post.title}`}
+                                            >
+                                                {post.title}
+                                            </Link>
+                                        </div>
+                                    </Card>
+                                </motion.div>
+                            ) : (
+                                <div key={post.id} className="w-[calc((100%-1.5rem)/2)] shrink-0 snap-start sm:w-[calc((100%-1.5rem)/2)] lg:w-[calc((100%-3rem)/3)] xl:w-[calc((100%-4.5rem)/4)]">
+                                    <PostCard post={post} delay={idx * 0.1} />
+                                </div>
+                            )
                         ))}
                     </HorizontalRail>
                 ) : <EmptyState>Belum ada konten pada kategori ini.</EmptyState>}
@@ -191,6 +247,8 @@ function AlumniSection({ id, title, href, posts }) {
 }
 
 export default function Welcome({ settings = {}, posts = [], homeSections = [], galleries = [], staff = [] }) {
+    const [previewItem, setPreviewItem] = useState(null);
+    const toneFor = (index) => (index % 2 === 0 ? 'muted' : 'plain');
     const slides = [
         {
             tag: settings.hero_slide_1_tag || 'Portal resmi SMA XYZ',
@@ -209,7 +267,6 @@ export default function Welcome({ settings = {}, posts = [], homeSections = [], 
     ];
 
     const [currentSlide, setCurrentSlide] = useState(0);
-    const [previewItem, setPreviewItem] = useState(null);
 
     useEffect(() => {
         const timer = setInterval(() => {
@@ -219,8 +276,6 @@ export default function Welcome({ settings = {}, posts = [], homeSections = [], 
     }, [slides.length]);
 
     const activeSlide = slides[currentSlide];
-
-    const toneFor = (index) => (index % 2 === 0 ? 'muted' : 'plain');
     const galeriIndex = homeSections.length + 1;
     const gtkIndex = homeSections.length + 2;
 
@@ -411,6 +466,8 @@ export default function Welcome({ settings = {}, posts = [], homeSections = [], 
                         href={`/${section.slug}`}
                         posts={section.posts}
                         tone={toneFor(idx + 1)}
+                        previewMode={section.preview_mode}
+                        onPreview={setPreviewItem}
                     />
                 )
             ))}

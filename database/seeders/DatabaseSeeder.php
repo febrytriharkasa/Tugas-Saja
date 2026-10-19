@@ -1310,7 +1310,7 @@ class DatabaseSeeder extends Seeder
         }
 
         // 8. Galleries (disimpan sebagai posts kategori galeri)
-        $catGaleri = Category::firstOrCreate(['slug' => 'galeri'], ['name' => 'Galeri', 'show_on_home' => false]);
+        $catGaleri = Category::firstOrCreate(['slug' => 'galeri'], ['name' => 'Galeri', 'show_on_home' => false, 'preview_mode' => 'media']);
         $galleriesData = [
             'Upacara Peringatan Hari Kemerdekaan RI di SMA XYZ',
             'Kunjungan Edukasi Industri Komputer Siswa SMA XYZ',

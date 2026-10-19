@@ -18,7 +18,7 @@ class Category extends Model
      */
     public const FIXED_HOME_SLUGS = ['berita', 'galeri'];
 
-    protected $fillable = ['name', 'slug', 'metadata_schema', 'show_on_home'];
+    protected $fillable = ['name', 'slug', 'metadata_schema', 'show_on_home', 'preview_mode'];
 
     protected $casts = [
         'metadata_schema' => 'array',
