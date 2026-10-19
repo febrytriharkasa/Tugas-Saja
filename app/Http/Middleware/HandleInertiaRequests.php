@@ -59,7 +59,7 @@ class HandleInertiaRequests extends Middleware
      */
     private function publicNavItems(): array
     {
-        $items = json_decode((string) SiteSetting::where('key', 'nav_items')->value('value'), true);
+        $items = $this->rawNavItems();
 
         if (! is_array($items)) {
             return [];
@@ -111,8 +111,18 @@ class HandleInertiaRequests extends Middleware
      */
     private function navConfigured(): bool
     {
-        $items = json_decode((string) SiteSetting::where('key', 'nav_items')->value('value'), true);
+       return $this->rawNavItems() !== [];
+    }
 
-        return is_array($items) && $items !== [];
+    private function rawNavItems(): array
+    {
+        return once(function (): array {
+            $items = json_decode(
+                (string) SiteSetting::where('key', 'nav_items')->value('value'),
+                true
+            );
+
+            return is_array($items) ? $items : [];
+        });
     }
 }
