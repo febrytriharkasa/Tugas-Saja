@@ -14,7 +14,7 @@ class SiteSettingController extends Controller
 {
     public function hero()
     {
-        $settings = SiteSetting::all()->groupBy('group_name');
+        $settings = SiteSetting::allCached()->groupBy('group_name');
 
         return Inertia::render('Admin/Settings/Hero', [
             'groupedSettings' => $settings,
@@ -83,7 +83,7 @@ class SiteSettingController extends Controller
 
     public function contact()
     {
-        $settings = SiteSetting::all()->groupBy('group_name');
+        $settings = SiteSetting::allCached()->groupBy('group_name');
 
         return Inertia::render('Admin/Settings/Contact', [
             'groupedSettings' => $settings,
@@ -106,7 +106,7 @@ class SiteSettingController extends Controller
 
     public function quickLinks()
     {
-        $settings = SiteSetting::all()->groupBy('group_name');
+        $settings = SiteSetting::allCached()->groupBy('group_name');
 
         return Inertia::render('Admin/Settings/QuickLinks', [
             'groupedSettings' => $settings,
@@ -129,7 +129,7 @@ class SiteSettingController extends Controller
 
     public function socialMedia()
     {
-        $settings = SiteSetting::all()->groupBy('group_name');
+        $settings = SiteSetting::allCached()->groupBy('group_name');
 
         return Inertia::render('Admin/Settings/SocialMedia', [
             'groupedSettings' => $settings,
@@ -152,7 +152,7 @@ class SiteSettingController extends Controller
 
     public function footer()
     {
-        $settings = SiteSetting::all()->groupBy('group_name');
+        $settings = SiteSetting::allCached()->groupBy('group_name');
 
         return Inertia::render('Admin/Settings/Footer', [
             'groupedSettings' => $settings,
@@ -171,7 +171,7 @@ class SiteSettingController extends Controller
             ['label' => 'Statistik', 'url' => '/statistik'],
         ];
 
-        $ppdbUrl = SiteSetting::where('key', 'ppdb_link')->value('value');
+        $ppdbUrl = SiteSetting::allCached()->firstWhere('key', 'ppdb_link')?->value;
         if ($ppdbUrl) {
             $options[] = ['label' => 'Daftar PPDB', 'url' => $ppdbUrl];
         }
@@ -244,7 +244,7 @@ class SiteSettingController extends Controller
 
     public function navigation()
     {
-        $settings = SiteSetting::all()->groupBy('group_name');
+        $settings = SiteSetting::allCached()->groupBy('group_name');
 
         return Inertia::render('Admin/Settings/Navigation', [
             'groupedSettings' => $settings,
@@ -265,17 +265,14 @@ class SiteSettingController extends Controller
             'nav_items.*.children.*.url' => 'required|string|max:500',
         ]);
 
-        SiteSetting::updateOrCreate(
-            ['key' => 'nav_items'],
-            ['value' => json_encode(array_values($validated['nav_items'] ?? [])), 'updated_at' => now()]
-        );
+        SiteSetting::saveNavItems($validated['nav_items'] ?? []);
 
         return redirect()->back();
     }
 
     public function topbar()
     {
-        $settings = SiteSetting::all()->groupBy('group_name');
+        $settings = SiteSetting::allCached()->groupBy('group_name');
 
         return Inertia::render('Admin/Settings/Topbar', [
             'groupedSettings' => $settings,
@@ -285,7 +282,7 @@ class SiteSettingController extends Controller
 
     public function sidebarCta()
     {
-        $settings = SiteSetting::all()->groupBy('group_name');
+        $settings = SiteSetting::allCached()->groupBy('group_name');
 
         return Inertia::render('Admin/Settings/SidebarCta', [
             'groupedSettings' => $settings,

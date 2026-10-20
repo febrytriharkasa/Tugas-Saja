@@ -1,7 +1,8 @@
-import { Link, usePage } from '@inertiajs/react';
-import { useState } from 'react';
+import { Link, router, usePage } from '@inertiajs/react';
+import { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import ThemeToggle from '@/Components/ThemeToggle';
+import PublicPageSkeleton, { publicSkeletonVariant } from '@/Components/PublicPageSkeleton';
 
 function Chevron({ open = false }) {
     return (
@@ -14,9 +15,73 @@ function Chevron({ open = false }) {
 export default function PublicLayout({ children, settings = {} }) {
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [openMenu, setOpenMenu] = useState(null);
+    const [pendingPath, setPendingPath] = useState(null);
+    const skeletonTimer = useRef(null);
+    const pendingTarget = useRef(null);
     const { url, props } = usePage();
     const { aboutPages = [], customPages = [], archivePages = [], navItems = [], navConfigured = false, settings: sharedSettings = {} } = props;
     const siteSettings = { ...sharedSettings, ...settings };
+
+    useEffect(() => {
+        const clearPending = () => {
+            window.clearTimeout(skeletonTimer.current);
+            pendingTarget.current = null;
+            setPendingPath(null);
+        };
+
+        const handleStart = (event) => {
+            const visit = event?.detail?.visit;
+            if (!visit || visit.prefetch || (visit.method || 'get').toLowerCase() !== 'get') {
+                return;
+            }
+
+            let target;
+            try {
+                target = new URL(visit.url, window.location.origin);
+            } catch {
+                return;
+            }
+
+            // Same-page visits (search, pagination) keep the current layout; only page changes get a skeleton.
+            if (target.pathname === window.location.pathname) {
+                return;
+            }
+
+            pendingTarget.current = target.pathname;
+            window.clearTimeout(skeletonTimer.current);
+            skeletonTimer.current = window.setTimeout(() => setPendingPath(target.pathname), 150);
+        };
+
+        const handleFinish = (event) => {
+            const visit = event?.detail?.visit;
+            if (!visit || visit.prefetch) {
+                return;
+            }
+
+            let path = null;
+            try {
+                path = new URL(visit.url, window.location.origin).pathname;
+            } catch {
+                path = null;
+            }
+
+            // Ignore background requests that finish while a page change is still loading.
+            if (pendingTarget.current && path !== pendingTarget.current) {
+                return;
+            }
+
+            clearPending();
+        };
+
+        const offStart = router.on('start', handleStart);
+        const offFinish = router.on('finish', handleFinish);
+
+        return () => {
+            offStart();
+            offFinish();
+            window.clearTimeout(skeletonTimer.current);
+        };
+    }, []);
 
     let topbarLinks = [];
     try {
@@ -86,6 +151,10 @@ export default function PublicLayout({ children, settings = {} }) {
         ['Prestasi', '/prestasi'],
         ['Galeri', '/galeri'],
     ];
+
+    const skeletonVariant = pendingPath
+        ? publicSkeletonVariant(pendingPath, archivePages.map((page) => `/${page.slug}`))
+        : null;
 
     return (
         <div className="flex min-h-screen flex-col bg-canvas text-slate-900">
@@ -270,7 +339,7 @@ export default function PublicLayout({ children, settings = {} }) {
                 </nav>
             </header>
 
-            <main className="flex-1 flex flex-col">
+            <main className="flex-1 flex flex-col" aria-busy={pendingPath ? 'true' : 'false'}>
                 <motion.div
                     className="flex-1 flex flex-col"
                     initial={{ opacity: 0, y: 20 }}
@@ -278,7 +347,7 @@ export default function PublicLayout({ children, settings = {} }) {
                     exit={{ opacity: 0, y: -20 }}
                     transition={{ duration: 0.4, ease: "easeOut" }}
                 >
-                    {children}
+                    {pendingPath ? <PublicPageSkeleton variant={skeletonVariant} /> : children}
                 </motion.div>
             </main>
 

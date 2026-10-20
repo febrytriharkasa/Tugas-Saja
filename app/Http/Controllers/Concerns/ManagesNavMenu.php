@@ -189,9 +189,7 @@ trait ManagesNavMenu
      */
     protected function navItems(): array
     {
-        $decoded = json_decode((string) SiteSetting::where('key', 'nav_items')->value('value'), true);
-
-        return is_array($decoded) ? array_values($decoded) : [];
+        return array_values(SiteSetting::getNavItems());
     }
 
     /**
@@ -199,10 +197,7 @@ trait ManagesNavMenu
      */
     protected function saveNavItems(array $items): void
     {
-        SiteSetting::updateOrCreate(
-            ['key' => 'nav_items'],
-            ['value' => json_encode($items), 'updated_at' => now()],
-        );
+        SiteSetting::saveNavItems($items);
     }
 
     private function findDropdownIndex(array $items, ?string $label): ?int

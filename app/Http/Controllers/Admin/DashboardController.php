@@ -38,9 +38,11 @@ class DashboardController extends Controller
             ->take(5)
             ->get(['id', 'title', 'slug', 'is_published', 'updated_at']);
 
+        $settings = SiteSetting::allCached()->pluck('value', 'key');
+
         $siteInfo = [
-            'site_name' => SiteSetting::where('key', 'site_name')->value('value') ?: 'SMALISKA',
-            'site_logo' => SiteSetting::where('key', 'site_logo')->value('value'),
+            'site_name' => $settings->get('site_name') ?: 'SMALISKA',
+            'site_logo' => $settings->get('site_logo'),
         ];
 
         return Inertia::render('Dashboard', [
@@ -48,7 +50,7 @@ class DashboardController extends Controller
             'latestPosts' => $latestPosts,
             'latestPages' => $latestPages,
             'siteInfo' => $siteInfo,
-            'chatEnabled' => SiteSetting::getVal('chat_enabled', '1') !== '0',
+            'chatEnabled' => $settings->get('chat_enabled', '1') !== '0',
         ]);
     }
 

@@ -125,7 +125,9 @@ class PostDetailRouteTest extends TestCase
             ->component('Public/PostDetail')
             ->where('post.slug', 'post-kedua')
             ->where('prevPost.slug', 'post-pertama')
+            ->where('prevPost.category.slug', 'berita')
             ->where('nextPost.slug', 'post-ketiga')
+            ->where('nextPost.category.slug', 'berita')
         );
     }
 }

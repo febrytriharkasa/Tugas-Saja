@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use App\Models\Page;
 use App\Models\SiteSetting;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Inertia\Middleware;
 
 class HandleInertiaRequests extends Middleware
@@ -40,10 +41,10 @@ class HandleInertiaRequests extends Middleware
                 'success' => $request->session()->get('success'),
                 'error' => $request->session()->get('error'),
             ],
-            'settings' => fn () => SiteSetting::all()->pluck('value', 'key'),
+            'settings' => fn () => SiteSetting::allCached()->pluck('value', 'key'),
             'navItems' => fn () => $this->publicNavItems(),
             'navConfigured' => fn () => $this->navConfigured(),
-            'draftPageSlugs' => fn () => Page::where('is_published', false)->orderBy('title')->pluck('slug'),
+            'draftPageSlugs' => fn () => $this->draftPageSlugs(),
             'aboutPages' => fn () => [],
             'customPages' => fn () => Page::where('is_published', true)
                 ->orderBy('title')
@@ -65,8 +66,7 @@ class HandleInertiaRequests extends Middleware
             return [];
         }
 
-        $drafts = Page::where('is_published', false)
-            ->pluck('slug')
+        $drafts = $this->draftPageSlugs()
             ->map(fn (string $slug) => '/'.$slug)
             ->all();
 
@@ -107,22 +107,23 @@ class HandleInertiaRequests extends Middleware
     }
 
     /**
+     * @return Collection<int, string>
+     */
+    private function draftPageSlugs(): Collection
+    {
+        return once(fn () => Page::where('is_published', false)->orderBy('title')->pluck('slug'));
+    }
+
+    /**
      * Whether an admin ever built a menu; an empty one falls back to the built-in navbar.
      */
     private function navConfigured(): bool
     {
-       return $this->rawNavItems() !== [];
+        return $this->rawNavItems() !== [];
     }
 
     private function rawNavItems(): array
     {
-        return once(function (): array {
-            $items = json_decode(
-                (string) SiteSetting::where('key', 'nav_items')->value('value'),
-                true
-            );
-
-            return is_array($items) ? $items : [];
-        });
+        return SiteSetting::getNavItems();
     }
 }

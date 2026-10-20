@@ -7,6 +7,7 @@ use App\Models\Page;
 use App\Models\Post;
 use App\Models\SiteSetting;
 use App\Models\Staff;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Inertia\Inertia;
@@ -17,13 +18,21 @@ class HomeController extends Controller
 
     public function index()
     {
-        $settings = SiteSetting::all()->pluck('value', 'key');
+        $settings = SiteSetting::allCached()->pluck('value', 'key');
+
+        $posts = $this->categoryPosts('berita', withAuthor: false);
+        $homeSections = $this->homeSections();
+        $galleries = $this->categoryPosts('galeri', withAuthor: false);
+
+        $this->attachAuthors(
+            $posts->merge($galleries)->merge($homeSections->flatMap(fn (array $section) => $section['posts']))
+        );
 
         return Inertia::render('Welcome', [
             'settings' => $settings,
-            'posts' => $this->categoryPosts('berita'),
-            'homeSections' => $this->homeSections(),
-            'galleries' => $this->categoryPosts('galeri'),
+            'posts' => $posts,
+            'homeSections' => $homeSections,
+            'galleries' => $galleries,
             'staff' => Staff::latest()->take(8)->get(),
         ]);
     }
@@ -37,7 +46,7 @@ class HomeController extends Controller
     {
         $categories = Category::shownOnHome()->get();
 
-        $postsByCategory = Post::with(['category', 'user'])
+        $postsByCategory = Post::with('category')
             ->where('status', 'published')
             ->whereIn('category_id', $categories->pluck('id'))
             ->latest('published_at')
@@ -105,7 +114,7 @@ class HomeController extends Controller
     public function statistics()
     {
         return Inertia::render('Public/Statistics', [
-            'statSettings' => SiteSetting::where('group_name', 'statistics')->pluck('value', 'key'),
+            'statSettings' => SiteSetting::allCached()->where('group_name', 'statistics')->pluck('value', 'key'),
             'counts' => [
                 'posts' => Post::where('status', 'published')->count(),
                 'galleries' => Post::whereHas('category', fn ($query) => $query->where('slug', 'galeri'))->count(),
@@ -123,16 +132,14 @@ class HomeController extends Controller
             ->whereHas('category', fn ($c) => $c->where('slug', $category))
             ->firstOrFail();
 
-        $relatedPosts = Post::with(['category', 'user'])
-            ->where('category_id', $post->category_id)
+        $relatedPosts = Post::where('category_id', $post->category_id)
             ->where('id', '!=', $post->id)
             ->where('status', 'published')
             ->latest('published_at')
             ->take(3)
             ->get();
 
-        $prevPost = Post::with(['category', 'user'])
-            ->where('category_id', $post->category_id)
+        $prevPost = Post::where('category_id', $post->category_id)
             ->where('status', 'published')
             ->where(function ($query) use ($post) {
                 $query->where('published_at', '<', $post->published_at)
@@ -145,8 +152,7 @@ class HomeController extends Controller
             ->orderBy('id', 'desc')
             ->first();
 
-        $nextPost = Post::with(['category', 'user'])
-            ->where('category_id', $post->category_id)
+        $nextPost = Post::where('category_id', $post->category_id)
             ->where('status', 'published')
             ->where(function ($query) use ($post) {
                 $query->where('published_at', '>', $post->published_at)
@@ -159,12 +165,18 @@ class HomeController extends Controller
             ->orderBy('id', 'asc')
             ->first();
 
+        $category = $post->category;
+
+        $relatedPosts->each(fn (Post $relatedPost) => $relatedPost->setRelation('category', $category));
+        $prevPost?->setRelation('category', $category);
+        $nextPost?->setRelation('category', $category);
+
         return Inertia::render('Public/PostDetail', compact('post', 'relatedPosts', 'prevPost', 'nextPost'));
     }
 
-    private function categoryPosts(string $slug, ?int $limit = self::ITEM_LIMIT, bool $paginate = false)
+    private function categoryPosts(string $slug, ?int $limit = self::ITEM_LIMIT, bool $paginate = false, bool $withAuthor = true)
     {
-        $query = Post::with(['category', 'user'])
+        $query = Post::with($withAuthor ? ['category', 'user'] : ['category'])
             ->where('status', 'published')
             ->whereHas('category', fn ($q) => $q->where('slug', $slug))
             ->latest('published_at');
@@ -174,5 +186,17 @@ class HomeController extends Controller
         }
 
         return $limit ? $query->take($limit)->get() : $query->get();
+    }
+
+    /**
+     * @param  Collection<int, Post>  $posts
+     */
+    private function attachAuthors(Collection $posts): void
+    {
+        $authors = User::whereIn('id', $posts->pluck('user_id')->unique()->filter())
+            ->get()
+            ->keyBy('id');
+
+        $posts->each(fn (Post $post) => $post->setRelation('user', $authors->get($post->user_id)));
     }
 }
