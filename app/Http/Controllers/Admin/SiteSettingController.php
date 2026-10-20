@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Page;
 use App\Models\SiteSetting;
+use App\Support\ImageOptimizer;
 use App\Support\PublicCache;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -42,8 +43,7 @@ class SiteSettingController extends Controller
                 if ($existing) {
                     $this->deleteSettingFile($existing->value);
                 }
-                $path = $request->file($inputName)->store('settings', 'public');
-                $data[$imageKey] = Storage::url($path);
+                $data[$imageKey] = ImageOptimizer::storeAndUrl($request->file($inputName), 'settings', 1920);
             } elseif ($request->boolean("remove_hero_slide_{$i}_image")) {
                 $imageKey = "hero_slide_{$i}_image";
                 $fallbackKey = 'hero_background_image';
@@ -226,10 +226,9 @@ class SiteSettingController extends Controller
             if ($existingLogo) {
                 $this->deleteSettingFile($existingLogo->value);
             }
-            $path = $request->file('site_logo_file')->store('settings', 'public');
             SiteSetting::updateOrCreate(
                 ['key' => 'site_logo'],
-                ['value' => Storage::url($path), 'updated_at' => now()]
+                ['value' => ImageOptimizer::storeAndUrl($request->file('site_logo_file'), 'settings', 512), 'updated_at' => now()]
             );
         } elseif ($request->boolean('remove_site_logo')) {
             $existingLogo = SiteSetting::where('key', 'site_logo')->first();

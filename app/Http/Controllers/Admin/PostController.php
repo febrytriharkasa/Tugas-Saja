@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Post;
+use App\Support\ImageOptimizer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -276,7 +277,7 @@ class PostController extends Controller
 
     private function storeMedia(Request $request): string
     {
-        return Storage::url($request->file('featured_image')->store('posts', 'public'));
+        return ImageOptimizer::storeAndUrl($request->file('featured_image'), 'posts', 1600);
     }
 
     private function deleteStoredMedia(?string $path): void

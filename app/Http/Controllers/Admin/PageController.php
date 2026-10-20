@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Concerns\ManagesNavMenu;
 use App\Http\Controllers\Controller;
 use App\Models\Page;
+use App\Support\ImageOptimizer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -193,7 +194,7 @@ class PageController extends Controller
 
     private function storeImage(Request $request): string
     {
-        return Storage::url($request->file('image')->store('pages', 'public'));
+        return ImageOptimizer::storeAndUrl($request->file('image'), 'pages', 1600);
     }
 
     private function deleteImage(?string $path): void
