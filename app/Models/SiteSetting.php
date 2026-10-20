@@ -2,10 +2,11 @@
 
 namespace App\Models;
 
+use App\Support\PublicCache;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Once;
+use Illuminate\Support\Facades\Cache;
 
 class SiteSetting extends Model
 {
@@ -21,8 +22,14 @@ class SiteSetting extends Model
 
     protected static function booted(): void
     {
-        static::saved(fn () => Once::flush());
-        static::deleted(fn () => Once::flush());
+        static::saved(function () {
+            PublicCache::forgetSettings();
+            PublicCache::forgetFooterLinks();
+        });
+        static::deleted(function () {
+            PublicCache::forgetSettings();
+            PublicCache::forgetFooterLinks();
+        });
     }
 
     /**
@@ -30,12 +37,20 @@ class SiteSetting extends Model
      */
     public static function allCached(): Collection
     {
-        return once(fn () => static::all());
+        return once(function (): Collection {
+            $rows = Cache::remember(
+                PublicCache::SETTINGS,
+                now()->addMinutes(PublicCache::SHELL_TTL_MINUTES),
+                fn () => static::query()->get()->toArray(),
+            );
+
+            return static::hydrate($rows);
+        });
     }
 
     public static function getVal(string $key, $default = null)
     {
-        $setting = static::where('key', $key)->first();
+        $setting = static::allCached()->firstWhere('key', $key);
 
         return $setting ? $setting->value : $default;
     }

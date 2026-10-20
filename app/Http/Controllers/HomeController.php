@@ -8,8 +8,10 @@ use App\Models\Post;
 use App\Models\SiteSetting;
 use App\Models\Staff;
 use App\Models\User;
+use App\Support\PublicCache;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
 use Inertia\Inertia;
 
 class HomeController extends Controller
@@ -20,20 +22,37 @@ class HomeController extends Controller
     {
         $settings = SiteSetting::allCached()->pluck('value', 'key');
 
-        $posts = $this->categoryPosts('berita', withAuthor: false);
-        $homeSections = $this->homeSections();
-        $galleries = $this->categoryPosts('galeri', withAuthor: false);
+        $content = Cache::remember(
+            PublicCache::HOME_CONTENT,
+            now()->addMinutes(PublicCache::HOME_TTL_MINUTES),
+            function (): array {
+                $posts = $this->categoryPosts('berita', withAuthor: false);
+                $homeSections = $this->homeSections();
+                $galleries = $this->categoryPosts('galeri', withAuthor: false);
 
-        $this->attachAuthors(
-            $posts->merge($galleries)->merge($homeSections->flatMap(fn (array $section) => $section['posts']))
+                $allPosts = $posts
+                    ->merge($galleries)
+                    ->merge($homeSections->flatMap(fn (array $section) => collect($section['posts'])));
+
+                $this->attachAuthors($allPosts);
+
+                return [
+                    'posts' => $posts->toArray(),
+                    'homeSections' => $homeSections->map(function ($section) {
+                        // Ubah Eloquent Collection di dalam array menjadi murni array
+                        $section['posts'] = $section['posts']->toArray();
+
+                        return $section;
+                    })->toArray(),
+                    'galleries' => $galleries->toArray(),
+                    'staff' => Staff::latest()->take(8)->get()->toArray(),
+                ];
+            },
         );
 
         return Inertia::render('Welcome', [
             'settings' => $settings,
-            'posts' => $posts,
-            'homeSections' => $homeSections,
-            'galleries' => $galleries,
-            'staff' => Staff::latest()->take(8)->get(),
+            ...$content,
         ]);
     }
 
@@ -59,7 +78,7 @@ class HomeController extends Controller
             'slug' => $category->slug,
             'preview_mode' => $category->preview_mode,
             'posts' => $postsByCategory->get($category->id, collect())->take($limit)->values(),
-        ]);
+        ])->filter(fn ($section) => $section['posts']->isNotEmpty());
     }
 
     public function pageBySlug(Request $request, $slug)

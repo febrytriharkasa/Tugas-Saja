@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Support\PublicCache;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
@@ -25,6 +26,12 @@ class User extends Authenticatable
             'is_active' => 'boolean',
             'password_reset_requested_at' => 'datetime',
         ];
+    }
+
+    protected static function booted(): void
+    {
+        static::saved(fn () => PublicCache::forgetHome());
+        static::deleted(fn () => PublicCache::forgetHome());
     }
 
     public function isSuperAdmin(): bool

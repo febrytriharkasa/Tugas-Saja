@@ -6,7 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Page;
 use App\Models\SiteSetting;
+use App\Support\PublicCache;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
@@ -165,34 +167,44 @@ class SiteSettingController extends Controller
      */
     public function footerLinkOptions(bool $includeDrafts = false): array
     {
-        $options = [
-            ['label' => 'Beranda', 'url' => '/'],
-            ['label' => 'Berita', 'url' => '/berita'],
-            ['label' => 'Statistik', 'url' => '/statistik'],
-        ];
+        $cacheKey = $includeDrafts
+            ? PublicCache::FOOTER_LINKS_WITH_DRAFTS
+            : PublicCache::FOOTER_LINKS;
 
-        $ppdbUrl = SiteSetting::allCached()->firstWhere('key', 'ppdb_link')?->value;
-        if ($ppdbUrl) {
-            $options[] = ['label' => 'Daftar PPDB', 'url' => $ppdbUrl];
-        }
+        return Cache::remember(
+            $cacheKey,
+            now()->addMinutes(PublicCache::SHELL_TTL_MINUTES),
+            function () use ($includeDrafts): array {
+                $options = [
+                    ['label' => 'Beranda', 'url' => '/'],
+                    ['label' => 'Berita', 'url' => '/berita'],
+                    ['label' => 'Statistik', 'url' => '/statistik'],
+                ];
 
-        $pages = Page::query()
-            ->when(! $includeDrafts, fn ($query) => $query->where('is_published', true))
-            ->orderBy('title')
-            ->get(['title', 'slug', 'is_published']);
+                $ppdbUrl = SiteSetting::allCached()->firstWhere('key', 'ppdb_link')?->value;
+                if ($ppdbUrl) {
+                    $options[] = ['label' => 'Daftar PPDB', 'url' => $ppdbUrl];
+                }
 
-        foreach ($pages as $page) {
-            $options[] = [
-                'label' => 'Laman: '.$page->title.($page->is_published ? '' : ' (draf)'),
-                'url' => '/'.$page->slug,
-            ];
-        }
+                $pages = Page::query()
+                    ->when(! $includeDrafts, fn ($query) => $query->where('is_published', true))
+                    ->orderBy('title')
+                    ->get(['title', 'slug', 'is_published']);
 
-        foreach (Category::orderBy('name')->get(['name', 'slug']) as $category) {
-            $options[] = ['label' => 'Kategori: '.$category->name, 'url' => '/'.$category->slug];
-        }
+                foreach ($pages as $page) {
+                    $options[] = [
+                        'label' => 'Laman: '.$page->title.($page->is_published ? '' : ' (draf)'),
+                        'url' => '/'.$page->slug,
+                    ];
+                }
 
-        return $options;
+                foreach (Category::orderBy('name')->get(['name', 'slug']) as $category) {
+                    $options[] = ['label' => 'Kategori: '.$category->name, 'url' => '/'.$category->slug];
+                }
+
+                return $options;
+            },
+        );
     }
 
     public function updateFooter(Request $request)

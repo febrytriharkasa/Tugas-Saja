@@ -46,9 +46,7 @@ class HandleInertiaRequests extends Middleware
             'navConfigured' => fn () => $this->navConfigured(),
             'draftPageSlugs' => fn () => $this->draftPageSlugs(),
             'aboutPages' => fn () => [],
-            'customPages' => fn () => Page::where('is_published', true)
-                ->orderBy('title')
-                ->get(['title', 'slug']),
+            'customPages' => fn () => Page::cachedLists()['customPages'],
             'archivePages' => fn () => [],
         ];
     }
@@ -111,7 +109,7 @@ class HandleInertiaRequests extends Middleware
      */
     private function draftPageSlugs(): Collection
     {
-        return once(fn () => Page::where('is_published', false)->orderBy('title')->pluck('slug'));
+        return collect(Page::cachedLists()['draftSlugs']);
     }
 
     /**

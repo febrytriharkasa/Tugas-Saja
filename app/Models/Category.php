@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\PublicCache;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -24,6 +25,18 @@ class Category extends Model
         'metadata_schema' => 'array',
         'show_on_home' => 'boolean',
     ];
+
+    protected static function booted(): void
+    {
+        static::saved(function () {
+            PublicCache::forgetHome();
+            PublicCache::forgetFooterLinks();
+        });
+        static::deleted(function () {
+            PublicCache::forgetHome();
+            PublicCache::forgetFooterLinks();
+        });
+    }
 
     public function posts(): HasMany
     {

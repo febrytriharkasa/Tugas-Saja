@@ -58,6 +58,8 @@ class PostCoverGenerator
             $this->generate($post);
         }
 
+        PublicCache::forgetHome();
+
         return $posts->count();
     }
 

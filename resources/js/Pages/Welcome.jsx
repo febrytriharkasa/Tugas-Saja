@@ -281,8 +281,8 @@ export default function Welcome({ settings = {}, posts = [], homeSections = [], 
 
     return (
         <PublicLayout settings={settings}>
-            {/* Hero section dibuat lebih compact: aspect-[4/3] di mobile agar lebih pendek, padding dan min-h dikurangi di tablet/desktop */}
-            <section className="relative isolate overflow-hidden bg-slate-900 text-white flex items-center w-full aspect-[4/3] sm:aspect-[16/7] sm:py-10 lg:py-16 sm:min-h-[24rem] lg:min-h-[30rem]">
+            {/* Hero section dibuat lebih compact di desktop, tetap proporsional di mobile */}
+            <section className="relative isolate overflow-hidden bg-slate-900 text-white flex items-center w-full min-h-[19rem] aspect-[4/3] sm:aspect-[16/7] sm:py-10 lg:py-16 sm:min-h-[24rem] lg:min-h-[30rem]">
                 
                 {/* Background Images with smooth fade */}
                 {slides.map((s, idx) => (
@@ -335,8 +335,8 @@ export default function Welcome({ settings = {}, posts = [], homeSections = [], 
                                         visible: { opacity: 1, x: 0, transition: { duration: 0.55, ease: 'easeOut' } },
                                         exit: { opacity: 0, y: -40, transition: { duration: 0.3, ease: 'easeIn' } },
                                     }}
-                                    // Ukuran font disesuaikan agar tidak memakan terlalu banyak baris
-                                    className="max-w-3xl break-words text-xl font-extrabold leading-tight tracking-tight sm:text-4xl md:text-5xl lg:text-6xl"
+                                    // Ukuran mengikuti display-hero-mobile DESIGN.md (32px), dengan clamp agar aman di layar 320px.
+                                    className="max-w-3xl break-words text-[clamp(1.75rem,7vw,2rem)] font-extrabold leading-[1.2] tracking-[-0.015em] sm:text-4xl md:text-5xl lg:text-6xl"
                                 >
                                     {activeSlide.title}
                                 </motion.h1>
@@ -375,13 +375,13 @@ export default function Welcome({ settings = {}, posts = [], homeSections = [], 
 
                 {/* Carousel Controls - Posisi disesuaikan agar tidak nabrak di HP */}
                 <div className="absolute bottom-3 sm:bottom-16 right-3 sm:right-8 z-20 flex items-center gap-2 sm:gap-3 bg-black/30 px-2 py-1 sm:px-4 sm:py-2 rounded-full border border-white/10">
-                    <button
+                    {/* <button
                         type="button"
                         onClick={() => setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length)}
                         className="w-6 h-6 sm:w-11 sm:h-11 rounded-full flex items-center justify-center text-white/80 hover:text-white hover:bg-white/20 transition text-xs font-bold"
                     >
                         ‹
-                    </button>
+                    </button> */}
 
                     <div className="flex gap-1 sm:gap-1.5 items-center">
                         {slides.map((_, idx) => (
@@ -394,13 +394,13 @@ export default function Welcome({ settings = {}, posts = [], homeSections = [], 
                         ))}
                     </div>
 
-                    <button
+                    {/* <button
                         type="button"
                         onClick={() => setCurrentSlide((prev) => (prev + 1) % slides.length)}
                         className="w-6 h-6 sm:w-11 sm:h-11 rounded-full flex items-center justify-center text-white/80 hover:text-white hover:bg-white/20 transition text-xs font-bold"
                     >
                         ›
-                    </button>
+                    </button> */}
                 </div>
             </section>
 
