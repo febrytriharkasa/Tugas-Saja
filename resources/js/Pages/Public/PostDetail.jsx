@@ -1,8 +1,10 @@
+import { useState } from 'react';
 import { Link, router, usePage } from '@inertiajs/react';
 import PublicLayout from '@/Layouts/PublicLayout';
 import Breadcrumbs from '@/Components/Breadcrumbs';
 import DataTable from '@/Components/DataTable';
 import RichContent from '@/Components/RichContent';
+import MediaPreviewModal from '@/Components/MediaPreviewModal';
 import { blocksFromMetadata, youtubeThumbnailUrl } from '@/lib/postBlocks';
 import { plainText } from '@/lib/content';
 import { postUrl } from '@/lib/postUrl';
@@ -20,19 +22,27 @@ function youtubeEmbedUrl(url) {
 }
 
 function PostMedia({ post }) {
+    const [previewItem, setPreviewItem] = useState(null);
     const youtube = post.media_type === 'video' ? youtubeEmbedUrl(post.video_url) : null;
 
     if (youtube) {
         return (
             <figure className="mb-6">
                 <div className="aspect-video w-full overflow-hidden rounded-2xl bg-slate-900 shadow-md">
-                    <iframe
-                        src={youtube}
-                        title={post.title}
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowFullScreen
-                        className="h-full w-full border-0"
-                    />
+                    <button
+                        type="button"
+                        onClick={() => setPreviewItem(post)}
+                        className="relative aspect-[16/10] w-full bg-slate-100 overflow-hidden text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary cursor-zoom-in"
+                        aria-label={`Preview: ${post.title}`}
+                    >
+                        <iframe
+                            src={youtube}
+                            title={post.title}
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowFullScreen
+                            className="h-full w-full border-0"
+                        />
+                    </button>
                 </div>
                 <figcaption className="mt-2 text-xs text-slate-500 italic px-2">
                     Video — {post.category?.name || 'SMA XYZ'}
@@ -45,11 +55,19 @@ function PostMedia({ post }) {
         return (
             <figure className="mb-6">
                 <div className="w-full rounded-2xl overflow-hidden shadow-md bg-slate-100">
-                    <img src={post.featured_image} alt={post.title} className="w-full h-full sm:h-full object-cover" />
+                    <button
+                        type="button"
+                        onClick={() => setPreviewItem(post)}
+                        className="relative aspect-[16/10] w-full bg-slate-100 overflow-hidden text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary cursor-zoom-in"
+                        aria-label={`Preview: ${post.title}`}
+                    >
+                        <img src={post.featured_image} alt={post.title} className="w-full h-full sm:h-full object-cover" />
+                    </button>
                 </div>
                 <figcaption className="mt-2 text-xs text-slate-500 italic px-2">
                     Dokumentasi — {post.category?.name || 'SMA XYZ'}
                 </figcaption>
+                <MediaPreviewModal item={previewItem} onClose={() => setPreviewItem(null)} />
             </figure>
         );
     }
