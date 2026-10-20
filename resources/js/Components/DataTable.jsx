@@ -13,9 +13,9 @@ export default function DataTable({ title, description, columns, rows }) {
                 <div className="bg-primary px-5 py-3">
                     <h3 className="text-sm font-bold text-white">{title || 'Daftar Data'}</h3>
                 </div>
-                <table className="w-full table-fixed text-[10px] text-left border-collapse sm:text-sm">
+                <table className="w-full table-fixed text-xs text-left border-collapse sm:text-sm">
                     <thead>
-                        <tr className="bg-slate-50 border-b border-slate-200 text-[10px] font-semibold text-slate-600 uppercase tracking-wide sm:text-xs">
+                        <tr className="bg-slate-50 border-b border-slate-200 text-xs font-semibold text-slate-600 uppercase tracking-wide">
                             <th className="w-8 px-2 py-2 sm:px-5 sm:py-3">#</th>
                             {columns.map((column, index) => (
                                 <th key={index} className="px-2 py-2 sm:px-5 sm:py-3">{column || `Kolom ${index + 1}`}</th>

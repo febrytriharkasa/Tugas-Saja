@@ -1,4 +1,5 @@
 import PublicLayout from '@/Layouts/PublicLayout';
+import Seo from '@/Components/Seo';
 import Card from '@/Components/Card';
 import Badge from '@/Components/Badge';
 import Breadcrumbs from '@/Components/Breadcrumbs';
@@ -20,6 +21,10 @@ export default function Statistics({ statSettings, counts }) {
 
     return (
         <PublicLayout>
+            <Seo
+                title="Statistik Sekolah"
+                description={`Data statistik ${settings.site_name || 'sekolah'}: jumlah siswa, guru, tenaga kependidikan, berita, prestasi, agenda, dan dokumentasi.`}
+            />
             <Breadcrumbs items={[{ label: 'Beranda', href: '/' }, { label: 'Statistik' }]} />
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
                 <h1 className="text-3xl md:text-4xl font-extrabold text-slate-900">Statistik Sekolah</h1>

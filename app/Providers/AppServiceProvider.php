@@ -20,6 +20,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        Vite::prefetch(concurrency: 3);
+        // Prefetch hanya di panel admin. Di halaman publik strategi ini mengunduh
+        // seluruh chunk dinamis (termasuk editor blok) yang tidak dipakai pengunjung.
+        if (request()->is('admin', 'admin/*')) {
+            Vite::prefetch(concurrency: 3);
+        }
     }
 }

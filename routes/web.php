@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\ChatBotController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SitemapController;
 use App\Models\Category;
 use Illuminate\Support\Facades\Route;
 
@@ -19,6 +20,17 @@ Route::get('/berita', [HomeController::class, 'news'])->name('public.news');
 Route::get('/cari', [HomeController::class, 'search'])->name('public.search');
 Route::get('/statistik', [HomeController::class, 'statistics'])->name('public.statistics');
 Route::post('/api/chat', [ChatBotController::class, 'send'])->name('api.chat');
+
+Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
+Route::get('/robots.txt', function () {
+    $sitemap = rtrim((string) config('app.url'), '/').'/sitemap.xml';
+
+    return response(
+        "User-agent: *\nAllow: /\n\nDisallow: /admin\nDisallow: /cari\nDisallow: /login\n\nSitemap: {$sitemap}\n",
+        200,
+        ['Content-Type' => 'text/plain; charset=UTF-8'],
+    );
+})->name('robots');
 
 Route::get('/{slug}', [HomeController::class, 'pageBySlug'])
     ->where('slug', '^(?!admin|api|login|logout|register|password|email|dashboard|profile|sanctum|_debugbar|berita|cari|statistik|verify-email|confirm-password|forgot-password|reset-password)[a-zA-Z0-9_-]+$')

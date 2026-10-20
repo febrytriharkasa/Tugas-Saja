@@ -42,6 +42,7 @@ class HandleInertiaRequests extends Middleware
                 'error' => $request->session()->get('error'),
             ],
             'settings' => fn () => SiteSetting::allCached()->pluck('value', 'key'),
+            'appUrl' => rtrim((string) config('app.url'), '/'),
             'navItems' => fn () => $this->publicNavItems(),
             'navConfigured' => fn () => $this->navConfigured(),
             'draftPageSlugs' => fn () => $this->draftPageSlugs(),

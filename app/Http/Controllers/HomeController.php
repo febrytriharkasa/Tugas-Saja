@@ -117,7 +117,7 @@ class HomeController extends Controller
     {
         $keyword = trim((string) $request->query('q', ''));
 
-        $items = Post::with(['category', 'user'])
+        $items = Post::with(['category', 'user:id,name'])
             ->where('status', 'published')
             ->when($keyword !== '', fn ($query) => $query->where('title', 'like', '%'.$keyword.'%'))
             ->latest('published_at')
@@ -145,7 +145,7 @@ class HomeController extends Controller
 
     public function showPost($category, $slug)
     {
-        $post = Post::with(['category', 'user'])
+        $post = Post::with(['category', 'user:id,name'])
             ->where('slug', $slug)
             ->where('status', 'published')
             ->whereHas('category', fn ($c) => $c->where('slug', $category))
@@ -195,7 +195,7 @@ class HomeController extends Controller
 
     private function categoryPosts(string $slug, ?int $limit = self::ITEM_LIMIT, bool $paginate = false, bool $withAuthor = true)
     {
-        $query = Post::with($withAuthor ? ['category', 'user'] : ['category'])
+        $query = Post::with($withAuthor ? ['category', 'user:id,name'] : ['category'])
             ->where('status', 'published')
             ->whereHas('category', fn ($q) => $q->where('slug', $slug))
             ->latest('published_at');
@@ -213,7 +213,7 @@ class HomeController extends Controller
     private function attachAuthors(Collection $posts): void
     {
         $authors = User::whereIn('id', $posts->pluck('user_id')->unique()->filter())
-            ->get()
+            ->get(['id', 'name'])
             ->keyBy('id');
 
         $posts->each(fn (Post $post) => $post->setRelation('user', $authors->get($post->user_id)));

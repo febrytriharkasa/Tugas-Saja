@@ -202,7 +202,7 @@ export default function PublicLayout({ children, settings = {} }) {
                     <div className="flex min-h-16 items-center justify-between gap-4">
                         <Link href="/" className="flex min-w-0 items-center gap-3 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2">
                             {siteSettings.site_logo ? (
-                                <img src={siteSettings.site_logo} alt={siteSettings.site_name || 'SMA XYZ'} className="h-10 w-10 shrink-0 rounded-xl object-contain" />
+                                <img src={siteSettings.site_logo} alt={siteSettings.site_name || 'SMA XYZ'} width={40} height={40} decoding="async" className="h-10 w-10 shrink-0 rounded-xl object-contain" />
                             ) : (
                                 <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-primary text-sm font-extrabold text-white shadow-sm">{(siteSettings.site_name || 'SMA XYZ').slice(0, 2).toUpperCase()}</span>
                             )}
@@ -432,7 +432,7 @@ export default function PublicLayout({ children, settings = {} }) {
                         )) : null;
                     })()}
                 </div>
-                <div className="border-t border-slate-700 px-4 py-5 text-center text-xs text-slate-400">© {new Date().getFullYear()} {siteSettings.site_name || 'SMA XYZ'}. Hak Cipta Dilindungi.</div>
+                <div className="border-t border-slate-700 px-4 py-5 text-center text-xs text-slate-300">© {new Date().getFullYear()} {siteSettings.site_name || 'SMA XYZ'}. Hak Cipta Dilindungi.</div>
             </footer>
         </div>
     );

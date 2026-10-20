@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, router, usePage } from '@inertiajs/react';
 import PublicLayout from '@/Layouts/PublicLayout';
+import Seo, { absoluteUrl } from '@/Components/Seo';
 import Breadcrumbs from '@/Components/Breadcrumbs';
 import DataTable from '@/Components/DataTable';
 import RichContent from '@/Components/RichContent';
@@ -61,6 +62,7 @@ function PostMedia({ post }) {
                         <img
                             src={post.featured_image}
                             alt={post.title}
+                            decoding="async"
                             className="block h-auto max-h-[70vh] w-auto max-w-full object-contain"
                         />
                     </button>
@@ -156,7 +158,7 @@ function PostNavCard({ post }) {
         >
             {thumb ? (
                 <div className="relative aspect-video overflow-hidden">
-                    <img src={thumb} alt={post.title} className="h-full w-full object-cover" />
+                    <img src={thumb} alt={post.title} loading="lazy" decoding="async" className="h-full w-full object-cover" />
                     {post.media_type === 'video' && (
                         <span className="absolute inset-0 flex items-center justify-center bg-slate-900/35" aria-hidden="true">
                             <svg className="h-5 w-5 text-white drop-shadow" fill="currentColor" viewBox="0 0 24 24">
@@ -166,11 +168,11 @@ function PostNavCard({ post }) {
                     )}
                 </div>
             ) : (
-                <div className="relative aspect-video overflow-hidden bg-slate-100 flex items-center justify-center text-xs text-slate-400">Tidak ada gambar</div>
+                <div className="relative aspect-video overflow-hidden bg-slate-100 flex items-center justify-center text-xs text-slate-500">Tidak ada gambar</div>
             )}
             <div className="p-3 flex flex-col gap-1 flex-1">
                 {post.category && (
-                    <span className="text-[10px] font-bold text-primary uppercase tracking-wide">{post.category.name}</span>
+                    <span className="text-xs font-bold text-primary uppercase tracking-wide">{post.category.name}</span>
                 )}
                 <h4 className="break-words text-xs font-bold text-slate-800 transition-colors line-clamp-2 leading-snug group-hover:text-primary">
                     {post.title}
@@ -189,7 +191,20 @@ export default function PostDetail({ post, relatedPosts = [], prevPost = null, n
 
     const blocks = blocksFromMetadata(post.metadata);
 
-    const { settings } = usePage().props;
+    const { settings, appUrl = '' } = usePage().props;
+    const excerpt = plainText(post.content).slice(0, 160);
+
+    const articleLd = {
+        '@type': 'NewsArticle',
+        headline: post.title,
+        ...(excerpt ? { description: excerpt } : {}),
+        ...(post.featured_image ? { image: [absoluteUrl(post.featured_image, appUrl)] } : {}),
+        ...(post.published_at ? { datePublished: post.published_at } : {}),
+        ...(post.updated_at ? { dateModified: post.updated_at } : {}),
+        ...(post.category?.name ? { articleSection: post.category.name } : {}),
+        author: { '@type': 'Person', name: post.user?.name || 'Humas SMALISKA' },
+    };
+
     const sidebarCta = {
         enabled: settings?.sidebar_cta_enabled !== '0',
         title: settings?.sidebar_cta_title || '',
@@ -201,6 +216,15 @@ export default function PostDetail({ post, relatedPosts = [], prevPost = null, n
 
     return (
         <PublicLayout>
+            <Seo
+                title={post.title}
+                description={excerpt}
+                image={post.featured_image}
+                type="article"
+                publishedAt={post.published_at}
+                modifiedAt={post.updated_at}
+                jsonLd={articleLd}
+            />
             <Breadcrumbs
                 items={[
                     { label: 'Beranda', href: '/' },
@@ -235,7 +259,7 @@ export default function PostDetail({ post, relatedPosts = [], prevPost = null, n
                                     </div>
                                 </div>
 
-                                <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] text-slate-500 sm:text-xs">
+                                <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500">
                                     {publishedDate && (
                                         <span className="flex items-center gap-1">
                                             <svg className="w-3.5 h-3.5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
@@ -324,7 +348,7 @@ export default function PostDetail({ post, relatedPosts = [], prevPost = null, n
                                 ))}
                             </div>
                             {post.category && (
-                                <span className="text-xs text-slate-400">#{post.category.name?.replace(/\s/g, '')}</span>
+                                <span className="text-xs text-slate-500">#{post.category.name?.replace(/\s/g, '')}</span>
                             )}
                         </div>
 
@@ -332,7 +356,7 @@ export default function PostDetail({ post, relatedPosts = [], prevPost = null, n
                             <div className="mt-10 grid grid-cols-2 gap-4">
                                 {prevPost ? (
                                     <div className="flex flex-col gap-2">
-                                        <span className="text-xs font-bold uppercase tracking-wide text-slate-400">← Sebelumnya</span>
+                                        <span className="text-xs font-bold uppercase tracking-wide text-slate-500">← Sebelumnya</span>
                                         <PostNavCard post={prevPost} />
                                     </div>
                                 ) : (
@@ -340,7 +364,7 @@ export default function PostDetail({ post, relatedPosts = [], prevPost = null, n
                                 )}
                                 {nextPost && (
                                     <div className="flex flex-col gap-2">
-                                        <span className="text-xs font-bold uppercase tracking-wide text-slate-400 text-right">Selanjutnya →</span>
+                                        <span className="text-xs font-bold uppercase tracking-wide text-slate-500 text-right">Selanjutnya →</span>
                                         <PostNavCard post={nextPost} />
                                     </div>
                                 )}
@@ -390,7 +414,7 @@ export default function PostDetail({ post, relatedPosts = [], prevPost = null, n
                                                 <div className="relative w-24 h-24 rounded-xl overflow-hidden flex-shrink-0 bg-slate-100">
                                                     {relThumb ? (
                                                         <>
-                                                            <img src={relThumb} alt={rel.title} loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+                                                            <img src={relThumb} alt={rel.title} loading="lazy" decoding="async" className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
                                                             {rel.media_type === 'video' && (
                                                                 <span className="absolute inset-0 flex items-center justify-center bg-slate-900/35" aria-hidden="true">
                                                                     <svg className="h-6 w-6 text-white drop-shadow" fill="currentColor" viewBox="0 0 24 24">
@@ -400,7 +424,7 @@ export default function PostDetail({ post, relatedPosts = [], prevPost = null, n
                                                             )}
                                                         </>
                                                     ) : (
-                                                        <div className="w-full h-full flex items-center justify-center text-slate-400 text-xs">-</div>
+                                                        <div className="w-full h-full flex items-center justify-center text-slate-500 text-xs">-</div>
                                                     )}
                                                 </div>
                                                 <div className="flex flex-col justify-between h-24 min-w-0 py-1">
@@ -408,7 +432,7 @@ export default function PostDetail({ post, relatedPosts = [], prevPost = null, n
                                                         {rel.title}
                                                     </span>
                                                     {rel.published_at && (
-                                                        <span className="text-xs text-slate-400">{new Date(rel.published_at).toLocaleDateString('id-ID')}</span>
+                                                        <span className="text-xs text-slate-500">{new Date(rel.published_at).toLocaleDateString('id-ID')}</span>
                                                     )}
                                                 </div>
                                             </Link>

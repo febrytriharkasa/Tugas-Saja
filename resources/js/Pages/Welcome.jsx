@@ -4,12 +4,13 @@ import PublicLayout from '@/Layouts/PublicLayout';
 import Card from '@/Components/Card';
 import ChatWidget from '@/Components/ChatWidget';
 import MediaPreviewModal from '@/Components/MediaPreviewModal';
-import { Link } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
+import Seo, { absoluteUrl } from '@/Components/Seo';
 import { youtubeThumbnailUrl } from '@/lib/postBlocks';
 import { postUrl } from '@/lib/postUrl';
 
-function ArrowLink({ href, children }) {
-    return <Link href={href} className="inline-flex min-h-9 items-center gap-1.5 rounded-lg text-xs font-bold text-primary transition hover:gap-2.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary sm:min-h-11 sm:gap-2 sm:text-sm sm:hover:gap-3">{children}<span aria-hidden="true">→</span></Link>;
+function ArrowLink({ href, children, dark = false }) {
+    return <Link href={href} className={`inline-flex min-h-9 items-center gap-1.5 rounded-lg text-xs font-bold transition hover:gap-2.5 focus-visible:outline-none focus-visible:ring-2 sm:min-h-11 sm:gap-2 sm:text-sm sm:hover:gap-3 ${dark ? 'text-emerald-200 hover:text-white focus-visible:ring-white' : 'text-primary focus-visible:ring-primary'}`}>{children}<span aria-hidden="true">→</span></Link>;
 }
 
 function SectionHeading({ eyebrow, title, href, linkLabel = 'Lihat semua', dark = false }) {
@@ -21,11 +22,11 @@ function SectionHeading({ eyebrow, title, href, linkLabel = 'Lihat semua', dark 
             </div>
             {href && (
                 <>
-                    <Link href={href} className="sm:hidden inline-flex items-center justify-center w-10 h-10 shrink-0 rounded-lg border border-slate-300 bg-white text-lg font-bold text-slate-600 hover:border-primary hover:text-primary transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">
-                        →
+                    <Link href={href} aria-label={`Lihat semua ${title}`} className="sm:hidden inline-flex items-center justify-center w-10 h-10 shrink-0 rounded-lg border border-slate-300 bg-white text-lg font-bold text-slate-600 hover:border-primary hover:text-primary transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">
+                        <span aria-hidden="true">→</span>
                     </Link>
                     <span className="hidden sm:inline-flex">
-                        <ArrowLink href={href}>{linkLabel}</ArrowLink>
+                        <ArrowLink href={href} dark={dark}>{linkLabel}</ArrowLink>
                     </span>
                 </>
             )}
@@ -101,7 +102,7 @@ function PostCard({ post, delay = 0 }) {
                     <div className="relative aspect-[16/9] sm:aspect-[16/10] overflow-hidden bg-slate-100 shrink-0">
                         {thumbnail ? (
                             <div className="relative h-full w-full">
-                                <img src={thumbnail} alt={post.title} loading="lazy" className="h-full w-full object-cover" />
+                                <img src={thumbnail} alt={post.title} loading="lazy" decoding="async" decoding="async" className="h-full w-full object-cover" />
                                 {post.media_type === 'video' && (
                                     <span className="absolute inset-0 flex items-center justify-center bg-slate-900/35" aria-hidden="true">
                                         <svg className="h-9 w-9 text-white drop-shadow" fill="currentColor" viewBox="0 0 24 24">
@@ -111,13 +112,13 @@ function PostCard({ post, delay = 0 }) {
                                 )}
                             </div>
                         ) : (
-                            <div className="flex h-full w-full items-center justify-center text-xs text-slate-400 font-medium">Gambar tidak tersedia</div>
+                            <div className="flex h-full w-full items-center justify-center text-xs text-slate-500 font-medium">Gambar tidak tersedia</div>
                         )}
                     </div>
                 </Link>
                 <div className="flex flex-1 flex-col justify-between p-3.5 sm:p-5">
                     <div>
-                        <div className="flex min-h-8 flex-wrap items-center gap-x-2 gap-y-1 text-[11px] text-slate-600 sm:text-xs">
+                        <div className="flex min-h-8 flex-wrap items-center gap-x-2 gap-y-1 text-xs text-slate-600">
                             <span className="font-bold text-primary">{post.category?.name || 'Konten'}</span>
                             <span>{formatPostDate(post)}</span>
                         </div>
@@ -125,7 +126,7 @@ function PostCard({ post, delay = 0 }) {
                             <Link href={postUrl(post)} className="hover:text-primary">{post.title}</Link>
                         </h3>
                         {post.category?.name?.toLowerCase() === 'berita' && post.user?.name && (
-                            <p className="mt-1 break-words text-[10px] text-slate-500 sm:mt-2 sm:text-xs">
+                            <p className="mt-1 break-words text-xs text-slate-500 sm:mt-2">
                                 <span className="font-semibold text-slate-700">{post.user.name}</span>
                             </p>
                         )}
@@ -170,7 +171,7 @@ function PostSection({ id, eyebrow, title, href, posts, tone = 'plain', previewM
                                                         <img
                                                             src={thumb}
                                                             alt={post.title}
-                                                            loading="lazy"
+                                                            loading="lazy" decoding="async"
                                                             className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                                                         />
                                                         {post.media_type === 'video' ? (
@@ -186,7 +187,7 @@ function PostSection({ id, eyebrow, title, href, posts, tone = 'plain', previewM
                                                         )}
                                                     </div>
                                                 ) : (
-                                                    <div className="flex h-full w-full items-center justify-center text-xs text-slate-400 font-medium">Gambar tidak tersedia</div>
+                                                    <div className="flex h-full w-full items-center justify-center text-xs text-slate-500 font-medium">Gambar tidak tersedia</div>
                                                 );
                                             })()}
                                         </button>
@@ -234,7 +235,7 @@ function AlumniSection({ id, title, href, posts }) {
                                 <Card hover className="bg-white p-4 h-full sm:p-6">
                                     <p className="break-words text-xs italic leading-6 text-slate-600 sm:text-sm sm:leading-7">“{testi.content}”</p>
                                     <p className="mt-3 break-words text-sm font-bold text-slate-900 sm:mt-5 sm:text-base">{testi.title}</p>
-                                    <p className="mt-1 break-words text-[11px] text-slate-600 sm:text-xs">Alumni {testi.metadata?.graduation_year || '-'} · {testi.metadata?.current_profession || 'Profesi belum diisi'}</p>
+                                    <p className="mt-1 break-words text-xs text-slate-600">Alumni {testi.metadata?.graduation_year || '-'} · {testi.metadata?.current_profession || 'Profesi belum diisi'}</p>
                                 </Card>
                             </motion.div>
                         ))}
@@ -247,6 +248,7 @@ function AlumniSection({ id, title, href, posts }) {
 }
 
 export default function Welcome({ settings = {}, posts = [], homeSections = [], galleries = [], staff = [] }) {
+    const { appUrl = '' } = usePage().props;
     const [previewItem, setPreviewItem] = useState(null);
     const toneFor = (index) => (index % 2 === 0 ? 'muted' : 'plain');
     const slides = [
@@ -279,8 +281,37 @@ export default function Welcome({ settings = {}, posts = [], homeSections = [], 
     const galeriIndex = homeSections.length + 1;
     const gtkIndex = homeSections.length + 2;
 
+    const organizationLd = {
+        '@type': 'EducationalOrganization',
+        name: settings.site_name || 'SMA Al Islam Krian',
+        ...(appUrl ? { url: appUrl } : {}),
+        ...(settings.site_logo ? { logo: absoluteUrl(settings.site_logo, appUrl) } : {}),
+        ...(settings.footer_about || settings.site_tagline
+            ? { description: settings.footer_about || settings.site_tagline }
+            : {}),
+        ...(settings.contact_phone ? { telephone: settings.contact_phone } : {}),
+        ...(settings.contact_email ? { email: settings.contact_email } : {}),
+        ...(settings.contact_address
+            ? { address: { '@type': 'PostalAddress', streetAddress: settings.contact_address } }
+            : {}),
+        sameAs: [
+            settings.social_instagram,
+            settings.social_facebook,
+            settings.social_youtube,
+            settings.social_tiktok,
+            settings.social_twitter,
+            settings.social_linkedin,
+        ].filter((url) => typeof url === 'string' && url.startsWith('http')),
+    };
+
     return (
         <PublicLayout settings={settings}>
+            <Seo
+                description={settings.footer_about || settings.site_tagline}
+                image={slides[0].image}
+                jsonLd={organizationLd}
+            />
+
             {/* Hero section dibuat lebih compact di desktop, tetap proporsional di mobile */}
             <section className="relative isolate overflow-hidden bg-slate-900 text-white flex items-center w-full min-h-[19rem] aspect-[4/3] sm:aspect-[16/7] sm:py-10 lg:py-16 sm:min-h-[24rem] lg:min-h-[30rem]">
                 
@@ -291,6 +322,11 @@ export default function Welcome({ settings = {}, posts = [], homeSections = [], 
                             key={idx}
                             src={s.image}
                             alt={s.title}
+                            width={1920}
+                            height={1080}
+                            loading={idx === 0 ? 'eager' : 'lazy'}
+                            fetchpriority={idx === 0 ? 'high' : 'low'}
+                            decoding="async"
                             // object-cover akan mengisi pas kotak aspect-[4/3] tanpa memanjangkan gambar berlebihan
                             className={`absolute inset-0 -z-20 h-full w-full object-cover object-center transition-opacity duration-1000 ${
                                 idx === currentSlide ? 'opacity-100' : 'opacity-0'
@@ -325,7 +361,7 @@ export default function Welcome({ settings = {}, posts = [], homeSections = [], 
                                         exit: { opacity: 0, x: 50, transition: { duration: 0.3, ease: 'easeIn' } },
                                     }}
                                     // Jarak margin diperkecil (mb-3 menjadi mb-1.5 di mobile)
-                                    className="mb-1.5 sm:mb-3 text-[9px] sm:text-xs font-bold uppercase tracking-[0.18em] text-emerald-200"
+                                    className="mb-1.5 sm:mb-3 text-xs font-bold uppercase tracking-[0.18em] text-emerald-200"
                                 >
                                     {activeSlide.tag}
                                 </motion.p>
@@ -363,7 +399,7 @@ export default function Welcome({ settings = {}, posts = [], homeSections = [], 
                                         href={activeSlide.btnUrl}
                                         target={activeSlide.btnUrl.startsWith('/') ? "_self" : "_blank"}
                                         rel={activeSlide.btnUrl.startsWith('/') ? "" : "noopener noreferrer"}
-                                        className="inline-flex min-h-9 sm:min-h-12 items-center justify-center rounded-lg bg-emerald-200 px-4 py-2 sm:px-6 sm:py-3 text-[11px] sm:text-sm font-bold text-emerald-950 transition hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-primary shadow-lg"
+                                        className="inline-flex min-h-9 sm:min-h-12 items-center justify-center rounded-lg bg-emerald-200 px-4 py-2 sm:px-6 sm:py-3 text-xs sm:text-sm font-bold text-emerald-950 transition hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-primary shadow-lg"
                                     >
                                         {activeSlide.btnText}
                                     </a>
@@ -375,19 +411,24 @@ export default function Welcome({ settings = {}, posts = [], homeSections = [], 
 
                 {/* Carousel Dots - Vertikal, sejajar vertikal dengan judul (tengah hero) */}
                 <div className="absolute right-3 sm:right-8 top-1/2 -translate-y-1/2 z-20">
-                    <div className="flex flex-col items-center gap-2 sm:gap-3 rounded-full border border-white/10 bg-black/30 px-1.5 py-2 sm:px-2 sm:py-3">
+                    <div className="flex flex-col items-center gap-0.5 rounded-full border border-white/10 bg-black/30 px-1.5 py-2 sm:px-2 sm:py-3">
                         {slides.map((_, idx) => (
                             <button
                                 key={idx}
                                 type="button"
                                 onClick={() => setCurrentSlide(idx)}
-                                aria-label={`Slide ${idx + 1}`}
-                                className={`rounded-full transition-all ${
-                                    idx === currentSlide
-                                        ? 'h-4 w-1.5 bg-emerald-300 sm:h-6 sm:w-2'
-                                        : 'h-1.5 w-1.5 bg-white/40 hover:bg-white/70 sm:h-2 sm:w-2'
-                                }`}
-                            />
+                                aria-label={`Tampilkan slide ${idx + 1}`}
+                                className="group grid h-6 w-6 place-items-center rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+                            >
+                                <span
+                                    aria-hidden="true"
+                                    className={`block rounded-full transition-all ${
+                                        idx === currentSlide
+                                            ? 'h-4 w-1.5 bg-emerald-300 sm:h-6 sm:w-2'
+                                            : 'h-1.5 w-1.5 bg-white/40 group-hover:bg-white/70 sm:h-2 sm:w-2'
+                                    }`}
+                                />
+                            </button>
                         ))}
                     </div>
                 </div>
@@ -396,6 +437,7 @@ export default function Welcome({ settings = {}, posts = [], homeSections = [], 
 
             <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-14 relative z-20">
                 <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-6 shadow-card">
+                    <h2 className="sr-only">Layanan pintas</h2>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     {[{ title: settings.quick_link_1_title || 'Pendaftaran', url: settings.quick_link_1_url || 'https://ppdb.smaxyz.sch.id', desc: settings.quick_link_1_desc || 'Portal Resmi Pendaftaran PPDB Online' },
                         { title: settings.quick_link_2_title || 'SMA XYZ via mobile', url: settings.quick_link_2_url || 'https://mobile.smaxyz.or.id', desc: settings.quick_link_2_desc || 'Aplikasi Layanan Mobile SMA XYZ' },
@@ -491,7 +533,7 @@ export default function Welcome({ settings = {}, posts = [], homeSections = [], 
                                                     <img
                                                         src={thumb}
                                                         alt={item.title}
-                                                        loading="lazy"
+                                                        loading="lazy" decoding="async"
                                                         className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                                                     />
                                                     {item.media_type === 'video' ? (
@@ -507,7 +549,7 @@ export default function Welcome({ settings = {}, posts = [], homeSections = [], 
                                                     )}
                                                 </div>
                                             ) : (
-                                                <div className="flex h-full w-full items-center justify-center text-xs text-slate-400 font-medium">Gambar tidak tersedia</div>
+                                                <div className="flex h-full w-full items-center justify-center text-xs text-slate-500 font-medium">Gambar tidak tersedia</div>
                                             )}
                                         </button>
                                         <div className="flex flex-1 items-center bg-white p-3">
@@ -547,7 +589,7 @@ export default function Welcome({ settings = {}, posts = [], homeSections = [], 
                                             {person.name.charAt(0)}
                                         </div>
                                         <h3 className="break-words text-xs font-bold text-slate-900 sm:text-sm">{person.name}</h3>
-                                        <p className="mt-0.5 break-words text-[10px] leading-4 text-slate-600 sm:mt-1 sm:text-xs sm:leading-5">{person.role}</p>
+                                        <p className="mt-0.5 break-words text-xs leading-4 text-slate-600 sm:mt-1 sm:leading-5">{person.role}</p>
                                     </Card>
                                 </motion.div>
                             ))}

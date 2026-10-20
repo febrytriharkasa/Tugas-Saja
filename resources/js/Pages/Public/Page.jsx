@@ -1,15 +1,23 @@
 import PublicLayout from '@/Layouts/PublicLayout';
+import Seo from '@/Components/Seo';
 import Breadcrumbs from '@/Components/Breadcrumbs';
 import ChatWidget from '@/Components/ChatWidget';
 import DataTable from '@/Components/DataTable';
 import RichContent from '@/Components/RichContent';
 import { blocksFromMetadata } from '@/lib/postBlocks';
+import { plainText } from '@/lib/content';
 
 export default function Page({ page, draftPreview = false }) {
     const blocks = blocksFromMetadata(page.metadata);
 
     return (
         <PublicLayout>
+            <Seo
+                title={draftPreview ? `${page.title} (draf)` : page.title}
+                description={plainText(page.content).slice(0, 160)}
+                image={page.image}
+                robots={draftPreview ? 'noindex, nofollow' : 'index, follow'}
+            />
             <Breadcrumbs items={[{ label: 'Beranda', href: '/' }, { label: page.title }]} />
             <div className="block w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
                 {draftPreview && (
@@ -34,6 +42,8 @@ export default function Page({ page, draftPreview = false }) {
                         <img
                             src={page.image}
                             alt={page.title}
+                            loading="eager"
+                            decoding="async"
                             className="w-full max-h-[28rem] rounded-xl object-cover border border-slate-200"
                         />
                     )}

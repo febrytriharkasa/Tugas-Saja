@@ -130,6 +130,15 @@
     color: #34d399;
 }
 
+/* secondary/tertiary gelap tidak terbaca di atas permukaan gelap; pakai varian terang. */
+.dark .text-secondary {
+    color: #76dcff;
+}
+
+.dark .text-tertiary {
+    color: #ffb87e;
+}
+
 .dark .bg-primary\/10 {
     background-color: rgba(52, 211, 153, 0.12);
 }

@@ -5,7 +5,9 @@ import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { createRoot } from 'react-dom/client';
 import { ThemeProvider } from './Contexts/ThemeContext';
 
-const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
+// Nama situs diambil dari pengaturan sekolah saat halaman pertama dimuat, jadi
+// judul tab tidak bergantung pada APP_NAME yang masih "laravel".
+let siteName = import.meta.env.VITE_APP_NAME || 'SMALISKA';
 
 // Proteksi InfinityFree: jika request XHR tidak membawa cookie __test, server
 // membalas halaman HTML (bukan JSON Inertia) sehingga Inertia menampilkan modal
@@ -39,13 +41,16 @@ router.on('invalid', (event) => {
 });
 
 createInertiaApp({
-    title: (title) => `${title} - ${appName}`,
+    // Judul kosong berarti halaman tidak punya judul sendiri (beranda): pakai nama situs.
+    title: (title) => (title ? `${title} - ${siteName}` : siteName),
     resolve: (name) =>
         resolvePageComponent(
             `./Pages/${name}.jsx`,
             import.meta.glob('./Pages/**/*.jsx'),
         ),
     setup({ el, App, props }) {
+        siteName = props.initialPage.props.settings?.site_name || siteName;
+
         const root = createRoot(el);
 
         root.render(

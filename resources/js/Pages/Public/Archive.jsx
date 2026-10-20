@@ -1,9 +1,10 @@
 import PublicLayout from '@/Layouts/PublicLayout';
+import Seo from '@/Components/Seo';
 import Card from '@/Components/Card';
 import Breadcrumbs from '@/Components/Breadcrumbs';
 import ChatWidget from '@/Components/ChatWidget';
 import MediaPreviewModal from '@/Components/MediaPreviewModal';
-import { Link } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import { motion } from 'framer-motion';
 import { useState, useRef } from 'react';
 import { plainText } from '@/lib/content';
@@ -52,8 +53,10 @@ function Pagination({ links }) {
 }
 
 export default function Archive({ title, type, previewMode = 'standard', items }) {
+    const { settings = {} } = usePage().props;
     const [previewItem, setPreviewItem] = useState(null);
     const post = items.data?.[0] ?? null;
+    const siteName = settings.site_name || 'SMA Al Islam Krian';
 
     const renderItems = () => {
         if (type === 'download') {
@@ -111,7 +114,7 @@ export default function Archive({ title, type, previewMode = 'standard', items }
                                     {item.media_type === 'video' && item.video_url ? (
                                         <div className="relative w-full h-full bg-slate-800">
                                             {thumb ? (
-                                                <img src={thumb} alt={item.title} loading="lazy" className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
+                                                <img src={thumb} alt={item.title} loading="lazy" decoding="async" className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-opacity" />
                                             ) : null}
                                             <span className="absolute inset-0 flex items-center justify-center" aria-hidden="true">
                                                 <svg className="w-10 h-10 text-white drop-shadow" fill="currentColor" viewBox="0 0 24 24">
@@ -121,7 +124,7 @@ export default function Archive({ title, type, previewMode = 'standard', items }
                                         </div>
                                     ) : item.featured_image ? (
                                         <div className="relative h-full w-full">
-                                            <img src={item.featured_image} alt={item.title} loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+                                            <img src={item.featured_image} alt={item.title} loading="lazy" decoding="async" className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
                                             <span className="absolute bottom-2 right-2 rounded-md bg-slate-900/60 p-1.5 text-white opacity-0 group-hover:opacity-100 transition-opacity" aria-hidden="true">
                                                 <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
                                                     <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-4.35-4.35M11 19a8 8 0 100-16 8 8 0 000 16zm-3-8h6m-3-3v6" />
@@ -129,7 +132,7 @@ export default function Archive({ title, type, previewMode = 'standard', items }
                                             </span>
                                         </div>
                                     ) : (
-                                        <span className="flex h-full w-full items-center justify-center p-2 text-center text-xs text-slate-400 font-medium">Gambar tidak tersedia</span>
+                                        <span className="flex h-full w-full items-center justify-center p-2 text-center text-xs text-slate-500 font-medium">Gambar tidak tersedia</span>
                                     )}
                                 </button>
                                 <div className="flex flex-1 items-center bg-white p-3">
@@ -170,7 +173,7 @@ export default function Archive({ title, type, previewMode = 'standard', items }
                                                     <img
                                                         src={thumbnail}
                                                         alt={post.title}
-                                                        loading="lazy"
+                                                        loading="lazy" decoding="async"
                                                         className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
                                                     />
                                                     {post.media_type === 'video' ? (
@@ -188,20 +191,20 @@ export default function Archive({ title, type, previewMode = 'standard', items }
                                                     )}
                                                 </div>
                                             ) : (
-                                                <span className="text-xs text-slate-400 font-medium">Gambar tidak tersedia</span>
+                                                <span className="text-xs text-slate-500 font-medium">Gambar tidak tersedia</span>
                                             )}
                                         </div>
                                     </button>
                                 ) : (
                                     <Link href={postUrl(post)} className="block shrink-0">
                                         <div className="relative aspect-[16/10] overflow-hidden bg-slate-100 flex items-center justify-center">
-                                            <span className="text-xs text-slate-400 font-medium">Gambar tidak tersedia</span>
+                                            <span className="text-xs text-slate-500 font-medium">Gambar tidak tersedia</span>
                                         </div>
                                     </Link>
                                 )}
                                 <div className="flex flex-1 flex-col justify-between p-4 sm:p-5">
                                     <div>
-                                        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] text-slate-600 sm:text-xs">
+                                        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-slate-600">
                                             <span className="font-bold text-primary">{post.category?.name || title}</span>
                                             <span>
                                                 {post.published_at ? new Date(post.published_at).toLocaleDateString('id-ID') : '-'}
@@ -211,7 +214,7 @@ export default function Archive({ title, type, previewMode = 'standard', items }
                                             <Link href={postUrl(post)} className="hover:text-primary">{post.title}</Link>
                                         </h3>
                                         {post.category?.name?.toLowerCase() === 'berita' && post.user?.name && (
-                                            <p className="mt-1 break-words text-[10px] text-slate-500 sm:mt-2 sm:text-xs">
+                                            <p className="mt-1 break-words text-xs text-slate-500 sm:mt-2">
                                                 <span className="font-semibold text-slate-700">{post.user.name}</span>
                                             </p>
                                         )}
@@ -237,15 +240,15 @@ export default function Archive({ title, type, previewMode = 'standard', items }
                                 <Link href={postUrl(agenda)} className="block shrink-0">
                                     <div className="relative aspect-[16/9] w-full bg-slate-100 flex items-center justify-center">
                                         {agenda.featured_image ? (
-                                            <img src={agenda.featured_image} alt={agenda.title} loading="lazy" className="w-full h-full object-cover" />
+                                            <img src={agenda.featured_image} alt={agenda.title} loading="lazy" decoding="async" className="w-full h-full object-cover" />
                                         ) : (
-                                            <span className="text-xs text-slate-400 font-medium">Gambar tidak tersedia</span>
+                                            <span className="text-xs text-slate-500 font-medium">Gambar tidak tersedia</span>
                                         )}
                                     </div>
                                 </Link>
                                 <div className="flex flex-1 flex-col justify-between p-4 sm:p-5">
                                     <div>
-                                        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] text-slate-600 sm:text-xs">
+                                        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-slate-600">
                                             <span className="font-bold text-secondary">{agenda.category?.name || 'Agenda'}</span>
                                             <span>
                                                 {dateVal ? new Date(dateVal).toLocaleDateString('id-ID') : '-'}
@@ -274,16 +277,16 @@ export default function Archive({ title, type, previewMode = 'standard', items }
                             <Link href={postUrl(ach)} className="block shrink-0">
                                 <div className="relative aspect-[16/10] w-full bg-slate-100 flex items-center justify-center">
                                     {ach.featured_image ? (
-                                        <img src={ach.featured_image} alt={ach.title} loading="lazy" className="w-full h-full object-cover" />
+                                        <img src={ach.featured_image} alt={ach.title} loading="lazy" decoding="async" className="w-full h-full object-cover" />
                                     ) : (
-                                        <span className="text-xs text-slate-400 font-medium">Gambar tidak tersedia</span>
+                                        <span className="text-xs text-slate-500 font-medium">Gambar tidak tersedia</span>
                                     )}
                                 </div>
                             </Link>
                             <div className="flex flex-1 flex-col justify-between p-4 sm:p-5">
                                 <div>
-                                    <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] text-slate-600 sm:text-xs">
-                                        <p className="text-[11px] font-bold uppercase tracking-wide text-tertiary sm:text-xs">{ach.category?.name || 'Prestasi'}</p>
+                                    <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-slate-600">
+                                        <p className="text-xs font-bold uppercase tracking-wide text-tertiary">{ach.category?.name || 'Prestasi'}</p>
                                         <span>{ach.published_at ? new Date(ach.published_at).toLocaleDateString('id-ID') : '-'}</span>
                                     </div>
                                     <h3 className="mt-2 line-clamp-2 break-words text-base font-bold text-slate-900 sm:text-lg">
@@ -305,6 +308,11 @@ export default function Archive({ title, type, previewMode = 'standard', items }
 
     return (
         <PublicLayout>
+            <Seo
+                title={title}
+                description={`Kumpulan ${title.toLowerCase()} terbaru dari ${siteName}, lengkap dengan tanggal dan kategori.`}
+                image={post?.featured_image}
+            />
             <Breadcrumbs items={[{ label: 'Beranda', href: '/' }, { label: post?.category?.name || title }]} />
             <section className="bg-slate-50 py-12">
                 
