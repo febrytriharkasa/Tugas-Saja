@@ -373,35 +373,25 @@ export default function Welcome({ settings = {}, posts = [], homeSections = [], 
                     </div>
                 </div>
 
-                {/* Carousel Controls - Posisi disesuaikan agar tidak nabrak di HP */}
-                <div className="absolute bottom-3 sm:bottom-16 right-3 sm:right-8 z-20 flex items-center gap-2 sm:gap-3 bg-black/30 px-2 py-1 sm:px-4 sm:py-2 rounded-full border border-white/10">
-                    {/* <button
-                        type="button"
-                        onClick={() => setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length)}
-                        className="w-6 h-6 sm:w-11 sm:h-11 rounded-full flex items-center justify-center text-white/80 hover:text-white hover:bg-white/20 transition text-xs font-bold"
-                    >
-                        ‹
-                    </button> */}
-
-                    <div className="flex gap-1 sm:gap-1.5 items-center">
+                {/* Carousel Dots - Vertikal, sejajar vertikal dengan judul (tengah hero) */}
+                <div className="absolute right-3 sm:right-8 top-1/2 -translate-y-1/2 z-20">
+                    <div className="flex flex-col items-center gap-2 sm:gap-3 rounded-full border border-white/10 bg-black/30 px-1.5 py-2 sm:px-2 sm:py-3">
                         {slides.map((_, idx) => (
                             <button
                                 key={idx}
                                 type="button"
                                 onClick={() => setCurrentSlide(idx)}
-                                className={`h-1.5 sm:h-2 rounded-full transition-all ${idx === currentSlide ? 'w-4 sm:w-6 bg-emerald-300' : 'w-1.5 sm:w-2 bg-white/40 hover:bg-white/70'}`}
+                                aria-label={`Slide ${idx + 1}`}
+                                className={`rounded-full transition-all ${
+                                    idx === currentSlide
+                                        ? 'h-4 w-1.5 bg-emerald-300 sm:h-6 sm:w-2'
+                                        : 'h-1.5 w-1.5 bg-white/40 hover:bg-white/70 sm:h-2 sm:w-2'
+                                }`}
                             />
                         ))}
                     </div>
-
-                    {/* <button
-                        type="button"
-                        onClick={() => setCurrentSlide((prev) => (prev + 1) % slides.length)}
-                        className="w-6 h-6 sm:w-11 sm:h-11 rounded-full flex items-center justify-center text-white/80 hover:text-white hover:bg-white/20 transition text-xs font-bold"
-                    >
-                        ›
-                    </button> */}
                 </div>
+
             </section>
 
             <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-14 relative z-20">
