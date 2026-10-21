@@ -1,13 +1,14 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, lazy, Suspense } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import PublicLayout from '@/Layouts/PublicLayout';
 import Card from '@/Components/Card';
 import ChatWidget from '@/Components/ChatWidget';
-import MediaPreviewModal from '@/Components/MediaPreviewModal';
 import { Link, usePage } from '@inertiajs/react';
 import Seo, { absoluteUrl } from '@/Components/Seo';
 import { youtubeThumbnailUrl } from '@/lib/postBlocks';
 import { postUrl } from '@/lib/postUrl';
+
+const MediaPreviewModal = lazy(() => import('@/Components/MediaPreviewModal'));
 
 function ArrowLink({ href, children, dark = false }) {
     return <Link href={href} className={`inline-flex min-h-9 items-center gap-1.5 rounded-lg text-xs font-bold transition hover:gap-2.5 focus-visible:outline-none focus-visible:ring-2 sm:min-h-11 sm:gap-2 sm:text-sm sm:hover:gap-3 ${dark ? 'text-emerald-200 hover:text-white focus-visible:ring-white' : 'text-primary focus-visible:ring-primary'}`}>{children}<span aria-hidden="true">→</span></Link>;
@@ -55,7 +56,7 @@ export function HorizontalRail({ label, children }) {
                 role="region"
                 aria-label={label}
                 tabIndex={0}
-                className="flex snap-x snap-mandatory gap-6 overflow-x-auto overflow-y-hidden pb-2 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                className="flex snap-x snap-mandatory gap-6 overflow-x-auto overflow-y-hidden pb-2 rounded-xl [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
             >
                 {children}
             </div>
@@ -102,7 +103,7 @@ function PostCard({ post, delay = 0 }) {
                     <div className="relative aspect-[16/9] sm:aspect-[16/10] overflow-hidden bg-slate-100 shrink-0">
                         {thumbnail ? (
                             <div className="relative h-full w-full">
-                                <img src={thumbnail} alt={post.title} loading="lazy" decoding="async" decoding="async" className="h-full w-full object-cover" />
+                                <img src={thumbnail} alt={post.title} loading="lazy" decoding="async" className="h-full w-full object-cover" />
                                 {post.media_type === 'video' && (
                                     <span className="absolute inset-0 flex items-center justify-center bg-slate-900/35" aria-hidden="true">
                                         <svg className="h-9 w-9 text-white drop-shadow" fill="currentColor" viewBox="0 0 24 24">
@@ -599,7 +600,9 @@ export default function Welcome({ settings = {}, posts = [], homeSections = [], 
             </section>
 
             <ChatWidget />
-            <MediaPreviewModal item={previewItem} onClose={() => setPreviewItem(null)} />
+            <Suspense fallback={null}>
+                <MediaPreviewModal item={previewItem} onClose={() => setPreviewItem(null)} />
+            </Suspense>
         </PublicLayout>
     );
 }

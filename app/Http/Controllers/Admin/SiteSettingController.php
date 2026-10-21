@@ -27,18 +27,34 @@ class SiteSettingController extends Controller
 
     public function updateHero(Request $request)
     {
-        $fileKeys = ['hero_slide_1_file', 'hero_slide_2_file'];
-        $removeKeys = ['remove_hero_slide_1_image', 'remove_hero_slide_2_image'];
-        $data = $request->except(array_merge(['_token'], $fileKeys, $removeKeys));
+        $validated = $request->validate([
+            'hero_slide_1_tag' => 'nullable|string|max:100',
+            'hero_slide_1_title' => 'nullable|string|max:150',
+            'hero_slide_1_subtitle' => 'nullable|string|max:500',
+            'hero_slide_1_btn_text' => 'nullable|string|max:50',
+            'hero_slide_1_btn_url' => ['nullable', 'string', 'max:500', $this->urlRule()],
+            'hero_slide_1_file' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'remove_hero_slide_1_image' => 'boolean',
+            'hero_slide_2_tag' => 'nullable|string|max:100',
+            'hero_slide_2_title' => 'nullable|string|max:150',
+            'hero_slide_2_subtitle' => 'nullable|string|max:500',
+            'hero_slide_2_btn_text' => 'nullable|string|max:50',
+            'hero_slide_2_btn_url' => ['nullable', 'string', 'max:500', $this->urlRule()],
+            'hero_slide_2_file' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'remove_hero_slide_2_image' => 'boolean',
+        ]);
+        $data = collect($validated)->except([
+            'hero_slide_1_file',
+            'hero_slide_2_file',
+            'remove_hero_slide_1_image',
+            'remove_hero_slide_2_image',
+        ])->all();
 
         foreach ([1, 2] as $i) {
             $inputName = "hero_slide_{$i}_file";
             $imageKey = "hero_slide_{$i}_image";
 
             if ($request->hasFile($inputName)) {
-                $request->validate([
-                    $inputName => 'image|mimes:jpeg,png,jpg,webp|max:2048',
-                ]);
                 $existing = SiteSetting::where('key', $imageKey)->first();
                 if ($existing) {
                     $this->deleteSettingFile($existing->value);
@@ -94,14 +110,37 @@ class SiteSettingController extends Controller
 
     public function updateContact(Request $request)
     {
-        $data = $request->except(['_token']);
+        $data = $request->validate([
+            'contact_phone' => 'nullable|string|max:50',
+            'contact_email' => 'nullable|email|max:255',
+            'contact_address' => 'nullable|string|max:500',
+            'ppdb_link' => ['nullable', 'string', 'max:500', $this->urlRule()],
+        ]);
 
-        foreach ($data as $key => $value) {
-            SiteSetting::updateOrCreate(
-                ['key' => $key],
-                ['value' => $value ?? '', 'updated_at' => now()]
-            );
-        }
+        $this->saveSettings($data);
+
+        return redirect()->back();
+    }
+
+    public function statistics()
+    {
+        $settings = SiteSetting::allCached()->groupBy('group_name');
+
+        return Inertia::render('Admin/Settings/Statistics', [
+            'groupedSettings' => $settings,
+        ]);
+    }
+
+    public function updateStatistics(Request $request)
+    {
+        $data = $request->validate([
+            'total_students' => 'nullable|string|max:50',
+            'total_teachers' => 'nullable|string|max:50',
+            'total_staff' => 'nullable|string|max:50',
+            'year_founded' => 'nullable|string|max:20',
+        ]);
+
+        $this->saveSettings($data);
 
         return redirect()->back();
     }
@@ -117,14 +156,14 @@ class SiteSettingController extends Controller
 
     public function updateQuickLinks(Request $request)
     {
-        $data = $request->except(['_token']);
-
-        foreach ($data as $key => $value) {
-            SiteSetting::updateOrCreate(
-                ['key' => $key],
-                ['value' => $value ?? '', 'updated_at' => now()]
-            );
+        $rules = [];
+        foreach ([1, 2, 3] as $i) {
+            $rules["quick_link_{$i}_title"] = 'nullable|string|max:100';
+            $rules["quick_link_{$i}_desc"] = 'nullable|string|max:255';
+            $rules["quick_link_{$i}_url"] = ['nullable', 'string', 'max:500', $this->urlRule()];
         }
+
+        $this->saveSettings($request->validate($rules));
 
         return redirect()->back();
     }
@@ -140,16 +179,41 @@ class SiteSettingController extends Controller
 
     public function updateSocialMedia(Request $request)
     {
-        $data = $request->except(['_token']);
+        $rules = [];
+        foreach (['facebook', 'instagram', 'twitter', 'youtube', 'linkedin', 'whatsapp', 'tiktok'] as $network) {
+            $rules["social_{$network}"] = 'nullable|url:http,https|max:500';
+        }
 
+        $this->saveSettings($request->validate($rules));
+
+        return redirect()->back();
+    }
+
+    private function saveSettings(array $data): void
+    {
         foreach ($data as $key => $value) {
             SiteSetting::updateOrCreate(
                 ['key' => $key],
                 ['value' => $value ?? '', 'updated_at' => now()]
             );
         }
+    }
 
-        return redirect()->back();
+    private function urlRule(): \Closure
+    {
+        return function (string $attribute, mixed $value, \Closure $fail): void {
+            if ($value === '') {
+                return;
+            }
+
+            if (str_starts_with($value, '/') || str_starts_with($value, '#')) {
+                return;
+            }
+
+            if (! filter_var($value, FILTER_VALIDATE_URL) || ! in_array(parse_url($value, PHP_URL_SCHEME), ['http', 'https'], true)) {
+                $fail('Kolom :attribute harus berupa URL HTTP(S), path internal, atau anchor yang valid.');
+            }
+        };
     }
 
     public function footer()

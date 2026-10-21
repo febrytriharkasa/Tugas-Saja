@@ -135,8 +135,10 @@ class HomeController extends Controller
         return Inertia::render('Public/Statistics', [
             'statSettings' => SiteSetting::allCached()->where('group_name', 'statistics')->pluck('value', 'key'),
             'counts' => [
-                'posts' => Post::where('status', 'published')->count(),
-                'galleries' => Post::whereHas('category', fn ($query) => $query->where('slug', 'galeri'))->count(),
+                'posts' => Post::where('status', 'published')->whereHas('category', fn ($q) => $q->where('slug', 'berita'))->count(),
+                'achievements' => Post::where('status', 'published')->whereHas('category', fn ($q) => $q->where('slug', 'prestasi'))->count(),
+                'agendas' => Post::where('status', 'published')->whereHas('category', fn ($q) => $q->where('slug', 'agenda'))->count(),
+                'galleries' => Post::where('status', 'published')->whereHas('category', fn ($q) => $q->where('slug', 'galeri'))->count(),
                 'teachers' => Staff::where('type', 'guru')->count(),
                 'staff' => Staff::whereIn('type', ['tendik', 'gtk'])->count(),
             ],

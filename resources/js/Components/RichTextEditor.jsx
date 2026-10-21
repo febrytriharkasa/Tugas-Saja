@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import Quill from 'quill';
 import 'quill/dist/quill.snow.css';
+import '../../css/quill-editor.css';
 import { toParagraphs } from '@/lib/content';
 import { normalizeQuillHtml, syncListMarkers } from '@/lib/quillContent';
 

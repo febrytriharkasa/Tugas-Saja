@@ -1,14 +1,15 @@
-import { useState } from 'react';
+import { useState, lazy, Suspense } from 'react';
 import { Link, router, usePage } from '@inertiajs/react';
 import PublicLayout from '@/Layouts/PublicLayout';
 import Seo, { absoluteUrl } from '@/Components/Seo';
 import Breadcrumbs from '@/Components/Breadcrumbs';
 import DataTable from '@/Components/DataTable';
 import RichContent from '@/Components/RichContent';
-import MediaPreviewModal from '@/Components/MediaPreviewModal';
 import { blocksFromMetadata, youtubeThumbnailUrl } from '@/lib/postBlocks';
 import { plainText } from '@/lib/content';
 import { postUrl } from '@/lib/postUrl';
+
+const MediaPreviewModal = lazy(() => import('@/Components/MediaPreviewModal'));
 
 // Media can be an uploaded image, an uploaded video, or a YouTube link.
 // Turning a YouTube URL into an embed URL keeps the video inside the article instead of sending readers away.
@@ -70,7 +71,9 @@ function PostMedia({ post }) {
                 <figcaption className="mt-2 px-2 text-xs italic text-slate-500">
                     Dokumentasi — {post.category?.name || 'SMA XYZ'}
                 </figcaption>
-                <MediaPreviewModal item={previewItem} onClose={() => setPreviewItem(null)} />
+                <Suspense fallback={null}>
+                    <MediaPreviewModal item={previewItem} onClose={() => setPreviewItem(null)} />
+                </Suspense>
             </figure>
         );
     }

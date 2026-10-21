@@ -1,5 +1,7 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+
+const SESSION_KEY = 'chat_session_token';
 
 export default function ChatWidgetPanel() {
     const [open, setOpen] = useState(false);
@@ -8,7 +10,44 @@ export default function ChatWidgetPanel() {
     ]);
     const [input, setInput] = useState('');
     const [loading, setLoading] = useState(false);
-    const [sessionToken, setSessionToken] = useState(null);
+    const [sessionToken, setSessionToken] = useState(() => {
+        try {
+            return window.sessionStorage.getItem(SESSION_KEY);
+        } catch {
+            return null;
+        }
+    });
+    const scrollRef = useRef(null);
+
+    useEffect(() => {
+        if (!sessionToken) return;
+
+        let cancelled = false;
+
+        fetch(`/api/chat/history?session_token=${encodeURIComponent(sessionToken)}`, {
+            headers: { Accept: 'application/json' },
+        })
+            .then((res) => (res.ok ? res.json() : null))
+            .then((data) => {
+                if (cancelled || !data?.messages?.length) return;
+                setMessages((prev) => [
+                    ...prev,
+                    ...data.messages.map((m) => ({ role: m.role, text: m.content })),
+                ]);
+            })
+            .catch(() => {
+                // Riwayat gagal dimuat — biarkan sapaan saja, chat tetap bisa dipakai.
+            });
+
+        return () => { cancelled = true; };
+    }, [sessionToken]);
+
+    useEffect(() => {
+        const el = scrollRef.current;
+        if (el) {
+            el.scrollTop = el.scrollHeight;
+        }
+    }, [messages, loading, open]);
 
     const handleSend = async (e) => {
         e.preventDefault();
@@ -24,6 +63,7 @@ export default function ChatWidgetPanel() {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Accept': 'application/json',
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
                 },
                 body: JSON.stringify({
@@ -33,7 +73,24 @@ export default function ChatWidgetPanel() {
             });
 
             const data = await res.json();
-            if (data.session_token) setSessionToken(data.session_token);
+
+            if (!res.ok) {
+                setMessages((prev) => [...prev, {
+                    role: 'assistant',
+                    text: data.message || 'Mohon maaf, terjadi gangguan. Silakan coba lagi.',
+                }]);
+                return;
+            }
+
+            if (data.session_token && data.session_token !== sessionToken) {
+                setSessionToken(data.session_token);
+                try {
+                    window.sessionStorage.setItem(SESSION_KEY, data.session_token);
+                } catch {
+                    // Penyimpanan browser tidak tersedia — sesi baru tiap kirim.
+                }
+            }
+
             setMessages((prev) => [...prev, { role: 'assistant', text: data.reply }]);
         } catch (err) {
             setMessages((prev) => [...prev, { role: 'assistant', text: 'Mohon maaf, terjadi gangguan koneksi. Silakan coba lagi.' }]);
@@ -91,7 +148,7 @@ export default function ChatWidgetPanel() {
                             </button>
                         </div>
 
-                        <div className="flex-1 space-y-3 overflow-y-auto bg-slate-50 p-4 text-sm" aria-live="polite">
+                        <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto bg-slate-50 p-4 text-sm" aria-live="polite">
                             {messages.map((m, idx) => (
                                 <motion.div
                                     key={idx}
@@ -110,6 +167,7 @@ export default function ChatWidgetPanel() {
                                     </div>
                                 </div>
                             )}
+                            <p className="text-center text-[10px] text-slate-400">Jangan kirim data pribadi ke asisten ini.</p>
                         </div>
 
                         <form onSubmit={handleSend} className="flex gap-2 border-t border-slate-200 bg-white p-2">

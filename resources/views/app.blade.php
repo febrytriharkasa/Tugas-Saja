@@ -79,6 +79,7 @@
         <meta name="twitter:card" content="{{ $metaImageUrl ? 'summary_large_image' : 'summary' }}">
         <meta name="twitter:title" content="{{ $metaFullTitle }}">
         <meta name="twitter:description" content="{{ $metaDescription }}">
+        <meta name="csrf-token" content="{{ csrf_token() }}">
 
         <script>
             (function () {
@@ -102,6 +103,13 @@
         @viteReactRefresh
         @vite(['resources/js/app.jsx', "resources/js/Pages/{$page['component']}.jsx"])
         @inertiaHead
+        @php
+            $heroImage = data_get($pageProps, 'settings.hero_slide_1_image')
+                ?: data_get($pageProps, 'settings.hero_background_image');
+        @endphp
+        @if ($heroImage && $component === 'Welcome')
+            <link rel="preload" as="image" href="{{ $heroImage }}" fetchpriority="high">
+        @endif
     </head>
     <body class="font-sans antialiased">
         @inertia

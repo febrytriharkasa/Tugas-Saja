@@ -19,7 +19,10 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/berita', [HomeController::class, 'news'])->name('public.news');
 Route::get('/cari', [HomeController::class, 'search'])->name('public.search');
 Route::get('/statistik', [HomeController::class, 'statistics'])->name('public.statistics');
-Route::post('/api/chat', [ChatBotController::class, 'send'])->name('api.chat');
+Route::post('/api/chat', [ChatBotController::class, 'send'])->middleware('throttle:chat')->name('api.chat');
+Route::get('/api/chat/history', [ChatBotController::class, 'history'])
+    ->middleware('throttle:60,1')
+    ->name('api.chat.history');
 
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
 Route::get('/robots.txt', function () {
@@ -63,6 +66,8 @@ Route::middleware(['auth', 'verified', 'active'])->prefix('admin')->name('admin.
     Route::post('/settings/hero', [SiteSettingController::class, 'updateHero'])->middleware('admin')->name('settings.hero.update');
     Route::get('/settings/contact', [SiteSettingController::class, 'contact'])->middleware('admin')->name('settings.contact');
     Route::post('/settings/contact', [SiteSettingController::class, 'updateContact'])->middleware('admin')->name('settings.contact.update');
+    Route::get('/settings/statistics', [SiteSettingController::class, 'statistics'])->middleware('admin')->name('settings.statistics');
+    Route::post('/settings/statistics', [SiteSettingController::class, 'updateStatistics'])->middleware('admin')->name('settings.statistics.update');
     Route::get('/settings/quick-links', [SiteSettingController::class, 'quickLinks'])->middleware('admin')->name('settings.quick-links');
     Route::post('/settings/quick-links', [SiteSettingController::class, 'updateQuickLinks'])->middleware('admin')->name('settings.quick-links.update');
     Route::get('/settings/social-media', [SiteSettingController::class, 'socialMedia'])->middleware('admin')->name('settings.social-media');

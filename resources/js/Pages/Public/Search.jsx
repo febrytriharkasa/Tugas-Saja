@@ -3,11 +3,12 @@ import Seo from '@/Components/Seo';
 import Card from '@/Components/Card';
 import Breadcrumbs from '@/Components/Breadcrumbs';
 import ChatWidget from '@/Components/ChatWidget';
-import MediaPreviewModal from '@/Components/MediaPreviewModal';
 import { Link, router } from '@inertiajs/react';
-import { useState } from 'react';
+import { useState, lazy, Suspense } from 'react';
 import { youtubeThumbnailUrl } from '@/lib/postBlocks';
 import { postUrl } from '@/lib/postUrl';
+
+const MediaPreviewModal = lazy(() => import('@/Components/MediaPreviewModal'));
 
 function Pagination({ links }) {
     if (!links || links.length <= 3) return null;
@@ -269,7 +270,9 @@ export default function Search({ keyword = '', items }) {
             </section>
 
             <ChatWidget />
-            <MediaPreviewModal item={previewItem} onClose={() => setPreviewItem(null)} />
+            <Suspense fallback={null}>
+                <MediaPreviewModal item={previewItem} onClose={() => setPreviewItem(null)} />
+            </Suspense>
         </PublicLayout>
     );
 }

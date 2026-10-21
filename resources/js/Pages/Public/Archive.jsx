@@ -3,13 +3,14 @@ import Seo from '@/Components/Seo';
 import Card from '@/Components/Card';
 import Breadcrumbs from '@/Components/Breadcrumbs';
 import ChatWidget from '@/Components/ChatWidget';
-import MediaPreviewModal from '@/Components/MediaPreviewModal';
 import { Link, usePage } from '@inertiajs/react';
 import { motion } from 'framer-motion';
-import { useState, useRef } from 'react';
+import { useState, useRef, lazy, Suspense } from 'react';
 import { plainText } from '@/lib/content';
 import { youtubeThumbnailUrl } from '@/lib/postBlocks';
 import { postUrl } from '@/lib/postUrl';
+
+const MediaPreviewModal = lazy(() => import('@/Components/MediaPreviewModal'));
 import { HorizontalRail } from '@/Pages/Welcome';
 
 function Pagination({ links }) {
@@ -337,7 +338,9 @@ export default function Archive({ title, type, previewMode = 'standard', items }
             </section>
 
             <ChatWidget />
-            <MediaPreviewModal item={previewItem} onClose={() => setPreviewItem(null)} />
+            <Suspense fallback={null}>
+                <MediaPreviewModal item={previewItem} onClose={() => setPreviewItem(null)} />
+            </Suspense>
         </PublicLayout>
     );
 }
