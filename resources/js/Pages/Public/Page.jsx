@@ -6,6 +6,7 @@ import DataTable from '@/Components/DataTable';
 import RichContent from '@/Components/RichContent';
 import { blocksFromMetadata } from '@/lib/postBlocks';
 import { plainText } from '@/lib/content';
+import { Reveal } from '@/Components/Reveal';
 
 export default function Page({ page, draftPreview = false }) {
     const blocks = blocksFromMetadata(page.metadata);
@@ -19,6 +20,7 @@ export default function Page({ page, draftPreview = false }) {
                 robots={draftPreview ? 'noindex, nofollow' : 'index, follow'}
             />
             <Breadcrumbs items={[{ label: 'Beranda', href: '/' }, { label: page.title }]} />
+            <Reveal>
             <div className="block w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
                 {draftPreview && (
                     <div className="mb-6 flex flex-wrap items-center gap-x-3 gap-y-1 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-800">
@@ -102,6 +104,7 @@ export default function Page({ page, draftPreview = false }) {
                     })}
                 </article>
             </div>
+            </Reveal>
 
             <ChatWidget />
         </PublicLayout>

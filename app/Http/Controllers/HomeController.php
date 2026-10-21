@@ -12,11 +12,31 @@ use App\Support\PublicCache;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 
 class HomeController extends Controller
 {
     private const ITEM_LIMIT = 8;
+
+    /**
+     * Kolom yang benar-benar dipakai kartu-kartu di halaman depan.
+     *
+     * `content` sengaja tidak diambil: 90 post × isi lengkap membuat HTML awal
+     * membengkak ~28 KB padahal halaman depan tidak pernah menampilkannya.
+     */
+    private const CARD_COLUMNS = [
+        'id',
+        'user_id',
+        'category_id',
+        'title',
+        'slug',
+        'featured_image',
+        'media_type',
+        'video_url',
+        'metadata',
+        'published_at',
+    ];
 
     public function index()
     {
@@ -26,9 +46,9 @@ class HomeController extends Controller
             PublicCache::HOME_CONTENT,
             now()->addMinutes(PublicCache::HOME_TTL_MINUTES),
             function (): array {
-                $posts = $this->categoryPosts('berita', withAuthor: false);
+                $posts = $this->categoryPosts('berita', withAuthor: false, columns: self::CARD_COLUMNS);
                 $homeSections = $this->homeSections();
-                $galleries = $this->categoryPosts('galeri', withAuthor: false);
+                $galleries = $this->categoryPosts('galeri', withAuthor: false, columns: self::CARD_COLUMNS);
 
                 $allPosts = $posts
                     ->merge($galleries)
@@ -66,6 +86,7 @@ class HomeController extends Controller
         $categories = Category::shownOnHome()->get();
 
         $postsByCategory = Post::with('category')
+            ->select(self::CARD_COLUMNS)
             ->where('status', 'published')
             ->whereIn('category_id', $categories->pluck('id'))
             ->latest('published_at')
@@ -98,6 +119,10 @@ class HomeController extends Controller
 
         $category = Category::where('slug', $slug)->firstOrFail();
 
+        if ($category->slug === 'galeri') {
+            return $this->gallery($request, $category);
+        }
+
         return Inertia::render('Public/Archive', [
             'title' => $category->name,
             'type' => $category->slug,
@@ -116,17 +141,61 @@ class HomeController extends Controller
     public function search(Request $request)
     {
         $keyword = trim((string) $request->query('q', ''));
+        $term = $this->likeTerm($keyword);
 
-        $items = Post::with(['category', 'user:id,name'])
+        $posts = Post::with(['category', 'user:id,name'])
             ->where('status', 'published')
-            ->when($keyword !== '', fn ($query) => $query->where('title', 'like', '%'.$keyword.'%'))
+            ->when($term, fn ($query) => $query->where(function ($q) use ($term) {
+                $q->where('title', 'like', $term)
+                    ->orWhere('content', 'like', $term)
+                    ->orWhere('metadata', 'like', $term)
+                    ->orWhereHas('category', fn ($category) => $category
+                        ->where('name', 'like', $term)
+                        ->orWhere('slug', 'like', $term));
+            }))
             ->latest('published_at')
             ->paginate(8)
             ->withQueryString();
 
+        $pages = collect();
+        $staff = collect();
+        $counts = ['posts' => $posts->total(), 'pages' => 0, 'staff' => 0];
+
+        if ($term) {
+            $pageQuery = Page::where('is_published', true)
+                ->where(fn ($q) => $q->where('title', 'like', $term)->orWhere('content', 'like', $term));
+
+            $counts['pages'] = (clone $pageQuery)->count();
+
+            $pages = $pageQuery->orderBy('title')
+                ->limit(6)
+                ->get(['title', 'slug', 'content'])
+                ->map(fn (Page $page) => [
+                    'title' => $page->title,
+                    'slug' => $page->slug,
+                    'excerpt' => Str::limit(trim((string) preg_replace('/\s+/u', ' ', strip_tags((string) $page->content))), 160),
+                ]);
+
+            $staffQuery = Staff::where(function ($q) use ($term) {
+                $q->where('name', 'like', $term)
+                    ->orWhere('role', 'like', $term)
+                    ->orWhere('email', 'like', $term)
+                    ->orWhere('phone', 'like', $term);
+            });
+
+            $counts['staff'] = (clone $staffQuery)->count();
+
+            $staff = $staffQuery->orderBy('name')
+                ->limit(8)
+                ->get(['id', 'name', 'role', 'type']);
+        }
+
         return Inertia::render('Public/Search', [
             'keyword' => $keyword,
-            'items' => $items,
+            'items' => $posts,
+            'pages' => $pages,
+            'staff' => $staff,
+            'counts' => $counts,
         ]);
     }
 
@@ -195,9 +264,15 @@ class HomeController extends Controller
         return Inertia::render('Public/PostDetail', compact('post', 'relatedPosts', 'prevPost', 'nextPost'));
     }
 
-    private function categoryPosts(string $slug, ?int $limit = self::ITEM_LIMIT, bool $paginate = false, bool $withAuthor = true)
-    {
+    private function categoryPosts(
+        string $slug,
+        ?int $limit = self::ITEM_LIMIT,
+        bool $paginate = false,
+        bool $withAuthor = true,
+        ?array $columns = null,
+    ) {
         $query = Post::with($withAuthor ? ['category', 'user:id,name'] : ['category'])
+            ->when($columns !== null, fn ($q) => $q->select($columns))
             ->where('status', 'published')
             ->whereHas('category', fn ($q) => $q->where('slug', $slug))
             ->latest('published_at');
@@ -207,6 +282,46 @@ class HomeController extends Controller
         }
 
         return $limit ? $query->take($limit)->get() : $query->get();
+    }
+
+    private function gallery(Request $request, Category $category)
+    {
+        $media = $request->query('media');
+        $media = in_array($media, ['image', 'video'], true) ? $media : null;
+
+        $base = Post::where('status', 'published')->where('category_id', $category->id);
+
+        $counts = (clone $base)
+            ->selectRaw("COALESCE(media_type, 'image') as kind, COUNT(*) as total")
+            ->groupBy('kind')
+            ->pluck('total', 'kind');
+
+        $items = $base
+            ->when($media === 'video', fn ($query) => $query->where('media_type', 'video'))
+            ->when($media === 'image', fn ($query) => $query->where(
+                fn ($inner) => $inner->where('media_type', 'image')->orWhereNull('media_type')
+            ))
+            ->latest('published_at')
+            ->paginate(12)
+            ->withQueryString();
+
+        return Inertia::render('Public/Gallery', [
+            'title' => $category->name,
+            'media' => $media,
+            'counts' => [
+                'all' => (int) $counts->sum(),
+                'image' => (int) ($counts['image'] ?? 0),
+                'video' => (int) ($counts['video'] ?? 0),
+            ],
+            'items' => $items,
+        ]);
+    }
+
+    private function likeTerm(string $keyword): ?string
+    {
+        $cleaned = trim((string) preg_replace('/\s+/u', ' ', str_replace(['%', '_'], ' ', $keyword)));
+
+        return $cleaned === '' ? null : '%'.$cleaned.'%';
     }
 
     /**

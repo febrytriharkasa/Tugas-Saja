@@ -8,6 +8,7 @@ import RichContent from '@/Components/RichContent';
 import { blocksFromMetadata, youtubeThumbnailUrl } from '@/lib/postBlocks';
 import { plainText } from '@/lib/content';
 import { postUrl } from '@/lib/postUrl';
+import { Reveal } from '@/Components/Reveal';
 
 const MediaPreviewModal = lazy(() => import('@/Components/MediaPreviewModal'));
 
@@ -239,7 +240,7 @@ export default function PostDetail({ post, relatedPosts = [], prevPost = null, n
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
 
-                    <article className="lg:col-span-8 flex flex-col">
+                    <Reveal as="article" className="lg:col-span-8 flex flex-col">
                         <header className="flex flex-col gap-4 pb-6">
                             <div className="flex flex-wrap items-center gap-2">
                                 {post.category && (
@@ -373,7 +374,7 @@ export default function PostDetail({ post, relatedPosts = [], prevPost = null, n
                                 )}
                             </div>
                         )}
-                    </article>
+                    </Reveal>
 
                     <aside className="lg:col-span-4 flex flex-col gap-6 lg:sticky lg:top-28">
                         <div className="rounded-2xl border border-slate-200 bg-white shadow-sm flex flex-col gap-4 p-5">

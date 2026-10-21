@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, lazy, Suspense } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence, MotionConfig, motion } from 'framer-motion';
 import PublicLayout from '@/Layouts/PublicLayout';
 import Card from '@/Components/Card';
 import ChatWidget from '@/Components/ChatWidget';
@@ -7,8 +7,53 @@ import { Link, usePage } from '@inertiajs/react';
 import Seo, { absoluteUrl } from '@/Components/Seo';
 import { youtubeThumbnailUrl } from '@/lib/postBlocks';
 import { postUrl } from '@/lib/postUrl';
+import { imageSrcSet } from '@/lib/imageSrcSet';
+import { Reveal, StaggerContainer, staggerItem } from '@/Components/Reveal';
 
 const MediaPreviewModal = lazy(() => import('@/Components/MediaPreviewModal'));
+
+// Hero: tiap bagian teks punya gerak sendiri supaya tidak terasa seperti satu
+// blok yang muncul bersamaan. Tag meluncur dari kiri, judul naik sambil
+// melepas blur, tombol memantul halus paling akhir.
+const heroTextGroup = {
+    hidden: {},
+    show: { transition: { staggerChildren: 0.09, delayChildren: 0.04 } },
+    exit: { transition: { staggerChildren: 0.04, staggerDirection: -1 } },
+};
+
+const heroTagVariants = {
+    hidden: { opacity: 0, x: -24 },
+    show: { opacity: 1, x: 0, transition: { duration: 0.35, ease: 'easeOut' } },
+    exit: { opacity: 0, x: 14, transition: { duration: 0.18, ease: 'easeIn' } },
+};
+
+const heroTitleVariants = {
+    hidden: { opacity: 0, y: 26, filter: 'blur(6px)' },
+    show: {
+        opacity: 1,
+        y: 0,
+        filter: 'blur(0px)',
+        transition: { duration: 0.55, ease: [0.22, 1, 0.36, 1] },
+    },
+    exit: { opacity: 0, y: -14, filter: 'blur(4px)', transition: { duration: 0.22, ease: 'easeIn' } },
+};
+
+const heroSubtitleVariants = {
+    hidden: { opacity: 0, y: 18 },
+    show: { opacity: 1, y: 0, transition: { duration: 0.45, ease: 'easeOut' } },
+    exit: { opacity: 0, y: -8, transition: { duration: 0.16 } },
+};
+
+const heroButtonVariants = {
+    hidden: { opacity: 0, y: 16, scale: 0.94 },
+    show: {
+        opacity: 1,
+        y: 0,
+        scale: 1,
+        transition: { type: 'spring', stiffness: 260, damping: 22, mass: 0.7 },
+    },
+    exit: { opacity: 0, scale: 0.96, transition: { duration: 0.15 } },
+};
 
 function ArrowLink({ href, children, dark = false }) {
     return <Link href={href} className={`inline-flex min-h-9 items-center gap-1.5 rounded-lg text-xs font-bold transition hover:gap-2.5 focus-visible:outline-none focus-visible:ring-2 sm:min-h-11 sm:gap-2 sm:text-sm sm:hover:gap-3 ${dark ? 'text-emerald-200 hover:text-white focus-visible:ring-white' : 'text-primary focus-visible:ring-primary'}`}>{children}<span aria-hidden="true">→</span></Link>;
@@ -87,17 +132,11 @@ function formatPostDate(post) {
     return value ? new Date(value).toLocaleDateString('id-ID') : '-';
 }
 
-function PostCard({ post, delay = 0 }) {
+function PostCard({ post }) {
     const thumbnail = post.media_type === 'video' ? youtubeThumbnailUrl(post.video_url) : post.featured_image;
 
     return (
-        <motion.div
-            className="h-full"
-            initial={{ opacity: 0, y: 25 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.4, delay }}
-        >
+        <motion.div className="h-full" variants={staggerItem}>
             <Card hover className="flex flex-col overflow-hidden h-full">
                 <Link href={postUrl(post)} className="block">
                     <div className="relative aspect-[16/9] sm:aspect-[16/10] overflow-hidden bg-slate-100 shrink-0">
@@ -148,15 +187,13 @@ function PostSection({ id, eyebrow, title, href, posts, tone = 'plain', previewM
                 <SectionHeading eyebrow={eyebrow} title={title} href={href} />
                 {posts.length ? (
                     <HorizontalRail label={title}>
+                        <StaggerContainer className="contents">
                         {posts.slice(0, 8).map((post, idx) => (
                             previewMode === 'media' ? (
                                 <motion.div
                                     key={post.id}
+                                    variants={staggerItem}
                                     className="w-[calc((100%-1.5rem)/2)] shrink-0 snap-start sm:w-[calc((100%-1.5rem)/2)] lg:w-[calc((100%-3rem)/3)] xl:w-[calc((100%-4.5rem)/4)]"
-                                    initial={{ opacity: 0, scale: 0.95 }}
-                                    whileInView={{ opacity: 1, scale: 1 }}
-                                    viewport={{ once: true }}
-                                    transition={{ duration: 0.3, delay: idx * 0.05 }}
                                 >
                                     <Card className="overflow-hidden flex flex-col h-full bg-white group">
                                         <button
@@ -204,11 +241,12 @@ function PostSection({ id, eyebrow, title, href, posts, tone = 'plain', previewM
                                     </Card>
                                 </motion.div>
                             ) : (
-                                <div key={post.id} className="w-[calc((100%-1.5rem)/2)] shrink-0 snap-start sm:w-[calc((100%-1.5rem)/2)] lg:w-[calc((100%-3rem)/3)] xl:w-[calc((100%-4.5rem)/4)]">
-                                    <PostCard post={post} delay={idx * 0.1} />
-                                </div>
+                                <motion.div key={post.id} variants={staggerItem} className="w-[calc((100%-1.5rem)/2)] shrink-0 snap-start sm:w-[calc((100%-1.5rem)/2)] lg:w-[calc((100%-3rem)/3)] xl:w-[calc((100%-4.5rem)/4)]">
+                                    <PostCard post={post} />
+                                </motion.div>
                             )
                         ))}
+                        </StaggerContainer>
                     </HorizontalRail>
                 ) : <EmptyState>Belum ada konten pada kategori ini.</EmptyState>}
             </div>
@@ -224,14 +262,12 @@ function AlumniSection({ id, title, href, posts }) {
                 <div>
                     {posts.length ? (
                         <HorizontalRail label={title}>
-                        {posts.slice(0, 8).map((testi, idx) => (
+                        <StaggerContainer className="contents">
+                        {posts.slice(0, 8).map((testi) => (
                             <motion.div
+                                variants={staggerItem}
                                 key={testi.id}
                                 className="w-[calc((100%-1.5rem)/2)] shrink-0 snap-start sm:w-[calc((100%-1.5rem)/2)] lg:w-[calc((100%-3rem)/3)] xl:w-[calc((100%-4.5rem)/4)]"
-                                initial={{ opacity: 0, y: 25 }}
-                                whileInView={{ opacity: 1, y: 0 }}
-                                viewport={{ once: true }}
-                                transition={{ duration: 0.4, delay: idx * 0.1 }}
                             >
                                 <Card hover className="bg-white p-4 h-full sm:p-6">
                                     <p className="break-words text-xs italic leading-6 text-slate-600 sm:text-sm sm:leading-7">“{testi.content}”</p>
@@ -240,6 +276,7 @@ function AlumniSection({ id, title, href, posts }) {
                                 </Card>
                             </motion.div>
                         ))}
+                        </StaggerContainer>
                         </HorizontalRail>
                     ) : <EmptyState>Belum ada cerita alumni.</EmptyState>}
                 </div>
@@ -253,6 +290,8 @@ export default function Welcome({ settings = {}, posts = [], homeSections = [], 
     const [previewItem, setPreviewItem] = useState(null);
     const toneFor = (index) => (index % 2 === 0 ? 'muted' : 'plain');
     const slides = [
+        // Teks slide 1 diduplikasi sebagai hero statis di
+        // resources/views/app.blade.php; jaga fallback-nya tetap sama.
         {
             tag: settings.hero_slide_1_tag || 'Portal resmi SMA XYZ',
             title: settings.hero_slide_1_title || settings.hero_title || 'Membentuk Generasi Rabbani & Berprestasi',
@@ -271,12 +310,45 @@ export default function Welcome({ settings = {}, posts = [], homeSections = [], 
 
     const [currentSlide, setCurrentSlide] = useState(0);
 
+    // Rotasi pertama ditahan 10 detik. Setiap pergantian foto memunculkan
+    // kandidat LCP baru di mata browser (foto slide 2 baru dilukis saat itu),
+    // sehingga LCP halaman ikut terdorong ke detik ke-6 walau foto pertama
+    // sudah terlihat sejak HTML pertama. Menahan rotasi sedikit juga memberi
+    // pembaca waktu menyelesaikan judul hero sebelum teksnya berganti.
     useEffect(() => {
-        const timer = setInterval(() => {
-            setCurrentSlide((prev) => (prev + 1) % slides.length);
-        }, 6000);
-        return () => clearInterval(timer);
+        let interval;
+
+        const start = setTimeout(() => {
+            interval = setInterval(() => {
+                setCurrentSlide((prev) => (prev + 1) % slides.length);
+            }, 6000);
+        }, 10000);
+
+        return () => {
+            clearTimeout(start);
+            clearInterval(interval);
+        };
     }, [slides.length]);
+
+    // Panaskan foto slide berikutnya setelah halaman idle. Kalau dijalankan saat
+    // mount, unduhan ini berebut bandwidth dengan foto hero yang sedang dinilai LCP.
+    useEffect(() => {
+        const next = slides[(currentSlide + 1) % slides.length];
+        if (!next?.image) return;
+
+        const warm = () => {
+            const img = new window.Image();
+            img.src = next.image;
+        };
+
+        if ('requestIdleCallback' in window) {
+            const id = window.requestIdleCallback(warm, { timeout: 4000 });
+            return () => window.cancelIdleCallback?.(id);
+        }
+
+        const id = setTimeout(warm, 2500);
+        return () => clearTimeout(id);
+    }, [currentSlide, slides.map((slide) => slide.image).join('|')]);
 
     const activeSlide = slides[currentSlide];
     const galeriIndex = homeSections.length + 1;
@@ -316,96 +388,73 @@ export default function Welcome({ settings = {}, posts = [], homeSections = [], 
             {/* Hero section dibuat lebih compact di desktop, tetap proporsional di mobile */}
             <section className="relative isolate overflow-hidden bg-slate-900 text-white flex items-center w-full min-h-[19rem] aspect-[4/3] sm:aspect-[16/7] sm:py-10 lg:py-16 sm:min-h-[24rem] lg:min-h-[30rem]">
                 
-                {/* Background Images with smooth fade */}
-                {slides.map((s, idx) => (
-                    s.image ? (
-                        <img
-                            key={idx}
-                            src={s.image}
-                            alt={s.title}
+                {/* Gambar slide – crossfade smooth saat berpindah */}
+                <AnimatePresence mode="wait">
+                    {activeSlide.image && (
+                        <motion.img
+                            key={activeSlide.image}
+                            src={activeSlide.image}
+                            srcSet={imageSrcSet(activeSlide.image)}
+                            sizes="100vw"
+                            alt={activeSlide.title}
                             width={1920}
                             height={1080}
-                            loading={idx === 0 ? 'eager' : 'lazy'}
-                            fetchpriority={idx === 0 ? 'high' : 'low'}
+                            loading="eager"
+                            fetchpriority="high"
                             decoding="async"
-                            // object-cover akan mengisi pas kotak aspect-[4/3] tanpa memanjangkan gambar berlebihan
-                            className={`absolute inset-0 -z-20 h-full w-full object-cover object-center transition-opacity duration-1000 ${
-                                idx === currentSlide ? 'opacity-100' : 'opacity-0'
-                            }`}
+                            className="absolute inset-0 -z-20 h-full w-full object-cover object-center"
+                            initial={{ opacity: 0, scale: 1.04 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.96 }}
+                            transition={{ duration: 0.72, ease: [0.22, 1, 0.36, 1] }}
                         />
-                    ) : null
-                ))}
+                    )}
+                </AnimatePresence>
 
-                {/* Gelap transparan overlay */}
+                {/* Overlay gelap / primary */}
                 <div className={`absolute inset-0 -z-10 transition-colors duration-1000 ${activeSlide.image ? 'bg-slate-950/70' : 'bg-primary'}`} />
 
-                {/* HAPUS padding atas/bawah (pt-16, pb-12) yang besar di mobile agar teks terpusat rapi di kotak yang lebih kecil */}
+                {/* Konten teks dengan animasi berbeda per elemen */}
                 <div className="mx-auto grid w-full max-w-7xl items-center gap-4 px-4 sm:px-6 lg:grid-cols-[minmax(0,1.25fr)_minmax(18rem,0.75fr)] relative z-10">
                     <div className="max-w-3xl flex items-center">
-                        <AnimatePresence mode="wait">
-                            <motion.div
-                                key={currentSlide}
-                                className="w-full"
-                                initial="hidden"
-                                animate="visible"
-                                exit="exit"
-                                variants={{
-                                    hidden: {},
-                                    visible: { transition: { staggerChildren: 0.12, delayChildren: 0.05 } },
-                                    exit: { transition: { staggerChildren: 0.05, staggerDirection: -1 } },
-                                }}
+                        <AnimatePresence mode="wait" initial={false}>
+                        <motion.div
+                            key={currentSlide}
+                            variants={heroTextGroup}
+                            initial="hidden"
+                            animate="show"
+                            exit="exit"
+                            className="w-full"
+                        >
+                            <motion.p
+                                variants={heroTagVariants}
+                                className="mb-1.5 sm:mb-3 text-xs font-bold uppercase tracking-[0.18em] text-emerald-200"
                             >
-                                <motion.p
-                                    variants={{
-                                        hidden: { opacity: 0, x: -50 },
-                                        visible: { opacity: 1, x: 0, transition: { duration: 0.5, ease: 'easeOut' } },
-                                        exit: { opacity: 0, x: 50, transition: { duration: 0.3, ease: 'easeIn' } },
-                                    }}
-                                    // Jarak margin diperkecil (mb-3 menjadi mb-1.5 di mobile)
-                                    className="mb-1.5 sm:mb-3 text-xs font-bold uppercase tracking-[0.18em] text-emerald-200"
+                                {activeSlide.tag}
+                            </motion.p>
+                            <motion.h1
+                                variants={heroTitleVariants}
+                                className="max-w-3xl break-words text-[clamp(1.75rem,7vw,2rem)] font-extrabold leading-[1.2] tracking-[-0.015em] sm:text-4xl md:text-5xl lg:text-6xl"
+                            >
+                                {activeSlide.title}
+                            </motion.h1>
+                            <motion.p
+                                variants={heroSubtitleVariants}
+                                className="mt-2 sm:mt-4 max-w-2xl break-words text-[13px] leading-snug text-emerald-50/90 sm:text-lg sm:leading-6"
+                            >
+                                {activeSlide.subtitle}
+                            </motion.p>
+                            <motion.div variants={heroButtonVariants} className="mt-4 sm:mt-6 flex flex-wrap gap-3 items-center">
+                                <a
+                                    href={activeSlide.btnUrl}
+                                    target={activeSlide.btnUrl.startsWith('/') ? "_self" : "_blank"}
+                                    rel={activeSlide.btnUrl.startsWith('/') ? "" : "noopener noreferrer"}
+                                    className="inline-flex min-h-9 sm:min-h-12 items-center justify-center rounded-lg bg-emerald-200 px-4 py-2 sm:px-6 sm:py-3 text-xs sm:text-sm font-bold text-emerald-950 transition hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-primary shadow-lg"
                                 >
-                                    {activeSlide.tag}
-                                </motion.p>
-                                <motion.h1
-                                    variants={{
-                                        hidden: { opacity: 0, x: -60 },
-                                        visible: { opacity: 1, x: 0, transition: { duration: 0.55, ease: 'easeOut' } },
-                                        exit: { opacity: 0, y: -40, transition: { duration: 0.3, ease: 'easeIn' } },
-                                    }}
-                                    // Ukuran mengikuti display-hero-mobile DESIGN.md (32px), dengan clamp agar aman di layar 320px.
-                                    className="max-w-3xl break-words text-[clamp(1.75rem,7vw,2rem)] font-extrabold leading-[1.2] tracking-[-0.015em] sm:text-4xl md:text-5xl lg:text-6xl"
-                                >
-                                    {activeSlide.title}
-                                </motion.h1>
-                                <motion.p
-                                    variants={{
-                                        hidden: { opacity: 0, x: -50 },
-                                        visible: { opacity: 1, x: 0, transition: { duration: 0.55, ease: 'easeOut' } },
-                                        exit: { opacity: 0, y: 35, transition: { duration: 0.3, ease: 'easeIn' } },
-                                    }}
-                                    // Margin top diperkecil
-                                    className="mt-2 sm:mt-4 max-w-2xl break-words text-[13px] leading-snug text-emerald-50/90 sm:text-lg sm:leading-6"
-                                >
-                                    {activeSlide.subtitle}
-                                </motion.p>
-                                <motion.div
-                                    variants={{
-                                        hidden: { opacity: 0, y: 40 },
-                                        visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: 'easeOut' } },
-                                        exit: { opacity: 0, x: 50, transition: { duration: 0.3, ease: 'easeIn' } },
-                                    }}
-                                    className="mt-4 sm:mt-6 flex flex-wrap gap-3 items-center"
-                                >
-                                    <a
-                                        href={activeSlide.btnUrl}
-                                        target={activeSlide.btnUrl.startsWith('/') ? "_self" : "_blank"}
-                                        rel={activeSlide.btnUrl.startsWith('/') ? "" : "noopener noreferrer"}
-                                        className="inline-flex min-h-9 sm:min-h-12 items-center justify-center rounded-lg bg-emerald-200 px-4 py-2 sm:px-6 sm:py-3 text-xs sm:text-sm font-bold text-emerald-950 transition hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-primary shadow-lg"
-                                    >
-                                        {activeSlide.btnText}
-                                    </a>
-                                </motion.div>
+                                    {activeSlide.btnText}
+                                </a>
                             </motion.div>
+                        </motion.div>
                         </AnimatePresence>
                     </div>
                 </div>
@@ -437,20 +486,15 @@ export default function Welcome({ settings = {}, posts = [], homeSections = [], 
             </section>
 
             <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-14 relative z-20">
+                <Reveal delay={0.2}>
                 <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-6 shadow-card">
                     <h2 className="sr-only">Layanan pintas</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <StaggerContainer className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     {[{ title: settings.quick_link_1_title || 'Pendaftaran', url: settings.quick_link_1_url || 'https://ppdb.smaxyz.sch.id', desc: settings.quick_link_1_desc || 'Portal Resmi Pendaftaran PPDB Online' },
                         { title: settings.quick_link_2_title || 'SMA XYZ via mobile', url: settings.quick_link_2_url || 'https://mobile.smaxyz.or.id', desc: settings.quick_link_2_desc || 'Aplikasi Layanan Mobile SMA XYZ' },
                         { title: settings.quick_link_3_title || 'Perpustakaan SMA XYZ', url: settings.quick_link_3_url || 'https://perpus.smaxyz.or.id', desc: settings.quick_link_3_desc || 'Layanan Perpustakaan Digital' },
                     ].map((link, idx) => (
-                        <motion.div
-                            key={idx}
-                            initial={{ opacity: 0, y: 25 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true }}
-                            transition={{ duration: 0.4, delay: idx * 0.1 }}
-                        >
+                        <motion.div key={idx} variants={staggerItem}>
                             <a href={link.url} target="_blank" rel="noopener noreferrer" className="block group h-full">
                                 <Card hover className="p-4 h-full flex flex-col justify-between border-slate-200/80 transition bg-surface-container-low sm:p-6">
                                     <div>
@@ -466,8 +510,9 @@ export default function Welcome({ settings = {}, posts = [], homeSections = [], 
                             </a>
                         </motion.div>
                      ))}
-                    </div>
+                    </StaggerContainer>
                 </div>
+                </Reveal>
             </section>
 
             {/* Berita is permanent: it always leads the home page. */}
@@ -511,16 +556,14 @@ export default function Welcome({ settings = {}, posts = [], homeSections = [], 
                     <SectionHeading eyebrow="Lihat kegiatan kami ketika di sekolah" title="Galeri Aktivitas" href="/galeri" />
                     {galleries.length ? (
                         <HorizontalRail label="Galeri Aktivitas">
-                            {galleries.slice(0, 8).map((item, idx) => {
+                            <StaggerContainer className="contents">
+                            {galleries.slice(0, 8).map((item) => {
                                 const thumb = item.media_type === 'video' ? youtubeThumbnailUrl(item.video_url) : item.featured_image;
                                 return (
                                 <motion.div
                                     key={item.id}
+                                    variants={staggerItem}
                                     className="w-[calc((100%-1.5rem)/2)] shrink-0 snap-start sm:w-[calc((100%-1.5rem)/2)] lg:w-[calc((100%-3rem)/3)] xl:w-[calc((100%-4.5rem)/4)]"
-                                    initial={{ opacity: 0, scale: 0.95 }}
-                                    whileInView={{ opacity: 1, scale: 1 }}
-                                    viewport={{ once: true }}
-                                    transition={{ duration: 0.3, delay: idx * 0.05 }}
                                 >
                                     <Card className="overflow-hidden flex flex-col h-full bg-white group">
                                         <button
@@ -566,6 +609,7 @@ export default function Welcome({ settings = {}, posts = [], homeSections = [], 
                                 </motion.div>
                                 );
                             })}
+                            </StaggerContainer>
                         </HorizontalRail>
                     ) : <EmptyState>Belum ada dokumentasi galeri.</EmptyState>}
                 </div>
@@ -573,17 +617,15 @@ export default function Welcome({ settings = {}, posts = [], homeSections = [], 
 
             <section id="gtk" className={toneFor(gtkIndex) === 'muted' ? 'bg-slate-50 py-12 sm:py-20' : 'bg-white py-12 sm:py-20'}>
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                    <SectionHeading eyebrow="Tenaga pendidik profesional" title="Guru dan tenaga kependidikan" href="/laman/guru-tendik" />
+                    <SectionHeading eyebrow="Tenaga pendidik profesional" title="Guru dan tenaga kependidikan" href="/guru-tendik" />
                     {staff.length ? (
                         <HorizontalRail label="Guru dan tenaga kependidikan">
-                            {staff.slice(0, 8).map((person, idx) => (
+                            <StaggerContainer className="contents">
+                            {staff.slice(0, 8).map((person) => (
                                 <motion.div
+                                    variants={staggerItem}
                                     key={person.id}
                                     className="w-[calc((100%-1.5rem)/2)] shrink-0 snap-start sm:w-[calc((100%-1.5rem)/2)] lg:w-[calc((100%-3rem)/3)] xl:w-[calc((100%-4.5rem)/4)]"
-                                    initial={{ opacity: 0, y: 20 }}
-                                    whileInView={{ opacity: 1, y: 0 }}
-                                    viewport={{ once: true }}
-                                    transition={{ duration: 0.35, delay: idx * 0.05 }}
                                 >
                                     <Card hover className="p-3 text-center h-full sm:p-4">
                                         <div className="mx-auto mb-2 grid h-12 w-12 place-items-center rounded-full bg-primary/10 text-xs font-bold text-primary sm:mb-3 sm:h-20 sm:w-20 sm:text-sm">
@@ -594,6 +636,7 @@ export default function Welcome({ settings = {}, posts = [], homeSections = [], 
                                     </Card>
                                 </motion.div>
                             ))}
+                            </StaggerContainer>
                         </HorizontalRail>
                     ) : <EmptyState>Belum ada data Guru dan Tendik.</EmptyState>}
                 </div>

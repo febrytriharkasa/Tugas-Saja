@@ -2,59 +2,22 @@ import PublicLayout from '@/Layouts/PublicLayout';
 import Seo from '@/Components/Seo';
 import Card from '@/Components/Card';
 import Breadcrumbs from '@/Components/Breadcrumbs';
+import Pagination from '@/Components/Pagination';
 import ChatWidget from '@/Components/ChatWidget';
 import { Link, router } from '@inertiajs/react';
 import { useState, lazy, Suspense } from 'react';
 import { youtubeThumbnailUrl } from '@/lib/postBlocks';
 import { postUrl } from '@/lib/postUrl';
+import { motion } from 'framer-motion';
+import { StaggerContainer, staggerItem, Reveal } from '@/Components/Reveal';
 
 const MediaPreviewModal = lazy(() => import('@/Components/MediaPreviewModal'));
-
-function Pagination({ links }) {
-    if (!links || links.length <= 3) return null;
-
-    const label = (raw) =>
-        raw
-            .replace('&laquo;', '«')
-            .replace('&raquo;', '»')
-            .replace('Previous', '')
-            .replace('Next', '');
-
-    return (
-        <nav className="mt-10 flex flex-wrap items-center justify-center gap-1.5" aria-label="Navigasi halaman">
-            {links.map((link, index) =>
-                link.url ? (
-                    <Link
-                        key={index}
-                        href={link.url}
-                        aria-current={link.active ? 'page' : undefined}
-                        className={`inline-flex min-h-10 min-w-10 items-center justify-center rounded-lg border px-3 text-sm font-semibold transition ${
-                            link.active
-                                ? 'border-primary bg-primary text-white'
-                                : 'border-slate-200 bg-white text-slate-700 hover:border-primary hover:text-primary'
-                        }`}
-                    >
-                        <span dangerouslySetInnerHTML={{ __html: label(link.label) }} />
-                    </Link>
-                ) : (
-                    <span
-                        key={index}
-                        aria-disabled="true"
-                        className="inline-flex min-h-10 min-w-10 items-center justify-center rounded-lg border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-300"
-                    >
-                        <span dangerouslySetInnerHTML={{ __html: label(link.label) }} />
-                    </span>
-                ),
-            )}
-        </nav>
-    );
-}
-
 
 function MediaCard({ item, onPreview }) {
     const thumb = item.media_type === 'video' && item.video_url ? youtubeThumbnailUrl(item.video_url) : item.featured_image;
     const hasMedia = item.media_type === 'video' ? Boolean(item.video_url) : Boolean(item.featured_image);
     return (
+        <motion.div variants={staggerItem}>
         <Card key={item.id} className="overflow-hidden group flex flex-col h-full bg-white">
             {hasMedia ? (
                 <button
@@ -104,6 +67,7 @@ function MediaCard({ item, onPreview }) {
                 </Link>
             </div>
         </Card>
+        </motion.div>
     );
 }
 
@@ -111,6 +75,7 @@ function StandardCard({ post }) {
     const thumbnail = post.media_type === 'video' ? youtubeThumbnailUrl(post.video_url) : post.featured_image;
     const hasMedia = post.media_type === 'video' ? Boolean(post.video_url) : Boolean(post.featured_image);
     return (
+        <motion.div variants={staggerItem}>
         <Card key={post.id} hover className="flex flex-col overflow-hidden h-full">
             {hasMedia ? (
                 <Link href={postUrl(post)} className="block shrink-0">
@@ -162,13 +127,19 @@ function StandardCard({ post }) {
                 </Link>
             </div>
         </Card>
+        </motion.div>
     );
 }
 
-export default function Search({ keyword = '', items }) {
+export default function Search({ keyword = '', items, pages = [], staff = [], counts = {} }) {
     const [searchVal, setSearchVal] = useState(keyword);
     const [previewItem, setPreviewItem] = useState(null);
     const [viewMode, setViewMode] = useState('standard');
+
+    const hasPosts = (items.data?.length ?? 0) > 0;
+    const hasPages = pages.length > 0;
+    const hasStaff = staff.length > 0;
+    const totalResults = (counts.posts ?? items.total ?? 0) + (counts.pages ?? pages.length) + (counts.staff ?? staff.length);
 
     const handleSearch = (e) => {
         e.preventDefault();
@@ -192,13 +163,14 @@ export default function Search({ keyword = '', items }) {
             />
             <section className="bg-slate-50 py-12">
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                    <Reveal>
                     <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
                         <div>
                             <h1 className="mt-2 text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl">
                                 {keyword ? `Hasil Pencarian: "${keyword}"` : 'Pencarian Informasi'}
                             </h1>
                             <p className="mt-2 text-xs font-bold uppercase tracking-[0.14em] text-secondary">
-                                Ditemukan {items.total ?? items.data?.length ?? 0} data
+                                Ditemukan {totalResults} data
                             </p>
                         </div>
 
@@ -218,54 +190,124 @@ export default function Search({ keyword = '', items }) {
                             </button>
                         </form>
                     </div>
+                    </Reveal>
 
-                    <div className="mb-6 flex items-center justify-between gap-4">
-                        <div className="flex items-center gap-3">
-                            <span className="text-sm font-medium text-slate-700">Tampilan:</span>
-                            <div className="inline-flex rounded-lg bg-white p-1 shadow-sm" role="radiogroup" aria-label="Pilih mode tampilan">
-                                <button
-                                    type="button"
-                                    onClick={() => setViewMode('standard')}
-                                    aria-pressed={viewMode === 'standard'}
-                                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-md transition ${viewMode === 'standard' ? 'bg-primary text-white shadow-sm' : 'text-slate-600 hover:text-slate-900'}`}
-                                >
-                                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" /></svg>
-                                    Daftar
-                                </button>
-                                <button
-                                    type="button"
-                                    onClick={() => setViewMode('media')}
-                                    aria-pressed={viewMode === 'media'}
-                                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-md transition ${viewMode === 'media' ? 'bg-primary text-white shadow-sm' : 'text-slate-600 hover:text-slate-900'}`}
-                                >
-                                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" /></svg>
-                                    Galeri
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+                    {keyword && (hasPages || hasStaff) && (
+                        <div className="mb-10 space-y-8">
+                            {hasPages && (
+                                <section aria-labelledby="hasil-laman">
+                                    <h2 id="hasil-laman" className="mb-3 text-xs font-bold uppercase tracking-[0.14em] text-slate-500">
+                                        Laman
+                                    </h2>
+                                    <StaggerContainer className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                                        {pages.map((page) => (
+                                            <motion.div key={page.slug} variants={staggerItem}>
+                                            <Link
+                                                href={`/${page.slug}`}
+                                                className="group rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition hover:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                                            >
+                                                <h3 className="text-sm font-bold text-slate-900 transition-colors group-hover:text-primary">
+                                                    {page.title}
+                                                </h3>
+                                                {page.excerpt && (
+                                                    <p className="mt-1 line-clamp-2 text-xs leading-5 text-slate-600">{page.excerpt}</p>
+                                                )}
+                                            </Link>
+                                            </motion.div>
+                                        ))}
+                                    </StaggerContainer>
+                                </section>
+                            )}
 
-                    {items.data && items.data.length > 0 ? (
-                        viewMode === 'media' ? (
-                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
-                                {items.data.map((item) => (
-                                    <MediaCard key={item.id} item={item} onPreview={setPreviewItem} />
-                                ))}
-                            </div>
-                        ) : (
-                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
-                                {items.data.map((post) => (
-                                    <StandardCard key={post.id} post={post} />
-                                ))}
-                            </div>
-                        )
-                    ) : (
-                        <div className="rounded-xl border border-dashed border-slate-300 bg-white px-6 py-12 text-center text-sm text-slate-600">
-                            Tidak ditemukan hasil untuk kata kunci &ldquo;{keyword}&rdquo;.
+                            {hasStaff && (
+                                <section aria-labelledby="hasil-gtk">
+                                    <h2 id="hasil-gtk" className="mb-3 text-xs font-bold uppercase tracking-[0.14em] text-slate-500">
+                                        Guru dan Tendik
+                                    </h2>
+                                    <StaggerContainer className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                                        {staff.map((person) => (
+                                            <motion.div key={person.id} variants={staggerItem}>
+                                            <Link
+                                                href="/guru-tendik"
+                                                className="group flex items-center gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition hover:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                                            >
+                                                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-primary/10 text-sm font-bold text-primary" aria-hidden="true">
+                                                    {person.name.charAt(0)}
+                                                </span>
+                                                <span className="min-w-0">
+                                                    <span className="block truncate text-sm font-bold text-slate-900 transition-colors group-hover:text-primary">{person.name}</span>
+                                                    <span className="block truncate text-xs text-slate-600">{person.role}</span>
+                                                </span>
+                                            </Link>
+                                            </motion.div>
+                                        ))}
+                                    </StaggerContainer>
+                                </section>
+                            )}
                         </div>
                     )}
 
-                    <Pagination links={items.links} />
+                    {hasPosts && (
+                        <>
+                            {keyword && (hasPages || hasStaff) && (
+                                <h2 className="mb-3 text-xs font-bold uppercase tracking-[0.14em] text-slate-500">
+                                    Berita dan konten
+                                </h2>
+                            )}
+
+                            <Reveal>
+                            <div className="mb-6 flex items-center justify-between gap-4">
+                                <div className="flex items-center gap-3">
+                                    <span className="text-sm font-medium text-slate-700">Tampilan:</span>
+                                    <div className="inline-flex rounded-lg bg-white p-1 shadow-sm" role="radiogroup" aria-label="Pilih mode tampilan">
+                                        <button
+                                            type="button"
+                                            onClick={() => setViewMode('standard')}
+                                            aria-pressed={viewMode === 'standard'}
+                                            className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-md transition ${viewMode === 'standard' ? 'bg-primary text-white shadow-sm' : 'text-slate-600 hover:text-slate-900'}`}
+                                        >
+                                            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" /></svg>
+                                            Daftar
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => setViewMode('media')}
+                                            aria-pressed={viewMode === 'media'}
+                                            className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-md transition ${viewMode === 'media' ? 'bg-primary text-white shadow-sm' : 'text-slate-600 hover:text-slate-900'}`}
+                                        >
+                                            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2"><path strokeLinecap="round" strokeLinejoin="round" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" /></svg>
+                                            Galeri
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            </Reveal>
+
+                            {viewMode === 'media' ? (
+                                <StaggerContainer className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+                                    {items.data.map((item) => (
+                                        <MediaCard key={item.id} item={item} onPreview={setPreviewItem} />
+                                    ))}
+                                </StaggerContainer>
+                            ) : (
+                                <StaggerContainer className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+                                    {items.data.map((post) => (
+                                        <StandardCard key={post.id} post={post} />
+                                    ))}
+                                </StaggerContainer>
+                            )}
+                        </>
+                    )}
+
+                    {!hasPosts && !hasPages && !hasStaff && (
+                        <div className="rounded-xl border border-dashed border-slate-300 bg-white px-6 py-12 text-center text-sm text-slate-600">
+                            {keyword
+                                ? `Tidak ditemukan hasil untuk kata kunci “${keyword}”.`
+                                : 'Belum ada konten yang bisa ditampilkan.'}
+                        </div>
+                    )}
+
+                    <Pagination links={items.links} variant="public" />
                 </div>
             </section>
 

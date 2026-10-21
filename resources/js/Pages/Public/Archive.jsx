@@ -2,56 +2,18 @@ import PublicLayout from '@/Layouts/PublicLayout';
 import Seo from '@/Components/Seo';
 import Card from '@/Components/Card';
 import Breadcrumbs from '@/Components/Breadcrumbs';
+import Pagination from '@/Components/Pagination';
 import ChatWidget from '@/Components/ChatWidget';
 import { Link, usePage } from '@inertiajs/react';
-import { motion } from 'framer-motion';
 import { useState, useRef, lazy, Suspense } from 'react';
 import { plainText } from '@/lib/content';
 import { youtubeThumbnailUrl } from '@/lib/postBlocks';
 import { postUrl } from '@/lib/postUrl';
+import { motion } from 'framer-motion';
+import { StaggerContainer, staggerItem, Reveal } from '@/Components/Reveal';
 
 const MediaPreviewModal = lazy(() => import('@/Components/MediaPreviewModal'));
 import { HorizontalRail } from '@/Pages/Welcome';
-
-function Pagination({ links }) {
-    if (!links || links.length <= 3) return null;
-
-    const label = (raw) =>
-        raw
-            .replace('&laquo;', '«')
-            .replace('&raquo;', '»')
-            .replace('Previous', '')
-            .replace('Next', '');
-
-    return (
-        <nav className="mt-10 flex flex-wrap items-center justify-center gap-1.5" aria-label="Navigasi halaman">
-            {links.map((link, index) =>
-                link.url ? (
-                    <Link
-                        key={index}
-                        href={link.url}
-                        aria-current={link.active ? 'page' : undefined}
-                        className={`inline-flex min-h-10 min-w-10 items-center justify-center rounded-lg border px-3 text-sm font-semibold transition ${
-                            link.active
-                                ? 'border-primary bg-primary text-white'
-                                : 'border-slate-200 bg-white text-slate-700 hover:border-primary hover:text-primary'
-                        }`}
-                    >
-                        <span dangerouslySetInnerHTML={{ __html: label(link.label) }} />
-                    </Link>
-                ) : (
-                    <span
-                        key={index}
-                        aria-disabled="true"
-                        className="inline-flex min-h-10 min-w-10 items-center justify-center rounded-lg border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-300"
-                    >
-                        <span dangerouslySetInnerHTML={{ __html: label(link.label) }} />
-                    </span>
-                ),
-            )}
-        </nav>
-    );
-}
 
 export default function Archive({ title, type, previewMode = 'standard', items }) {
     const { settings = {} } = usePage().props;
@@ -62,11 +24,12 @@ export default function Archive({ title, type, previewMode = 'standard', items }
     const renderItems = () => {
         if (type === 'download') {
             return (
-                <div className="space-y-4">
+                <StaggerContainer className="space-y-4">
                     {items.data.map((post) => {
                         const attachment = post.metadata?.attachments?.[0];
                         return (
-                            <Card key={post.id} className="p-5 sm:p-6">
+                            <motion.div key={post.id} variants={staggerItem}>
+                            <Card className="p-5 sm:p-6">
                                 <Link href={postUrl(post)} className="block group">
                                     <h3 className="text-lg font-bold text-slate-900 group-hover:text-primary transition-colors">
                                         {post.title}
@@ -93,19 +56,21 @@ export default function Archive({ title, type, previewMode = 'standard', items }
                                     </div>
                                 )}
                             </Card>
+                            </motion.div>
                         );
                     })}
-                </div>
+                </StaggerContainer>
             );
         }
         
         if (previewMode === 'media') {
             return (
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+                <StaggerContainer className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
                     {items.data.map((item) => {
                         const thumb = item.media_type === 'video' && item.video_url ? youtubeThumbnailUrl(item.video_url) : item.featured_image;
                         return (
-                            <Card key={item.id} className="overflow-hidden group flex flex-col h-full bg-white">
+                            <motion.div key={item.id} variants={staggerItem}>
+                            <Card className="overflow-hidden group flex flex-col h-full bg-white">
                                 <button
                                     type="button"
                                     onClick={() => setPreviewItem(item)}
@@ -146,21 +111,23 @@ export default function Archive({ title, type, previewMode = 'standard', items }
                                     </Link>
                                 </div>
                             </Card>
+                            </motion.div>
                         );
                     })}
-                </div>
+                </StaggerContainer>
             );
         }
 
         if (!['agenda', 'prestasi', 'galeri'].includes(type)) {
             return (
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+                <StaggerContainer className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
                     
                     {items.data.map((post) => {
                         const thumbnail = post.media_type === 'video' ? youtubeThumbnailUrl(post.video_url) : post.featured_image;
                         const hasMedia = post.media_type === 'video' ? Boolean(post.video_url) : Boolean(post.featured_image);
                         return (
-                            <Card key={post.id} hover className="flex flex-col overflow-hidden h-full">
+                            <motion.div key={post.id} variants={staggerItem}>
+                            <Card hover className="flex flex-col overflow-hidden h-full">
                                 {hasMedia ? (
                                     <button
                                         type="button"
@@ -225,19 +192,21 @@ export default function Archive({ title, type, previewMode = 'standard', items }
                                     </Link>
                                 </div>
                             </Card>
+                            </motion.div>
                         );
                     })}
-                </div>
+                </StaggerContainer>
             );
         }
 
         if (type === 'agenda') {
             return (
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+                <StaggerContainer className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
                     {items.data.map((agenda) => {
                         const dateVal = agenda.metadata?.event_date || agenda.metadata?.tanggal_agenda || agenda.published_at;
                         return (
-                            <Card key={agenda.id} hover className="flex flex-col overflow-hidden h-full">
+                            <motion.div key={agenda.id} variants={staggerItem}>
+                            <Card hover className="flex flex-col overflow-hidden h-full">
                                 <Link href={postUrl(agenda)} className="block shrink-0">
                                     <div className="relative aspect-[16/9] w-full bg-slate-100 flex items-center justify-center">
                                         {agenda.featured_image ? (
@@ -264,17 +233,19 @@ export default function Archive({ title, type, previewMode = 'standard', items }
                                     </Link>
                                 </div>
                             </Card>
+                            </motion.div>
                         );
                     })}
-                </div>
+                </StaggerContainer>
             );
         }
 
         if (type === 'prestasi') {
             return (
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+                <StaggerContainer className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
                     {items.data.map((ach) => (
-                        <Card key={ach.id} hover className="overflow-hidden flex flex-col h-full">
+                        <motion.div key={ach.id} variants={staggerItem}>
+                        <Card hover className="overflow-hidden flex flex-col h-full">
                             <Link href={postUrl(ach)} className="block shrink-0">
                                 <div className="relative aspect-[16/10] w-full bg-slate-100 flex items-center justify-center">
                                     {ach.featured_image ? (
@@ -299,8 +270,9 @@ export default function Archive({ title, type, previewMode = 'standard', items }
                                 </Link>
                             </div>
                         </Card>
+                        </motion.div>
                     ))}
-                </div>
+                </StaggerContainer>
             );
         }
 
@@ -318,16 +290,18 @@ export default function Archive({ title, type, previewMode = 'standard', items }
             <section className="bg-slate-50 py-12">
                 
                 <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                    <Reveal>
                     <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
                         <div>
                             <h1 className="mt-2 text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl">{title}</h1>
                             <p className="mt-2 text-xs font-bold uppercase tracking-[0.14em] text-secondary">Informasi {title} sekolah</p>
                         </div>
                     </div>
+                    </Reveal>
 
                     {renderItems()}
 
-                    <Pagination links={items.links} />
+                    <Pagination links={items.links} variant="public" />
 
                     {items.data.length === 0 && (
                         <div className="rounded-xl border border-dashed border-slate-300 bg-white px-6 py-10 text-center text-sm text-slate-600">

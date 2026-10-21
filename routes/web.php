@@ -10,10 +10,18 @@ use App\Http\Controllers\Admin\StaffController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\ChatBotController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\ImageVariantController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SitemapController;
 use App\Models\Category;
 use Illuminate\Support\Facades\Route;
+
+// Varian hero responsif: /img/{lebar}/{path}. Didaftarkan lebih dulu supaya tidak
+// tertelan route catch-all /{slug} di bawah.
+Route::get('/img/{width}/{path}', [ImageVariantController::class, '__invoke'])
+    ->whereNumber('width')
+    ->where('path', '.*')
+    ->name('image.variant');
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/berita', [HomeController::class, 'news'])->name('public.news');

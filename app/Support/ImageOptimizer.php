@@ -62,6 +62,31 @@ class ImageOptimizer
         return Storage::url(self::storeOptimized($file, $directory, $maxWidth));
     }
 
+    /**
+     * Perkecil gambar yang sudah tersimpan di disk dan kembalikan byte WebP-nya.
+     * Dipakai route /img/{lebar}/{path} untuk membuat varian hero responsif.
+     */
+    public static function downscale(string $absolutePath, int $maxWidth): ?string
+    {
+        $source = match (strtolower(pathinfo($absolutePath, PATHINFO_EXTENSION))) {
+            'png' => @imagecreatefrompng($absolutePath),
+            'webp' => @imagecreatefromwebp($absolutePath),
+            default => @imagecreatefromjpeg($absolutePath),
+        };
+
+        if (! $source instanceof GdImage) {
+            return null;
+        }
+
+        $width = imagesx($source);
+
+        if ($width > $maxWidth) {
+            $source = self::resize($source, $maxWidth, (int) round(imagesy($source) * ($maxWidth / $width)));
+        }
+
+        return self::encodeWebp($source);
+    }
+
     private static function decode(UploadedFile $file): ?GdImage
     {
         $extension = strtolower($file->getClientOriginalExtension());

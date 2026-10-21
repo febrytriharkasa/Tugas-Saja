@@ -184,4 +184,52 @@ class FooterSettingsTest extends TestCase
         $this->assertStringContainsString('/storage/settings/', SiteSetting::where('key', 'site_logo')->value('value'));
         $this->assertCount(1, Storage::disk('public')->files('settings'));
     }
+
+    public function test_website_logo_can_be_uploaded_separately_from_school_logo(): void
+    {
+        Storage::fake('public');
+        Storage::disk('public')->put('settings/school.png', 'fake');
+        SiteSetting::create(['key' => 'site_logo', 'value' => '/storage/settings/school.png']);
+        $admin = User::factory()->create();
+
+        $this->actingAs($admin)->post('/admin/settings/footer', [
+            'site_name' => 'Sekolah',
+            'site_website_logo_file' => UploadedFile::fake()->image('website.png'),
+            'footer_groups' => [['title' => 'Grup', 'links' => [['label' => 'Beranda', 'url' => '/']]]],
+        ])->assertRedirect();
+
+        $this->assertSame('/storage/settings/school.png', SiteSetting::where('key', 'site_logo')->value('value'));
+        $this->assertStringContainsString('/storage/settings/', SiteSetting::where('key', 'site_website_logo')->value('value'));
+        Storage::disk('public')->assertExists('settings/school.png');
+    }
+
+    public function test_removing_website_logo_keeps_school_logo(): void
+    {
+        Storage::fake('public');
+        Storage::disk('public')->put('settings/school.png', 'fake');
+        Storage::disk('public')->put('settings/website.png', 'fake');
+        SiteSetting::create(['key' => 'site_logo', 'value' => '/storage/settings/school.png']);
+        SiteSetting::create(['key' => 'site_website_logo', 'value' => '/storage/settings/website.png']);
+        $admin = User::factory()->create();
+
+        $this->actingAs($admin)->post('/admin/settings/footer', [
+            'site_name' => 'Sekolah',
+            'remove_site_website_logo' => true,
+            'footer_groups' => [['title' => 'Grup', 'links' => [['label' => 'Beranda', 'url' => '/']]]],
+        ])->assertRedirect();
+
+        $this->assertNull(SiteSetting::where('key', 'site_website_logo')->first());
+        $this->assertSame('/storage/settings/school.png', SiteSetting::where('key', 'site_logo')->value('value'));
+        Storage::disk('public')->assertMissing('settings/website.png');
+        Storage::disk('public')->assertExists('settings/school.png');
+    }
+
+    public function test_public_pages_share_website_logo_setting(): void
+    {
+        SiteSetting::create(['key' => 'site_website_logo', 'value' => '/storage/settings/website.png']);
+
+        $this->get('/')->assertInertia(fn (Assert $page) => $page
+            ->where('settings.site_website_logo', '/storage/settings/website.png')
+        );
+    }
 }

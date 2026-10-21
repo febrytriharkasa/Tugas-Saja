@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\CompressResponse;
 use App\Http\Middleware\EnsureActiveUser;
 use App\Http\Middleware\EnsureAdminAccess;
 use App\Http\Middleware\EnsureSuperAdmin;
@@ -20,6 +21,7 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->web(append: [
+            CompressResponse::class,
             HandleInertiaRequests::class,
             AddLinkHeadersForPreloadedAssets::class,
         ]);

@@ -19,36 +19,60 @@ export default function FooterSettings({ groupedSettings, linkOptions = [] }) {
         parsedGroups = [];
     }
 
-    const savedLogo = rawSettings.site_logo || null;
-    const [logoPreview, setLogoPreview] = useState(savedLogo);
+    const savedSchoolLogo = rawSettings.site_logo || null;
+    const savedWebsiteLogo = rawSettings.site_website_logo || null;
+    const [schoolLogoPreview, setSchoolLogoPreview] = useState(savedSchoolLogo);
+    const [websiteLogoPreview, setWebsiteLogoPreview] = useState(savedWebsiteLogo);
 
     const { data, setData, post, processing, recentlySuccessful, errors } = useForm({
         site_name: rawSettings.site_name || '',
         site_portal_text: rawSettings.site_portal_text || '',
         site_logo_file: null,
         remove_site_logo: false,
+        site_website_logo_file: null,
+        remove_site_website_logo: false,
         footer_about: rawSettings.footer_about || '',
         footer_groups: Array.isArray(parsedGroups) && parsedGroups.length > 0 ? parsedGroups : [],
     });
 
     useEffect(() => () => {
-        if (logoPreview?.startsWith('blob:')) {
-            URL.revokeObjectURL(logoPreview);
+        if (schoolLogoPreview?.startsWith('blob:')) {
+            URL.revokeObjectURL(schoolLogoPreview);
         }
-    }, [logoPreview]);
+    }, [schoolLogoPreview]);
 
-    const handleLogoChange = (file) => {
+    useEffect(() => () => {
+        if (websiteLogoPreview?.startsWith('blob:')) {
+            URL.revokeObjectURL(websiteLogoPreview);
+        }
+    }, [websiteLogoPreview]);
+
+    const handleSchoolLogoChange = (file) => {
         setData('site_logo_file', file || null);
         if (file) {
             setData('remove_site_logo', false);
         }
-        setLogoPreview(file ? URL.createObjectURL(file) : savedLogo);
+        setSchoolLogoPreview(file ? URL.createObjectURL(file) : savedSchoolLogo);
     };
 
-    const handleLogoRemove = () => {
+    const handleSchoolLogoRemove = () => {
         setData('site_logo_file', null);
         setData('remove_site_logo', true);
-        setLogoPreview(null);
+        setSchoolLogoPreview(null);
+    };
+
+    const handleWebsiteLogoChange = (file) => {
+        setData('site_website_logo_file', file || null);
+        if (file) {
+            setData('remove_site_website_logo', false);
+        }
+        setWebsiteLogoPreview(file ? URL.createObjectURL(file) : savedWebsiteLogo);
+    };
+
+    const handleWebsiteLogoRemove = () => {
+        setData('site_website_logo_file', null);
+        setData('remove_site_website_logo', true);
+        setWebsiteLogoPreview(null);
     };
 
     const addGroup = () => {
@@ -106,7 +130,7 @@ export default function FooterSettings({ groupedSettings, linkOptions = [] }) {
             <form onSubmit={handleSubmit} className="space-y-6 max-w-4xl">
                 {recentlySuccessful && (
                     <div className="p-4 bg-emerald-50 text-emerald-700 rounded-lg text-sm">
-                        Pengaturan footer berhasil disimpan.
+                        Pengaturan identitas situs dan footer berhasil disimpan.
                     </div>
                 )}
 
@@ -125,19 +149,19 @@ export default function FooterSettings({ groupedSettings, linkOptions = [] }) {
                     <h2 className="text-base font-bold text-slate-800 mb-4">Identitas Situs (Navbar & Footer)</h2>
                     <div className="space-y-4">
                         <div>
-                            <label className="block text-xs font-medium text-slate-600">Logo Situs</label>
-                            {logoPreview && (
+                            <label className="block text-xs font-medium text-slate-600">Logo Sekolah</label>
+                            {schoolLogoPreview && (
                                 <div className="relative mt-2 inline-block">
                                     <img
-                                        src={logoPreview}
-                                        alt="Logo situs"
+                                        src={schoolLogoPreview}
+                                        alt="Logo sekolah"
                                         className="h-20 w-auto rounded-lg border border-slate-200 bg-white object-contain p-1"
                                     />
                                     <button
                                         type="button"
-                                        onClick={handleLogoRemove}
+                                        onClick={handleSchoolLogoRemove}
                                         className="absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full bg-red-600 text-white shadow-sm transition hover:bg-red-700"
-                                        aria-label="Hapus logo"
+                                        aria-label="Hapus logo sekolah"
                                     >
                                         <Icon name="x" className="h-4 w-4" />
                                     </button>
@@ -146,11 +170,41 @@ export default function FooterSettings({ groupedSettings, linkOptions = [] }) {
                             <input
                                 type="file"
                                 accept="image/*"
-                                onChange={(e) => handleLogoChange(e.target.files[0])}
+                                onChange={(e) => handleSchoolLogoChange(e.target.files[0])}
                                 className="mt-1 block w-full rounded-lg border border-slate-300 text-sm file:mr-4 file:border-0 file:bg-slate-100 file:px-4 file:py-2 file:text-slate-700"
                             />
                             <p className="mt-1 text-xs text-slate-500">
-                                Klik tombol X pada gambar untuk menghapus. Format PNG/JPG/SVG, maksimal 2MB. Tanpa logo, navbar memakai inisial otomatis.
+                                Dipakai untuk identitas sekolah: SEO, dashboard admin, dan halaman masuk. Format PNG/JPG/SVG, maksimal 2MB.
+                            </p>
+                        </div>
+
+                        <div>
+                            <label className="block text-xs font-medium text-slate-600">Logo Website (Navbar &amp; Footer)</label>
+                            {websiteLogoPreview && (
+                                <div className="relative mt-2 inline-block">
+                                    <img
+                                        src={websiteLogoPreview}
+                                        alt="Logo website"
+                                        className="h-20 w-auto rounded-lg border border-slate-200 bg-white object-contain p-1"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={handleWebsiteLogoRemove}
+                                        className="absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full bg-red-600 text-white shadow-sm transition hover:bg-red-700"
+                                        aria-label="Hapus logo website"
+                                    >
+                                        <Icon name="x" className="h-4 w-4" />
+                                    </button>
+                                </div>
+                            )}
+                            <input
+                                type="file"
+                                accept="image/*"
+                                onChange={(e) => handleWebsiteLogoChange(e.target.files[0])}
+                                className="mt-1 block w-full rounded-lg border border-slate-300 text-sm file:mr-4 file:border-0 file:bg-slate-100 file:px-4 file:py-2 file:text-slate-700"
+                            />
+                            <p className="mt-1 text-xs text-slate-500">
+                                Tampil di navbar dan footer. Jika kosong, logo website memakai Logo Sekolah. Format PNG/JPG/SVG, maksimal 2MB.
                             </p>
                         </div>
 

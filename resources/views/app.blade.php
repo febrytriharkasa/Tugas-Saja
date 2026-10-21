@@ -99,19 +99,72 @@
         </noscript>
 
         <!-- Scripts -->
-        @routes
         @viteReactRefresh
         @vite(['resources/js/app.jsx', "resources/js/Pages/{$page['component']}.jsx"])
         @inertiaHead
         @php
             $heroImage = data_get($pageProps, 'settings.hero_slide_1_image')
                 ?: data_get($pageProps, 'settings.hero_background_image');
+            $heroSrcset = $heroImage ? \App\Support\ImageVariant::srcset($heroImage) : null;
+            $heroSizes = '(min-width: 640px) 100vw, 100vw';
+
+            // Salinan slide 1 untuk hero statis. Fallback harus sama dengan
+            // objek slides di resources/js/Pages/Welcome.jsx; ubah keduanya
+            // bersamaan kalau teks hero berubah.
+            $heroTag = data_get($settings, 'hero_slide_1_tag') ?: 'Portal resmi SMA XYZ';
+            $heroTitle = data_get($settings, 'hero_slide_1_title')
+                ?: (data_get($settings, 'hero_title') ?: 'Membentuk Generasi Rabbani & Berprestasi');
+            $heroBtnText = data_get($settings, 'hero_slide_1_btn_text') ?: 'Sambutan Kepala Sekolah';
+            $heroBtnUrl = data_get($settings, 'hero_slide_1_btn_url') ?: '#sambutan';
+            $heroBtnExternal = ! str_starts_with($heroBtnUrl, '/');
+
+            // Vite dev mengirim CSS lewat JS, jadi hero statis akan sempat tampil
+            // tanpa Tailwind. Saat hot file ada, biarkan React yang merender.
+            $renderStaticHero = $heroImage
+                && $component === 'Welcome'
+                && ! file_exists(public_path('hot'));
         @endphp
         @if ($heroImage && $component === 'Welcome')
-            <link rel="preload" as="image" href="{{ $heroImage }}" fetchpriority="high">
+            {{-- Hero dilukis dari HTML ini supaya LCP tidak menunggu React hydrate. --}}
+            <link rel="preload" as="image" href="{{ $heroImage }}"
+                @if ($heroSrcset) imagesrcset="{{ $heroSrcset }}" imagesizes="{{ $heroSizes }}" @endif
+                fetchpriority="high">
         @endif
     </head>
     <body class="font-sans antialiased">
-        @inertia
+        {{-- Root Inertia ditulis manual (bukan @inertia) supaya hero bisa ikut
+             di HTML pertama: LCP jadi tugas server, bukan menunggu React hydrate.
+             SSR tidak dipakai di aplikasi ini, jadi tidak ada yang hilang. --}}
+        <div id="app" data-page="{{ json_encode($page) }}">
+            @if ($renderStaticHero)
+                {{-- React mengganti isi #app saat mount. Teks ikut dicetak di sini
+                     supaya pengunjung tidak melihat foto kosong lebih dulu; tombol
+                     dibuat tidak fokusable agar tidak dobel dengan versi React. --}}
+                <div id="hero-static" aria-hidden="true">
+                    <section class="relative isolate overflow-hidden bg-slate-900 text-white flex items-center w-full min-h-[19rem] aspect-[4/3] sm:aspect-[16/7] sm:py-10 lg:py-16 sm:min-h-[24rem] lg:min-h-[30rem]">
+                        <img src="{{ $heroImage }}"
+                            @if ($heroSrcset) srcset="{{ $heroSrcset }}" sizes="{{ $heroSizes }}" @endif
+                            alt="" width="1920" height="1080" fetchpriority="high" decoding="async"
+                            class="absolute inset-0 -z-20 h-full w-full object-cover object-center">
+                        <div class="absolute inset-0 -z-10 bg-slate-950/70"></div>
+                        <div class="mx-auto grid w-full max-w-7xl items-center gap-4 px-4 sm:px-6 lg:grid-cols-[minmax(0,1.25fr)_minmax(18rem,0.75fr)] relative z-10">
+                            <div class="max-w-3xl flex items-center">
+                                <div class="w-full">
+                                    <p class="mb-1.5 sm:mb-3 text-xs font-bold uppercase tracking-[0.18em] text-emerald-200">{{ $heroTag }}</p>
+                                    <h1 class="max-w-3xl break-words text-[clamp(1.75rem,7vw,2rem)] font-extrabold leading-[1.2] tracking-[-0.015em] sm:text-4xl md:text-5xl lg:text-6xl">{{ $heroTitle }}</h1>
+                                    <div class="mt-4 sm:mt-6 flex flex-wrap gap-3 items-center">
+                                        <a href="{{ $heroBtnUrl }}"
+                                            target="{{ $heroBtnExternal ? '_blank' : '_self' }}"
+                                            rel="{{ $heroBtnExternal ? 'noopener noreferrer' : '' }}"
+                                            tabindex="-1"
+                                            class="inline-flex min-h-9 sm:min-h-12 items-center justify-center rounded-lg bg-emerald-200 px-4 py-2 sm:px-6 sm:py-3 text-xs sm:text-sm font-bold text-emerald-950 transition hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-primary shadow-lg">{{ $heroBtnText }}</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            @endif
+        </div>
     </body>
 </html>

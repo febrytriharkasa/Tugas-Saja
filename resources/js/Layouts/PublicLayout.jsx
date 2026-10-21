@@ -1,6 +1,5 @@
 import { Link, router, usePage } from '@inertiajs/react';
 import { useEffect, useRef, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import ThemeToggle from '@/Components/ThemeToggle';
 import PublicPageSkeleton, { publicSkeletonVariant } from '@/Components/PublicPageSkeleton';
 
@@ -56,6 +55,7 @@ export default function PublicLayout({ children, settings = {} }) {
     const { url, props } = usePage();
     const { aboutPages = [], customPages = [], archivePages = [], navItems = [], navConfigured = false, settings: sharedSettings = {} } = props;
     const siteSettings = { ...sharedSettings, ...settings };
+    const brandLogo = siteSettings.site_website_logo || siteSettings.site_logo;
 
     useEffect(() => {
         const clearPending = () => {
@@ -271,8 +271,8 @@ export default function PublicLayout({ children, settings = {} }) {
                 <nav className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8" aria-label="Navigasi utama">
                     <div className="flex min-h-16 items-center justify-between gap-4">
                         <Link href="/" className="flex min-w-0 items-center gap-3 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2">
-                            {siteSettings.site_logo ? (
-                                <img src={siteSettings.site_logo} alt={siteSettings.site_name || 'SMA XYZ'} width={40} height={40} decoding="async" className="h-10 w-10 shrink-0 rounded-xl object-contain" />
+                            {brandLogo ? (
+                                <img src={brandLogo} alt={siteSettings.site_name || 'SMA XYZ'} width={40} height={40} decoding="async" className="h-10 w-10 shrink-0 rounded-xl object-contain" />
                             ) : (
                                 <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-primary text-sm font-extrabold text-white shadow-sm">{(siteSettings.site_name || 'SMA XYZ').slice(0, 2).toUpperCase()}</span>
                             )}
@@ -410,22 +410,29 @@ export default function PublicLayout({ children, settings = {} }) {
             </header>
 
             <main className="flex-1 flex flex-col" aria-busy={pendingPath ? 'true' : 'false'}>
-                <motion.div
-                    className="flex-1 flex flex-col"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    transition={{ duration: 0.4, ease: "easeOut" }}
-                >
+                <div className="flex-1 flex flex-col animate-fade-in">
                     {pendingPath ? <PublicPageSkeleton variant={skeletonVariant} /> : children}
-                </motion.div>
+                </div>
             </main>
 
             <footer className="mt-auto bg-slate-850 text-white">
                 <div className="mx-auto grid max-w-7xl gap-10 px-4 py-12 sm:px-6 md:grid-cols-4 lg:px-8">
                     <div className="md:col-span-1 space-y-6">
                         <div>
-                            <p className="text-xl font-extrabold">{siteSettings.site_name || 'SMA XYZ'}</p>
+                            <div className="flex items-center gap-3">
+                                {brandLogo && (
+                                    <img
+                                        src={brandLogo}
+                                        alt={`Logo ${siteSettings.site_name || 'SMA XYZ'}`}
+                                        width={48}
+                                        height={48}
+                                        loading="lazy"
+                                        decoding="async"
+                                        className="h-12 w-12 shrink-0 rounded-xl bg-white object-contain p-1"
+                                    />
+                                )}
+                                <p className="text-xl font-extrabold">{siteSettings.site_name || 'SMA XYZ'}</p>
+                            </div>
                             <p className="mt-2 max-w-md text-sm leading-6 text-slate-300">
                                 {siteSettings.footer_about || siteSettings.site_tagline || 'Berakhlak Mulia, Berprestasi Tinggi, Berwawasan Global'}
                             </p>

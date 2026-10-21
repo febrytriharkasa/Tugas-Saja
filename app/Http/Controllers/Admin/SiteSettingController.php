@@ -277,6 +277,7 @@ class SiteSettingController extends Controller
             'site_name' => 'nullable|string|max:100',
             'site_portal_text' => 'nullable|string|max:100',
             'site_logo_file' => 'nullable|image|mimes:jpeg,png,jpg,webp,svg|max:2048',
+            'site_website_logo_file' => 'nullable|image|mimes:jpeg,png,jpg,webp,svg|max:2048',
             'footer_about' => 'nullable|string|max:500',
             'footer_groups' => 'nullable|array',
             'footer_groups.*.title' => 'required|string|max:100',
@@ -285,22 +286,8 @@ class SiteSettingController extends Controller
             'footer_groups.*.links.*.url' => 'required|string|max:500',
         ]);
 
-        if ($request->hasFile('site_logo_file')) {
-            $existingLogo = SiteSetting::where('key', 'site_logo')->first();
-            if ($existingLogo) {
-                $this->deleteSettingFile($existingLogo->value);
-            }
-            SiteSetting::updateOrCreate(
-                ['key' => 'site_logo'],
-                ['value' => ImageOptimizer::storeAndUrl($request->file('site_logo_file'), 'settings', 512), 'updated_at' => now()]
-            );
-        } elseif ($request->boolean('remove_site_logo')) {
-            $existingLogo = SiteSetting::where('key', 'site_logo')->first();
-            if ($existingLogo) {
-                $this->deleteSettingFile($existingLogo->value);
-                $existingLogo->delete();
-            }
-        }
+        $this->saveLogoSetting($request, 'site_logo_file', 'site_logo', 'remove_site_logo');
+        $this->saveLogoSetting($request, 'site_website_logo_file', 'site_website_logo', 'remove_site_website_logo');
 
         foreach (['site_name', 'site_portal_text', 'footer_about'] as $key) {
             SiteSetting::updateOrCreate(
@@ -315,6 +302,31 @@ class SiteSettingController extends Controller
         );
 
         return redirect()->back();
+    }
+
+    private function saveLogoSetting(Request $request, string $fileInput, string $key, string $removeInput): void
+    {
+        if ($request->hasFile($fileInput)) {
+            $existing = SiteSetting::where('key', $key)->first();
+            if ($existing) {
+                $this->deleteSettingFile($existing->value);
+            }
+
+            SiteSetting::updateOrCreate(
+                ['key' => $key],
+                ['value' => ImageOptimizer::storeAndUrl($request->file($fileInput), 'settings', 512), 'updated_at' => now()]
+            );
+
+            return;
+        }
+
+        if ($request->boolean($removeInput)) {
+            $existing = SiteSetting::where('key', $key)->first();
+            if ($existing) {
+                $this->deleteSettingFile($existing->value);
+                $existing->delete();
+            }
+        }
     }
 
     public function navigation()

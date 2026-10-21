@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 
 const SESSION_KEY = 'chat_session_token';
 
@@ -112,7 +112,7 @@ export default function ChatWidgetPanel() {
                         exit={{ scale: 0, opacity: 0 }}
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
-                        transition={{ duration: 0.2 }}
+                        transition={{ type: 'spring', stiffness: 320, damping: 22 }}
                         className="flex items-center gap-2 rounded-full bg-primary p-4 text-white shadow-lg transition hover:bg-primary-light focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
                     >
                         <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
@@ -125,10 +125,11 @@ export default function ChatWidgetPanel() {
                 {open && (
                     <motion.div
                         key="chat-window"
-                        initial={{ opacity: 0, scale: 0.85, y: 30, transformOrigin: 'bottom right' }}
+                        initial={{ opacity: 0, scale: 0.85, y: 30 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.85, y: 30 }}
-                        transition={{ type: "spring", stiffness: 350, damping: 25 }}
+                        transition={{ type: 'spring', stiffness: 350, damping: 25 }}
+                        style={{ transformOrigin: 'bottom right' }}
                         className="flex h-[450px] w-80 flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-2xl sm:w-96"
                     >
                         <div className="flex items-center justify-between bg-primary p-4 text-white">
@@ -154,7 +155,7 @@ export default function ChatWidgetPanel() {
                                     key={idx}
                                     initial={{ opacity: 0, y: 10 }}
                                     animate={{ opacity: 1, y: 0 }}
-                                    transition={{ duration: 0.2 }}
+                                    transition={{ duration: 0.22, ease: 'easeOut' }}
                                     className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}
                                 >
                                     <div className={`max-w-[80%] rounded-lg p-3 ${m.role === 'user' ? 'rounded-br-none bg-primary text-white' : 'rounded-bl-none border border-slate-200 bg-white text-slate-800 shadow-sm'}`}>{m.text}</div>
